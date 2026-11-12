@@ -4,8 +4,7 @@ import { guardMorphs } from "runeui/morph"
 import { bridgeFormEvents } from "runeui/forms"
 import { wireFeedback } from "runeui/feedback"
 import { wireTheme } from "runeui/theme"
-import { wireSidebar } from "runeui/sidebar"
-import { wireSelection } from "runeui/selection"
+import { registerControllers } from "runeui/controllers"
 import { wireProps } from "runeui/props"
 // These listen on the document as they load: server search for comboboxes and autocompletes,
 // commands that visit a page, and a trigger menu's triggers from markup.
@@ -30,8 +29,7 @@ export function hotwire(options = {}) {
   closePopupsBeforeCache()
   wireFeedback(options)
   wireTheme()
-  wireSidebar()
-  wireSelection()
+  registerControllers()
   wireProps()
 }
 

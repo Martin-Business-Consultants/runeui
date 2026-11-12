@@ -34,12 +34,13 @@
   [data-slot="table-select"] { width: 2rem; padding-inline: 0.5rem 0; }
   [data-slot="table-select"] [data-slot="checkbox"] { vertical-align: middle; }
   /* The header's mixed state (some rows picked), drawn by data-mixed. */
-  [data-runeui-select-all] .ui-mixed-icon { display: none; width: 0.875rem; height: 0.875rem; }
-  [data-runeui-select-all][data-mixed] { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
-  [data-runeui-select-all][data-mixed] .ui-mixed-icon { display: block; }
+  [data-select-all] .ui-mixed-icon { display: none; width: 0.875rem; height: 0.875rem; }
+  [data-select-all][data-mixed] { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+  [data-select-all][data-mixed] .ui-mixed-icon { display: block; }
   [data-slot="table"] tr[aria-selected="true"] { background: var(--muted); }
 
   [data-slot="bulk-bar"] {
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;

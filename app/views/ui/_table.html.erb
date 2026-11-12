@@ -1,4 +1,4 @@
-<%# locals: (content: nil, caption: nil, **attrs) %>
+<%# locals: (content: nil, caption: nil, selectable: nil, bulk: nil, noun: nil, **attrs) %>
 <%#
   Table: the block is the table's rows, plain <thead>, <tbody>, <tr>, <th>, <td>, styled by
   the table's data-slot. Wrapped in a scroll container for narrow screens. A row with
@@ -8,10 +8,16 @@
       <thead><tr><th>Invoice</th><th data-align="end">Amount</th></tr></thead>
       <tbody> rows </tbody>
     end
+
+  selectable: true lets rows be picked (the runeui--selection Stimulus controller): a
+  ui :select_cell in each row and, all: true, in the header; bulk: is the ui :bulk_bar shown
+  while any are, and noun: what it counts ("3 projects selected"). Put it in a form and the
+  picked rows submit as ids[].
 %>
-<div data-slot="table-container">
+<%= tag.div(data: { slot: "table-container", controller: (selectable ? "runeui--selection" : nil), runeui__selection_noun_value: (selectable ? (noun || "row").to_s : nil), action: (selectable ? "change->runeui--selection#queueRefresh" : nil) }) do %>
+  <% if bulk %><%= bulk %><% end %>
   <%= tag.table(**ui_attrs({ data: { slot: "table" } }, attrs)) do %>
     <% if caption %><caption data-slot="table-caption"><%= caption %></caption><% end %>
     <%= content %>
   <% end %>
-</div>
+<% end %>

@@ -6,6 +6,7 @@ require "action_view/railtie"
 require "propshaft"
 require "importmap-rails"
 require "turbo-rails"
+require "stimulus-rails"
 require "runeui"
 
 module Dummy

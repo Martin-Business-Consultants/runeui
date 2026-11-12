@@ -21,8 +21,7 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 | `forms.js` | fires native `change`/`input` when a form-associated component's value moves |
 | `feedback.js` | toasts (flash, `ui_toast`, `toast()`) and `data-turbo-confirm` through the alert dialog |
 | `theme.js` | `.dark` on `<html>`, `data-runeui-theme` buttons |
-| `sidebar.js` | the app shell's sidebar: collapse to icons (`[`), a cookie the server reads, the phone sheet |
-| `selection.js` | a table's picked rows: select-all, shift ranges, the bulk bar |
+| `controllers/*_controller.js` | Stimulus controllers, registered as `runeui--<name>` (`controllers/index.js`): sidebar, selection, board, autosubmit, side-panel |
 | `props.js` | `data-props` JSON → element properties; an image cropper's crop → its hidden fields |
 | `remote.js`, `command.js`, `triggers.js` | server search (`src:`), commands that visit (`href:`), a trigger menu's triggers from markup |
 | `agent.js` | UI SDK's agent bridge over WebMCP, opt-in |
@@ -77,6 +76,21 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
    control checking the value it submits. Look at the screenshots. Hover cards and tooltips open
    after a delay (wait about 900 ms after hovering); a tooltip opens on keyboard focus (Tab), not
    on `element.focus()`. UI SDK's events don't bubble: listen in the capture phase.
+
+## Where JavaScript goes
+
+- **UI SDK's elements** do a component's own behaviour (keys, focus, ARIA, popups). Never
+  re-implement one.
+- **Stimulus controllers** (`runeui--<name>`) are for stateful pieces runeui adds itself: the
+  sidebar, row selection, the board, the side panel, a form that submits as it changes. The
+  partial that owns the root wires `data-controller`, targets and actions; apps extend them the
+  usual way. They register on the app's Stimulus application (`window.Stimulus`) or one runeui
+  starts.
+- **Plain modules** are for page-wide plumbing only: autoloading, the morph guard, the forms
+  bridge, toasts and confirm, and the `data-runeui-*` attributes (`data-runeui-open`,
+  `data-runeui-theme`), which are to runeui what `data-turbo-*` is to Turbo.
+- Never inline: no `onclick=`, no `<script>` in a partial, no `style=`. (The one inline script is
+  the theme's, in `runeui_tags`, nonce'd, because it must run before the first paint.)
 
 ## Rules the Hotwire layer keeps
 

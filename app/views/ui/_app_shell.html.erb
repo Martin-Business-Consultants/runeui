@@ -9,17 +9,19 @@
       yield
     end
 
-  The sidebar's own pieces: ui :sidebar_group and ui :sidebar_item (see them).
+  The sidebar's own pieces: ui :sidebar_group and ui :sidebar_item (see them). Its behaviour is
+  the runeui--sidebar Stimulus controller on the shell: any button inside with
+  data-action="runeui--sidebar#toggle" toggles it.
 %>
 <% collapsed = cookies[:runeui_sidebar] == "collapsed" %>
-<%= tag.div(**ui_attrs({ data: { slot: "app-shell", variant: (variant || "sidebar").to_s, sidebar: (collapsed ? "collapsed" : "expanded") } }, attrs)) do %>
-  <aside data-slot="sidebar" aria-label="Main">
+<%= tag.div(**ui_attrs({ data: { slot: "app-shell", variant: (variant || "sidebar").to_s, sidebar: (collapsed ? "collapsed" : "expanded"), controller: "runeui--sidebar", action: "keydown@window->runeui--sidebar#key turbo:before-cache@document->runeui--sidebar#close" } }, attrs)) do %>
+  <aside data-slot="sidebar" aria-label="Main" data-action="click->runeui--sidebar#closeOnLink">
     <%= sidebar %>
   </aside>
-  <div data-slot="sidebar-scrim" data-runeui-sidebar="close" aria-hidden="true"></div>
+  <div data-slot="sidebar-scrim" data-action="click->runeui--sidebar#close" aria-hidden="true"></div>
   <main data-slot="app-inset">
     <header data-slot="app-header">
-      <button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-runeui-sidebar="toggle" aria-label="Toggle the sidebar" aria-keyshortcuts="["><%= ui_icon "panel-left" %></button>
+      <button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-action="runeui--sidebar#toggle" aria-label="Toggle the sidebar" aria-keyshortcuts="["><%= ui_icon "panel-left" %></button>
       <% if header %><div data-slot="app-header-content"><%= header %></div><% end %>
     </header>
     <div data-slot="app-content"><%= content %></div>

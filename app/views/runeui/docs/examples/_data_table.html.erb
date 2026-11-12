@@ -3,11 +3,11 @@
 <% rows = rows.sort_by { it[params[:sort] == "due" ? 3 : 1] } %>
 <% rows = rows.reverse if params[:direction] == "desc" %>
 <form action="<%= runeui_echo_path("data_table") %>" method="post" data-turbo-stream class="runeui-docs__stack runeui-docs__full">
-  <%= ui :bulk_bar, noun: "task" do %>
+  <% bar = ui :bulk_bar do %>
     <%= ui :button, variant: :outline, size: :sm, content: "Mark done", type: :submit, name: "bulk", value: "done" %>
     <%= ui :button, variant: :destructive, size: :sm, content: "Delete", type: :submit, name: "bulk", value: "delete", data: { turbo_confirm: "Delete these tasks?", turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" } %>
   <% end %>
-  <%= ui :table do %>
+  <%= ui :table, selectable: true, noun: "task", bulk: bar do %>
     <thead><tr><%= ui :select_cell, all: true %><%= ui :sort_header, label: "Task", key: :title, sort: params[:sort] || "title", direction: params[:direction] %><th>Status</th><%= ui :sort_header, label: "Due", key: :due, sort: params[:sort], direction: params[:direction], align: :end %></tr></thead>
     <tbody>
       <% rows.each do |id, title, status, due| %>
