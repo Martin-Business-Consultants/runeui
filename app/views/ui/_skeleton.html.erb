@@ -1,0 +1,10 @@
+<%# locals: (shape: nil, **attrs) %>
+<%#
+  Skeleton: a placeholder while something loads, as a Turbo Frame's loading content. Size it
+  with your own class; shape: :circle for an avatar, :text for a line.
+
+    turbo_frame_tag "stats", src: stats_path do
+      ui :skeleton, shape: :text
+    end
+%>
+<%= tag.div(**ui_attrs({ data: { slot: "skeleton", shape: shape&.to_s }, aria: { hidden: true } }, attrs)) %>

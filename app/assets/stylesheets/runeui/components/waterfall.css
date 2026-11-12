@@ -1,0 +1,62 @@
+/* Waterfall: a grid of spans, names indented by depth, then any columns, then the bar placed on
+   the time axis from --waterfall-start and --waterfall-size (UI SDK sets them on each row). */
+
+@layer runeui.components {
+  [data-slot="waterfall"] {
+    --waterfall-columns: minmax(10rem, 1.2fr);
+    display: grid;
+    grid-template-columns: var(--waterfall-columns) repeat(var(--waterfall-cells, 0), auto) minmax(12rem, 3fr);
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-lg);
+    font-size: var(--ui-text-sm);
+  }
+
+  [data-slot="waterfall"]:has(ui-waterfall-cell) { --waterfall-cells: 1; }
+
+  :is([data-slot="waterfall-header-row"], [data-slot="waterfall-row"]) { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
+  [data-slot="waterfall-header-row"] { border-bottom: 1px solid var(--border); background: var(--muted); color: var(--muted-foreground); font-size: var(--ui-text-xs); font-weight: 500; }
+  [data-slot="waterfall-column-header"] { position: relative; display: block; padding: 0.5rem 0.75rem; }
+
+  [data-slot="waterfall-row"] { min-height: 2.25rem; border-bottom: 1px solid var(--border); outline: none; cursor: default; }
+  [data-slot="waterfall-row"]:last-child { border-bottom: 0; }
+  [data-slot="waterfall-row"]:hover { background: color-mix(in oklab, var(--muted) 60%, transparent); }
+  [data-slot="waterfall-row"][data-selected] { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="waterfall-row"]:focus-visible, [data-slot="waterfall-row"] :focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+
+  [data-slot="waterfall-row-header"] {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+    padding: 0.375rem 0.75rem;
+    padding-inline-start: calc(0.75rem + (var(--waterfall-level, 1) - 1) * 1rem);
+  }
+
+  [data-slot="waterfall-row"]:not([data-branch]) [data-slot="waterfall-row-header"] { padding-inline-start: calc(2rem + (var(--waterfall-level, 1) - 1) * 1rem); }
+  [data-slot="waterfall-name"] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); font-size: var(--ui-text-xs); }
+  [data-slot="waterfall-indicator"] { display: inline-flex; color: var(--muted-foreground); cursor: pointer; transition: rotate var(--ui-duration) var(--ui-ease); }
+  [data-slot="waterfall-indicator"][data-expanded] { rotate: 90deg; }
+
+  [data-slot="waterfall-cell"] { display: block; padding: 0.375rem 0.75rem; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
+  [data-slot="waterfall-bar"] { position: relative; display: block; align-self: stretch; margin-inline: 0.75rem; }
+  [data-slot="waterfall-bar"]::before {
+    content: "";
+    position: absolute;
+    inset-block: 0.625rem;
+    inset-inline-start: var(--waterfall-start, 0%);
+    width: max(2px, var(--waterfall-size, 0%));
+    border-radius: var(--ui-radius-sm);
+    background: var(--chart-2);
+  }
+  [data-slot="waterfall-bar"][data-level="2"]::before { background: var(--chart-1); }
+  [data-slot="waterfall-bar"][data-level="3"]::before { background: var(--chart-4); }
+  [data-slot="waterfall-bar"][data-selected]::before { box-shadow: 0 0 0 2px var(--ring); }
+
+  [data-slot="waterfall-axis"] { position: absolute; inset: 0 0.75rem; display: block; }
+  [data-slot="waterfall-tick"] { position: absolute; inset-block: 0; inset-inline-start: var(--waterfall-tick); display: flex; align-items: center; padding-inline-start: 0.25rem; border-inline-start: 1px solid var(--border); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  [data-slot="waterfall-mark"] { position: absolute; inset-block: 0; inset-inline-start: var(--waterfall-mark); width: 1px; background: var(--destructive); }
+  [data-slot="waterfall-mark"][data-outside] { display: none; }
+}

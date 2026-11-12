@@ -1,0 +1,27 @@
+<%# locals: (content: nil, sidebar: nil, header: nil, variant: nil, **attrs) %>
+<%#
+  App shell: the sidebar beside the page, as shadcn's Sidebar does it. The sidebar collapses to
+  icons (the toggle, or [ on the keyboard), remembered in a cookie so the server draws it that
+  way from the first paint; below 768px it slides in over the page instead. variant: inset puts
+  the page in a rounded panel on the sidebar's colour.
+
+    ui :app_shell, variant: :inset, sidebar: render("layouts/sidebar"), header: ui(:breadcrumb, items: crumbs) do
+      yield
+    end
+
+  The sidebar's own pieces: ui :sidebar_group and ui :sidebar_item (see them).
+%>
+<% collapsed = cookies[:runeui_sidebar] == "collapsed" %>
+<%= tag.div(**ui_attrs({ data: { slot: "app-shell", variant: (variant || "sidebar").to_s, sidebar: (collapsed ? "collapsed" : "expanded") } }, attrs)) do %>
+  <aside data-slot="sidebar" aria-label="Main">
+    <%= sidebar %>
+  </aside>
+  <div data-slot="sidebar-scrim" data-runeui-sidebar="close" aria-hidden="true"></div>
+  <main data-slot="app-inset">
+    <header data-slot="app-header">
+      <button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-runeui-sidebar="toggle" aria-label="Toggle the sidebar" aria-keyshortcuts="["><%= ui_icon "panel-left" %></button>
+      <% if header %><div data-slot="app-header-content"><%= header %></div><% end %>
+    </header>
+    <div data-slot="app-content"><%= content %></div>
+  </main>
+<% end %>

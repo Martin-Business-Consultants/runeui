@@ -1,0 +1,5 @@
+<%# locals: () %>
+<%= ui :resizable, with_handle: true, panels: [
+  { id: "one", size: 50, min: 20, content: "One", label: "Resize one" },
+  { id: "two", content: ui(:resizable, orientation: :vertical, panels: [ { size: 25, content: "Two" }, { content: "Three" } ]) }
+] %>

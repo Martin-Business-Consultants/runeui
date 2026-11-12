@@ -1,0 +1,6 @@
+<%# locals: () %>
+<form class="runeui-docs__stack runeui-docs__w-60" action="<%= runeui_echo_path("file_input") %>" method="post" data-turbo-stream enctype="multipart/form-data">
+  <%= ui :file_input, name: "attachments[]", id: "attachments", multiple: true %>
+  <%= ui :file_input, name: "avatar", id: "avatar", accept: "image/*", dropzone: false, button: "Upload an avatar" %>
+  <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Send", type: :submit %></div>
+</form>

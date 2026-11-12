@@ -1,0 +1,9 @@
+<%# locals: () %>
+<turbo-frame id="lazy_tab">
+  <%= ui :card do %>
+    <%= ui :progress, value: 13, aria: { label: "Loading" } %>
+    <%= ui :progress, value: 66, label: "Uploading files", show_value: true %>
+    <%= ui :progress, value: 100, label: "Done", show_value: true, size: :sm %>
+    <%= ui :progress, value: nil, label: "Waiting for the server" %>
+  <% end %>
+</turbo-frame>

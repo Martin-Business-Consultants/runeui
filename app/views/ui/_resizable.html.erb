@@ -1,0 +1,24 @@
+<%# locals: (panels: nil, orientation: nil, with_handle: nil, save: nil, **attrs) %>
+<%#
+  Resizable panels: side by side (or stacked, orientation: :vertical) with handles between them
+  to drag or move with the arrow keys. panels: hashes with content:, size: (a percent, or "240px"),
+  min:, max:, id: (else one is made, the same each render), label: (names the handle after it). Give the group a height with a class.
+  with_handle: true draws a grip on each handle. save: a key to remember the layout under, per
+  browser (give panels ids so it survives changes).
+
+    ui :resizable, class: "h-96", save: "inbox", panels: [
+      { id: "folders", size: 20, min: 15, content: render("folders"), label: "Resize folders" },
+      { id: "messages", content: render("messages") }
+    ]
+%>
+<% direction = (orientation || "horizontal").to_s %>
+<% list = Array(panels) %>
+<%= tag.ui_resizable(**ui_attrs({ orientation: (orientation ? direction : nil), "auto-save-id": save, data: { slot: "resizable", orientation: direction } }, attrs)) do %>
+  <% list.each_with_index do |panel, index| %>
+  <%# herb:key panel[:id] || index %>
+  <%= tag.ui_resizable_panel(panel[:content], id: (panel[:id] || ui_id("panel")), "default-size": panel[:size], "min-size": panel[:min], "max-size": panel[:max], data: { slot: "resizable-panel", orientation: direction }) %>
+  <% if index < list.size - 1 %>
+  <ui-resizable-handle data-slot="resizable-handle" data-orientation="<%= direction %>" aria-label="<%= panel[:label] || "Resize" %>"><% if with_handle %><span data-slot="resizable-grip"><%= ui_icon "grip-vertical" %></span><% end %></ui-resizable-handle>
+  <% end %>
+  <% end %>
+<% end %>

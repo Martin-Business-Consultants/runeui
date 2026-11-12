@@ -1,0 +1,30 @@
+<%# locals: (options: nil, value: nil, multiple: nil, name: nil, variant: nil, size: nil, orientation: nil, disabled: nil, invalid: nil, id: nil, content: nil, **attrs) %>
+<%#
+  Toggle group: a row of toggles, one pressed (multiple: true for several), as for text
+  alignment or formatting. options: [label, value] pairs, or [label, value, { icon: :bold }] for an
+  icon (the label then names it for screen readers). variant: default or outline joins them.
+  With name:, hidden fields submit the pressed values (name[] with multiple).
+
+    ui :toggle_group, value: "left", options: [["Left", "left", { icon: "align-left" }], …]
+    ui :toggle_group, name: "days[]", multiple: true, options: %w[Mon Tue Wed Thu Fri], variant: :outline
+%>
+<% values = Array(value).map(&:to_s) %>
+<% raw = (options || []).map { |item| item.is_a?(Array) && item[2].is_a?(Hash) ? item[2] : {} } %>
+<% choices = ui_options((options || []).map { |item| item.is_a?(Array) ? item.first(2) : item }) %>
+<%= tag.ui_toggle_group(**ui_attrs({ id: ui_id("toggle-group", id, name: name), "default-value": values.join(","), multiple: (multiple ? "" : nil), orientation: orientation&.to_s, disabled: (disabled ? "" : nil), data: { slot: "toggle-group", variant: (variant || "default").to_s, size: (size || "default").to_s, name: name }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% choices.each_with_index do |choice, index| %>
+  <%# herb:key choice[:value] %>
+  <% icon = raw[index][:icon] %>
+  <ui-toggle value="<%= choice[:value] %>"<% if raw[index][:disabled] %> disabled<% end %>><button type="button" class="ui-toggle" data-slot="toggle" data-variant="<%= variant || "default" %>" data-size="<%= size || "default" %>" aria-pressed="<%= values.include?(choice[:value]) %>"<% if icon %> aria-label="<%= choice[:label] %>"<% end %>><% if icon %><ui-toggle-icon data-slot="toggle-icon"><%= ui_icon icon %></ui-toggle-icon><% else %><%= choice[:label] %><% end %></button></ui-toggle>
+  <% end %>
+  <% end %>
+  <% if name %>
+  <% values.each do |chosen| %>
+  <%# herb:key chosen %>
+  <input type="hidden" name="<%= name %>" value="<%= chosen %>" data-toggle-field autocomplete="off">
+  <% end %>
+  <% end %>
+<% end %>

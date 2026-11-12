@@ -1,0 +1,11 @@
+<%# locals: () %>
+<%= ui :table, caption: "A list of your recent invoices." do %>
+  <thead><tr><th>Invoice</th><th>Status</th><th>Method</th><th data-align="end">Amount</th></tr></thead>
+  <tbody>
+    <% [ [ "INV001", "Paid", "Credit card", "$250.00" ], [ "INV002", "Pending", "PayPal", "$150.00" ], [ "INV003", "Unpaid", "Bank transfer", "$350.00" ] ].each do |number, status, method, amount| %>
+    <%# herb:key number %>
+    <tr><td><%= number %></td><td><%= ui :badge, variant: (status == "Paid" ? :success : :outline), content: status %></td><td><%= method %></td><td data-align="end"><%= amount %></td></tr>
+    <% end %>
+  </tbody>
+  <tfoot><tr><td colspan="3">Total</td><td data-align="end">$750.00</td></tr></tfoot>
+<% end %>

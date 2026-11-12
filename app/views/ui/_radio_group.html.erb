@@ -1,0 +1,23 @@
+<%# locals: (name: nil, options: nil, value: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, orientation: nil, content: nil, **attrs) %>
+<%#
+  Radio group: one choice out of a few, all in view. Takes options as select does ([label, value]
+  pairs, values, a hash; [label, value, { disabled: true }] for one that can't be chosen). The
+  block, when given, is the radios instead:
+  label data-slot="choice" > ui-radio value="…" data-slot="radio" > ui-radio-indicator.
+  Submits its value with its form; arrow keys move between radios.
+
+    ui :radio_group, name: "plan", options: [["Free", "free"], ["Pro", "pro"]], value: "free"
+    form.ui :radio_group, :shipping, options: Order::SHIPPING, orientation: :horizontal
+%>
+<% choices = ui_options(options || []) %>
+<% group_id = ui_id("radio-group", id, name: name) %>
+<%= tag.ui_radio_group(**ui_attrs({ id: group_id, name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "radio-group", orientation: (orientation || "vertical").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% choices.each do |choice| %>
+  <%# herb:key choice[:value] %>
+  <label data-slot="choice" id="<%= group_id %>-choice-<%= choice[:value].to_s.parameterize %>"><ui-radio data-slot="radio" value="<%= choice[:value] %>"<% if choice[:disabled] %> disabled<% end %>><ui-radio-indicator data-slot="radio-indicator"></ui-radio-indicator></ui-radio><span data-slot="choice-label"><%= choice[:label] %></span></label>
+  <% end %>
+  <% end %>
+<% end %>

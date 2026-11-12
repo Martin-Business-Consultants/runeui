@@ -1,0 +1,62 @@
+/* Avatar and Avatar group: a round picture, initials beneath until it loads. */
+
+@layer runeui.components {
+  [data-slot="avatar"] {
+    --avatar-size: 2rem;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    overflow: hidden;
+    border-radius: var(--ui-radius-full);
+    vertical-align: middle;
+    user-select: none;
+  }
+
+  [data-slot="avatar"][data-size="sm"] { --avatar-size: 1.5rem; font-size: 0.625rem; }
+  [data-slot="avatar"][data-size="lg"] { --avatar-size: 2.5rem; font-size: var(--ui-text-sm); }
+  [data-slot="avatar"][data-shape="square"] { border-radius: var(--ui-radius-md); }
+
+  [data-slot="avatar-image"] { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  [data-slot="avatar-fallback"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-size: var(--ui-text-xs);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  [data-slot="avatar"][data-size="sm"] [data-slot="avatar-fallback"] { font-size: 0.625rem; }
+  [data-slot="avatar"][data-size="lg"] [data-slot="avatar-fallback"] { font-size: var(--ui-text-sm); }
+
+  [data-slot="avatar-group"] { display: inline-flex; align-items: center; }
+  [data-slot="avatar-group"] > * + * { margin-inline-start: -0.5rem; }
+  [data-slot="avatar-group"] [data-slot="avatar"] { box-shadow: 0 0 0 2px var(--background); }
+
+  [data-slot="avatar-group-count"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding-inline: 0.375rem;
+    border-radius: var(--ui-radius-full);
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-size: var(--ui-text-xs);
+    font-weight: 500;
+    box-shadow: 0 0 0 2px var(--background);
+  }
+
+  [data-slot="avatar-group"][data-size="sm"] [data-slot="avatar-group-count"] { min-width: 1.5rem; height: 1.5rem; }
+  [data-slot="avatar-group"][data-size="lg"] [data-slot="avatar-group-count"] { min-width: 2.5rem; height: 2.5rem; }
+}

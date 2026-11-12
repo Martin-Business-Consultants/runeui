@@ -13,7 +13,7 @@
     transition: box-shadow var(--ui-duration), background-color var(--ui-duration);
   }
 
-  .dark [data-slot="checkbox"] { background: color-mix(in oklch, var(--input) 30%, transparent); }
+  .dark [data-slot="checkbox"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
   [data-slot="checkbox"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="checkbox"]:is([data-checked], [data-indeterminate]) { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
   [data-slot="checkbox"]:is([aria-invalid="true"], [data-invalid]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }

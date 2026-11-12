@@ -1,0 +1,24 @@
+<%# locals: (items: nil, **attrs) %>
+<%#
+  Breadcrumb: where this page sits. items: [[label, path], …, current], the last (a string or
+  [label]) being the page you're on.
+
+    ui :breadcrumb, items: [ [ "Projects", projects_path ], [ @project.client.name, client_path(@project.client) ], @project.name ]
+%>
+<% crumbs = Array(items) %>
+<%= tag.nav(**ui_attrs({ aria: { label: "Breadcrumb" }, data: { slot: "breadcrumb" } }, attrs)) do %>
+  <ol data-slot="breadcrumb-list">
+    <% crumbs.each_with_index do |crumb, index| %>
+    <%# herb:key index %>
+    <% label, path = Array(crumb) %>
+    <li data-slot="breadcrumb-item">
+      <% if path && index < crumbs.size - 1 %>
+      <a data-slot="breadcrumb-link" href="<%= path %>"><%= label %></a>
+      <% else %>
+      <span data-slot="breadcrumb-page" aria-current="page"><%= label %></span>
+      <% end %>
+    </li>
+    <% if index < crumbs.size - 1 %><li data-slot="breadcrumb-separator" aria-hidden="true"><%= ui_icon "chevron-right" %></li><% end %>
+    <% end %>
+  </ol>
+<% end %>

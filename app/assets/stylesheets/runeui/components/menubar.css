@@ -1,0 +1,34 @@
+/* Menubar: a bordered bar of menu triggers; each menu is drawn by menu.css. */
+
+@layer runeui.components {
+  [data-slot="menubar"] {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: fit-content;
+    height: var(--ui-h);
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-md);
+    background: var(--background);
+    box-shadow: var(--ui-shadow-xs);
+  }
+
+  .ui-menubar-trigger {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 0.5rem;
+    border: 0;
+    border-radius: var(--ui-radius-sm);
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    font-weight: 500;
+    outline: none;
+    cursor: default;
+    user-select: none;
+  }
+
+  .ui-menubar-trigger:is(:hover, :focus-visible, [data-open]) { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="menubar"] [data-slot="menu-content"] { min-width: 12rem; }
+}

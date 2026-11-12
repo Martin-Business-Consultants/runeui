@@ -1,0 +1,51 @@
+<%# locals: (content: nil, trigger: nil, title: nil, description: nil, cancel: nil, action: nil, href: nil, method: nil, params: nil, variant: nil, id: nil, open: nil, **attrs) %>
+<%#
+  Alert Dialog: a question that needs an answer before anything else (shadcn's Alert Dialog).
+  Cancel closes it; the action button closes it too and, with href:, submits a form there
+  (as Turbo does: a redirect, or a stream that answers it)
+  (method: :delete, :patch… and params: as button_to takes them). For data-turbo-confirm's
+  question, see ui :confirm.
+
+    ui :alert_dialog, trigger: "Delete project", title: "Delete this project?",
+       description: "Its tasks and files go too. This can't be undone.",
+       action: "Delete", variant: :destructive, href: project_path(project), method: :delete
+
+  The block, when given, goes under the description. trigger: a string makes an outline
+  button; markup is used as it is. Without a trigger, give it an id and open it with
+  data-runeui-open="that-id" or turbo_stream.ui_open(id).
+%>
+<% dialog_id = ui_id("alert-dialog", id, name: (title || trigger).to_s.truncate(40, omission: "")) %>
+<%= tag.ui_alert_dialog(**ui_attrs({ id: dialog_id, "default-open": (open ? "" : nil), data: { slot: "alert-dialog" } }, attrs)) do %>
+  <% if trigger %>
+  <ui-alert-dialog-trigger>
+    <% if trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="outline" data-size="default" data-slot="alert-dialog-trigger"><%= trigger %></button>
+    <% end %>
+  </ui-alert-dialog-trigger>
+  <% end %>
+  <ui-alert-dialog-backdrop data-slot="alert-dialog-backdrop" hidden></ui-alert-dialog-backdrop>
+  <ui-alert-dialog-content data-slot="alert-dialog-content" data-size="sm" hidden>
+    <div data-slot="dialog-header">
+      <% if title %><ui-alert-dialog-title data-slot="alert-dialog-title"><%= title %></ui-alert-dialog-title><% end %>
+      <% if description %><ui-alert-dialog-description data-slot="alert-dialog-description"><%= description %></ui-alert-dialog-description><% end %>
+    </div>
+    <% if content %><div data-slot="dialog-body"><%= content %></div><% end %>
+    <div data-slot="dialog-footer">
+      <ui-alert-dialog-close><button type="button" class="ui-button" data-variant="outline" data-size="default" data-slot="alert-dialog-close"><%= cancel || "Cancel" %></button></ui-alert-dialog-close>
+      <% if href %>
+      <%= form_with url: href, method: (method || :post), class: "ui-alert-dialog-form" do %>
+        <% Array(params).each do |key, value| %>
+        <%# herb:key key %>
+        <input type="hidden" name="<%= key %>" value="<%= value %>">
+        <% end %>
+        <%# A Close part would cancel the submit, so the button closes the dialog itself (data-runeui-close) and submits as usual. %>
+        <button type="submit" class="ui-button" data-variant="<%= (variant || "default") %>" data-size="default" data-runeui-close="<%= dialog_id %>"><%= action || "Continue" %></button>
+      <% end %>
+      <% else %>
+      <ui-alert-dialog-close value="confirm"><button type="button" class="ui-button" data-variant="<%= (variant || "default") %>" data-size="default" data-slot="alert-dialog-close"><%= action || "Continue" %></button></ui-alert-dialog-close>
+      <% end %>
+    </div>
+  </ui-alert-dialog-content>
+<% end %>

@@ -1,0 +1,38 @@
+/* One-time code: shadcn's Input OTP. Joined boxes per group, the active one ringed, a blinking
+   caret in an empty active box. */
+@layer runeui.components {
+  [data-slot="otp-input"] { display: inline-flex; align-items: center; gap: 0.5rem; width: fit-content; }
+  [data-slot="otp-input"][data-disabled] { opacity: 0.5; cursor: not-allowed; }
+  [data-slot="otp-input-group"] { display: flex; align-items: center; }
+  [data-slot="otp-input-separator"] { display: flex; color: var(--muted-foreground); }
+
+  [data-slot="otp-input-slot"] {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--ui-h);
+    height: var(--ui-h);
+    margin-inline-start: -1px;
+    border: 1px solid var(--input);
+    font-size: var(--ui-text-sm);
+    box-shadow: var(--ui-shadow-xs);
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  .dark [data-slot="otp-input-slot"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  [data-slot="otp-input-slot"]:first-child { margin-inline-start: 0; border-start-start-radius: var(--ui-radius-md); border-end-start-radius: var(--ui-radius-md); }
+  [data-slot="otp-input-slot"]:last-child { border-start-end-radius: var(--ui-radius-md); border-end-end-radius: var(--ui-radius-md); }
+  [data-slot="otp-input"][data-focused] [data-slot="otp-input-slot"][data-active] { z-index: 1; border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="otp-input"][data-invalid] [data-slot="otp-input-slot"] { border-color: var(--destructive); }
+  [data-slot="otp-input"][data-invalid][data-focused] [data-slot="otp-input-slot"][data-active] { box-shadow: var(--ui-invalid-ring); }
+
+  [data-slot="otp-input"][data-focused] [data-slot="otp-input-slot"][data-fake-caret]::after {
+    content: "";
+    width: 1px;
+    height: 1rem;
+    background: var(--foreground);
+    animation: ui-otp-caret 1s step-end infinite;
+  }
+
+  @keyframes ui-otp-caret { 50% { opacity: 0; } }
+}

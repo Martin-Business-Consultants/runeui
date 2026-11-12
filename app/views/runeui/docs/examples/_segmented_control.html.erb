@@ -1,0 +1,6 @@
+<%# locals: () %>
+<form class="runeui-docs__stack" action="<%= runeui_echo_path("segmented_control") %>" method="post" data-turbo-stream>
+  <%= ui :segmented_control, name: "view", id: "view", value: "list", options: [ [ "List", "list" ], [ "Board", "board" ], [ "Calendar", "calendar" ] ], aria: { label: "View" } %>
+  <%= ui :segmented_control, name: "period", size: :sm, value: "week", options: [ [ "Day", "day" ], [ "Week", "week" ], [ "Month", "month" ] ], aria: { label: "Period" } %>
+  <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Send", type: :submit %></div>
+</form>

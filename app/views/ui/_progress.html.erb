@@ -1,0 +1,21 @@
+<%# locals: (value: nil, max: nil, min: nil, label: nil, show_value: nil, size: nil, **attrs) %>
+<%#
+  Progress: how far a task has come. value: nil is indeterminate (under way, how far unknown).
+  label: names it on screen (else give aria: { label: }); show_value: true prints "40%" beside it.
+
+    ui :progress, value: 40, aria: { label: "Upload" }
+    ui :progress, value: import.done, max: import.total, label: "Importing", show_value: true
+    ui :progress, value: nil, label: "Waiting for the server"
+%>
+<% low = (min || 0).to_f %>
+<% high = (max || 100).to_f %>
+<% percent = value.nil? || high <= low ? nil : (((value.to_f - low) / (high - low)) * 100).clamp(0, 100).round %>
+<%= tag.ui_progress(**ui_attrs({ value: value, max: max, min: min, data: { slot: "progress", size: size&.to_s, indeterminate: (value.nil? ? "" : nil) } }, attrs)) do %>
+  <% if label || show_value %>
+  <div data-slot="progress-header">
+    <% if label %><ui-progress-label data-slot="progress-label"><%= label %></ui-progress-label><% end %>
+    <% if show_value %><ui-progress-value data-slot="progress-value" data-label="<%= percent ? "#{percent}%" : "" %>"></ui-progress-value><% end %>
+  </div>
+  <% end %>
+  <ui-progress-track data-slot="progress-track"><ui-progress-indicator data-slot="progress-indicator" data-percent="<%= percent %>"></ui-progress-indicator></ui-progress-track>
+<% end %>

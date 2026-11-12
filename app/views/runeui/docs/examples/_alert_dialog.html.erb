@@ -1,0 +1,8 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :alert_dialog, id: "delete-account", trigger: "Show dialog", title: "Are you absolutely sure?",
+    description: "This action cannot be undone. This will permanently delete your account and remove your data from our servers." %>
+  <%= ui :alert_dialog, id: "delete-project", trigger: ui(:button, variant: :destructive, content: "Delete project"), title: "Delete this project?",
+    description: "Its tasks and files go too.", action: "Delete", variant: :destructive,
+    href: runeui_echo_path("alert_dialog"), method: :post, params: { deleted: "project" } %>
+</div>

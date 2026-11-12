@@ -1,0 +1,13 @@
+<%# locals: (src: nil, name: nil, alt: nil, initials: nil, size: nil, shape: nil, **attrs) %>
+<%#
+  Avatar: a picture of someone, with their initials until it loads (or when there's none, or it
+  fails). size: sm, default, lg; shape: circle (default) or square.
+
+    ui :avatar, src: user.avatar_url, name: user.name
+    ui :avatar, name: "Ada Lovelace", size: :lg          (initials only: AL)
+%>
+<% letters = initials || name.to_s.split.first(2).map { it[0] }.join.upcase.presence || "?" %>
+<%= tag.ui_avatar(**ui_attrs({ title: name, data: { slot: "avatar", size: (size || "default").to_s, shape: shape&.to_s } }, attrs)) do %>
+  <% if src.present? %><img data-slot="avatar-image" src="<%= src %>" alt="<%= alt || name %>"><% end %>
+  <ui-avatar-fallback data-slot="avatar-fallback"<% if src.blank? %> aria-label="<%= name %>"<% end %>><%= letters %></ui-avatar-fallback>
+<% end %>

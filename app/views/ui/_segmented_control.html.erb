@@ -1,0 +1,19 @@
+<%# locals: (name: nil, options: nil, value: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, size: nil, orientation: nil, content: nil, **attrs) %>
+<%#
+  Segmented control: a few views or modes side by side, one chosen, a pill sliding behind it.
+  Works like a radio group (submits its value, arrow keys move). options as select takes them.
+
+    ui :segmented_control, name: "view", options: [["List", "list"], ["Board", "board"]], value: "list", aria: { label: "View" }
+%>
+<% choices = ui_options(options || []) %>
+<%= tag.ui_segmented_control(**ui_attrs({ id: ui_id("segmented-control", id, name: name), name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "segmented-control", size: (size || "default").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <ui-segmented-control-indicator data-slot="segmented-control-indicator"></ui-segmented-control-indicator>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% choices.each do |choice| %>
+  <%# herb:key choice[:value] %>
+  <ui-segmented-control-item data-slot="segmented-control-item" value="<%= choice[:value] %>"<% if choice[:value] == value.to_s %> data-checked<% end %><% if choice[:disabled] %> disabled<% end %>><%= choice[:label] %></ui-segmented-control-item>
+  <% end %>
+  <% end %>
+<% end %>

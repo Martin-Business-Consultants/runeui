@@ -1,0 +1,12 @@
+<%# locals: (name: nil, value: nil, id: nil, min: nil, max: nil, granularity: nil, hour_cycle: nil, disabled: nil, required: nil, read_only: nil, invalid: nil, form: nil, size: nil, locale: nil, **attrs) %>
+<%#
+  Time input: a time typed into hour and minute segments (and AM/PM where the locale uses a
+  12-hour clock), stepped with the arrow keys. Submits a 24-hour "14:30" under name:, like
+  time_field, whatever clock it shows. value: a Time or "14:30"; granularity: :second adds seconds.
+
+    form.ui :time_input, :opens_at
+    ui :time_input, name: "reminder", value: "09:00", min: "08:00", max: "18:00", hour_cycle: 24
+%>
+<% format = granularity.to_s == "second" ? "%H:%M:%S" : "%H:%M" %>
+<% hhmm = ->(t) { t.blank? ? nil : (t.respond_to?(:strftime) ? t.strftime(format) : t.to_s) } %>
+<%= tag.ui_time_input(**ui_attrs({ id: ui_id("time-input", id, name: name), name: name, "default-value": hhmm.(value), min: hhmm.(min), max: hhmm.(max), granularity: granularity&.to_s, "hour-cycle": hour_cycle, locale: locale, disabled: (disabled ? "" : nil), required: (required ? "" : nil), "read-only": (read_only ? "" : nil), form: form, data: { slot: "time-input", size: size&.to_s, morph: "keep" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) %>

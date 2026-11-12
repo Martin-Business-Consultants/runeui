@@ -1,0 +1,16 @@
+<%# locals: (label: nil, href: nil, icon: nil, active: nil, badge: nil, content: nil, **attrs) %>
+<%#
+  One entry in the sidebar: an icon, its label (the tooltip while the sidebar is icons), and a
+  count or badge. active: defaults to whether href is the current page.
+
+    ui :sidebar_item, label: "Inbox", href: inbox_path, icon: :inbox, badge: 3
+%>
+<% current = active.nil? ? (href.present? && current_page?(href)) : active %>
+<li data-slot="sidebar-menu-item">
+  <%= link_to href || "#", **ui_attrs({ data: { slot: "sidebar-menu-button", active: (current ? "" : nil) }, title: label, aria: { current: (current ? "page" : nil) } }, attrs) do %>
+    <% if icon %><%= ui_icon icon %><% end %>
+    <span data-slot="sidebar-menu-label"><%= label %></span>
+    <% if badge %><span data-slot="sidebar-menu-badge"><%= badge %></span><% end %>
+  <% end %>
+  <% if content %><ul data-slot="sidebar-menu-sub"><%= content %></ul><% end %>
+</li>

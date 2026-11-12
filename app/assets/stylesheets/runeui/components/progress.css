@@ -1,0 +1,51 @@
+/* Progress: a bar filling to the value. UI SDK sizes the indicator; it slides across while the
+   value is unknown. */
+
+@layer runeui.components {
+  [data-slot="progress"] { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; min-width: min(16rem, 100%); }
+  [data-slot="progress-header"] { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; font-size: var(--ui-text-sm); }
+  [data-slot="progress-label"] { font-weight: 500; }
+  [data-slot="progress-value"] { color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+  [data-slot="progress-value"]:not(:defined)::before { content: attr(data-label); }
+
+  [data-slot="progress-track"] {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: var(--ui-radius-full);
+    background: color-mix(in oklab, var(--primary) 20%, transparent);
+  }
+
+  [data-slot="progress"][data-size="sm"] [data-slot="progress-track"] { height: 0.25rem; }
+  [data-slot="progress"][data-size="lg"] [data-slot="progress-track"] { height: 0.75rem; }
+
+  [data-slot="progress-indicator"] {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    display: block;
+    width: 0;
+    border-radius: inherit;
+    background: var(--primary);
+    transition: width var(--ui-duration-slow) var(--ui-ease);
+  }
+
+  [data-slot="progress-indicator"][data-complete] { background: var(--primary); }
+
+  [data-slot="progress"][data-indeterminate] [data-slot="progress-indicator"] {
+    width: 40% !important;
+    animation: ui-progress-slide 1.4s var(--ui-ease) infinite;
+  }
+
+  @keyframes ui-progress-slide {
+    from { translate: -100% 0; }
+    to { translate: 250% 0; }
+  }
+}
+
+@layer runeui.components {
+  /* Several bars together (in a card, a list) space themselves. */
+  [data-slot="card-content"]:has(> [data-slot="progress"]) { display: flex; flex-direction: column; gap: 1.25rem; }
+}

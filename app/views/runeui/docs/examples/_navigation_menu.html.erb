@@ -1,0 +1,22 @@
+<%# locals: () %>
+<%= ui :navigation_menu, label: "Main", items: [
+  { label: "Getting started", links: [
+    { label: "Introduction", href: "#introduction", description: "Components for Rails on UI SDK's behaviours, styled with shadcn's tokens." },
+    { label: "Installation", href: "#installation", description: "How to add runeui to an app and wire it into the layout." },
+    { label: "Typography", href: "#typography", description: "Styles for headings, paragraphs, lists… and more." }
+  ] },
+  { label: "Components", columns: 2, links: [
+    { label: "Alert Dialog", href: "#alert-dialog", description: "A modal that interrupts with important content and expects an answer." },
+    { label: "Hover Card", href: "#hover-card", description: "For sighted users to preview content behind a link." },
+    { label: "Progress", href: "#progress", description: "Shows how far a task has got." },
+    { label: "Scroll Area", href: "#scroll-area", description: "Separates content visually." },
+    { label: "Tabs", href: "#tabs", description: "Layered sections of content, one shown at a time." },
+    { label: "Tooltip", href: "#tooltip", description: "A short hint on hover or focus." }
+  ] },
+  { label: "With icons", links: [
+    { label: "Backlog", href: "#backlog", icon: :circle },
+    { label: "To do", href: "#todo", icon: :clock },
+    { label: "Done", href: "#done", icon: "circle-check" }
+  ] },
+  { label: "Docs", href: "#docs", current: true }
+] %>

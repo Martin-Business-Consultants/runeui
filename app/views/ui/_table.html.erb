@@ -1,0 +1,17 @@
+<%# locals: (content: nil, caption: nil, **attrs) %>
+<%#
+  Table: the block is the table's rows, plain <thead>, <tbody>, <tr>, <th>, <td>, styled by
+  the table's data-slot. Wrapped in a scroll container for narrow screens. A row with
+  aria-selected="true" (or data-state="selected") shows as chosen.
+
+    ui :table, caption: "Recent invoices" do
+      <thead><tr><th>Invoice</th><th data-align="end">Amount</th></tr></thead>
+      <tbody> rows </tbody>
+    end
+%>
+<div data-slot="table-container">
+  <%= tag.table(**ui_attrs({ data: { slot: "table" } }, attrs)) do %>
+    <% if caption %><caption data-slot="table-caption"><%= caption %></caption><% end %>
+    <%= content %>
+  <% end %>
+</div>

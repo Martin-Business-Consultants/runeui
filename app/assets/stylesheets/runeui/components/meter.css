@@ -1,0 +1,34 @@
+/* Meter: a reading in a range. data-tone colours the fill (success, warning, destructive). */
+
+@layer runeui.components {
+  [data-slot="meter"] { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; min-width: min(16rem, 100%); --meter-fill: var(--primary); }
+  [data-slot="meter"][data-tone="success"] { --meter-fill: var(--success); }
+  [data-slot="meter"][data-tone="warning"] { --meter-fill: var(--warning); }
+  [data-slot="meter"][data-tone="destructive"] { --meter-fill: var(--destructive); }
+
+  [data-slot="meter-header"] { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; font-size: var(--ui-text-sm); }
+  [data-slot="meter-label"] { font-weight: 500; }
+  [data-slot="meter-value"] { color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+  [data-slot="meter-value"]:not(:defined)::before { content: attr(data-label); }
+
+  [data-slot="meter-track"] {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: var(--ui-radius-full);
+    background: var(--muted);
+  }
+
+  [data-slot="meter-indicator"] {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    display: block;
+    width: 0;
+    border-radius: inherit;
+    background: var(--meter-fill);
+    transition: width var(--ui-duration-slow) var(--ui-ease);
+  }
+}

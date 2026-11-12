@@ -1,0 +1,36 @@
+<%# locals: (value: nil, mode: nil, min: nil, max: nil, months: nil, id: nil, month: nil, week_starts_on: nil, fixed_weeks: nil, show_outside_days: nil, disabled: nil, read_only: nil, deselectable: nil, **attrs) %>
+<%#
+  Calendar: a month of days to pick from, shown in the page. mode: single (the default),
+  multiple or range; months: how many show side by side. Values are ISO dates: give a Date,
+  a Time or "2026-10-16"; for multiple an array, for range a Range or [start, end]. min: and
+  max: bound what can be picked.
+
+  It doesn't submit with a form on its own: for a date in a form use date_picker (a field with
+  this calendar in its popup) or date_input. Read it in JavaScript from its valuechange event or
+  its value property.
+
+    ui :calendar, value: Date.current
+    ui :calendar, mode: :range, months: 2, value: (Date.current..Date.current + 4)
+    ui :calendar, mode: :multiple, value: [ Date.current, Date.current + 2 ], min: Date.current
+%>
+<% iso = ->(d) { d.blank? ? nil : (d.is_a?(String) ? d : d.to_date.iso8601) } %>
+<% dates = value.is_a?(Range) ? [ value.begin, value.end ] : Array(value) %>
+<% default = dates.filter_map { iso.(it) }.join(",").presence %>
+<% count = (months || 1).to_i %>
+<% cid = ui_id("calendar", id) %>
+<%= tag.ui_calendar(**ui_attrs({ id: cid, mode: mode&.to_s, "default-value": default, "default-month": (month.is_a?(String) ? month : month&.strftime("%Y-%m")), min: iso.(min), max: iso.(max), months: (count > 1 ? count : nil), "week-starts-on": week_starts_on, "fixed-weeks": (fixed_weeks ? "" : nil), "show-outside-days": (show_outside_days == false ? "false" : nil), disabled: (disabled ? "" : nil), "read-only": (read_only ? "" : nil), deselectable: (deselectable ? "" : nil), data: { slot: "calendar", months: count } }, attrs)) do %>
+  <div data-slot="calendar-nav">
+    <ui-calendar-previous><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Previous month"><%= ui_icon "chevron-left" %></button></ui-calendar-previous>
+    <ui-calendar-heading data-slot="calendar-heading" id="<%= cid %>-heading" data-morph="keep"></ui-calendar-heading>
+    <ui-calendar-next><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Next month"><%= ui_icon "chevron-right" %></button></ui-calendar-next>
+  </div>
+  <div data-slot="calendar-months">
+    <% count.times do |offset| %>
+    <%# herb:key offset %>
+    <ui-calendar-grid data-slot="calendar-grid" offset="<%= offset %>">
+      <ui-calendar-weekdays data-slot="calendar-weekdays" data-morph="keep"><template><ui-calendar-weekday data-slot="calendar-weekday"></ui-calendar-weekday></template></ui-calendar-weekdays>
+      <ui-calendar-weeks data-slot="calendar-weeks" data-morph="keep"><template><ui-calendar-day data-slot="calendar-day"></ui-calendar-day></template></ui-calendar-weeks>
+    </ui-calendar-grid>
+    <% end %>
+  </div>
+<% end %>

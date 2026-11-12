@@ -15,7 +15,7 @@
     transition: background-color var(--ui-duration);
   }
 
-  .dark [data-slot="switch"] { background: color-mix(in oklch, var(--input) 80%, transparent); }
+  .dark [data-slot="switch"] { background: color-mix(in oklab, var(--input) 80%, transparent); }
   [data-slot="switch"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="switch"]:is([data-checked], ui-switch:not(:defined)[default-checked]) { background: var(--primary); }
   [data-slot="switch"][data-disabled] { opacity: 0.5; cursor: not-allowed; }

@@ -15,6 +15,7 @@ module Runeui
       raise ActionController::RoutingError, "No runeui component #{@component}" unless examples.include?(@component)
       @components = examples
       @source = File.read(Engine.root.join("app/views/runeui/docs/examples/_#{@component}.html.erb"))
+      render "runeui/docs/shell", layout: "runeui/blank" if @component == "app_shell" && params[:full]
     end
 
     def echo

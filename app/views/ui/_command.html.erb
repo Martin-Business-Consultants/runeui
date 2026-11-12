@@ -1,0 +1,74 @@
+<%# locals: (items: nil, placeholder: nil, empty: nil, dialog: nil, trigger: nil, shortcut: nil, title: nil, id: nil, content: nil, **attrs) %>
+<%#
+  Command: a search box over a list of commands, filtered as you type (fuzzy), run with Enter, a
+  click or their own shortcut. With dialog: true it's a palette over the page, opened by its
+  trigger or ⌘K (shortcut: to change it; false for none).
+
+    ui :command, dialog: true, trigger: "Search…", items: {
+      "Go to" => [
+        { label: "Projects", href: projects_path, icon: :folder, shortcut: "g p" },
+        { label: "People", href: people_path, icon: :user, keywords: %w[team staff] }
+      ],
+      "Actions" => [ { label: "New project", href: new_project_path, icon: :plus, shortcut: "mod+shift+n" } ]
+    }
+
+  items: is a hash of group name to commands, or an array of commands (no groups). A command:
+  label:, then href: (visited through Turbo when it runs; target: "_blank" for a new tab),
+  value: (what the action event reports; from the label otherwise), icon:, shortcut: ("mod+k",
+  "g p"), keywords:, disabled:, open: (the id of a dialog or popover to open). Anything else, listen
+  for action (in the capture phase: it doesn't bubble), event.detail.value. The block, when given,
+  is the list instead: ui-command-item, ui-command-group, ui-command-separator.
+  Needs runeui/command (for href: and open:).
+%>
+<% command_id = ui_id("command", id) %>
+<% groups = items.is_a?(Hash) ? items.to_a : [ [ nil, Array(items) ] ] %>
+<% palette = capture do %>
+<%= tag.ui_command(**ui_attrs({ id: (dialog ? nil : command_id), "auto-highlight": "", loop: "", data: { slot: "command" } }, dialog ? {} : attrs)) do %>
+  <div data-slot="command-search">
+    <%= ui_icon :search %>
+    <ui-command-input data-slot="command-input"><input type="text" placeholder="<%= placeholder || "Type a command or search…" %>" aria-label="<%= placeholder || "Search commands" %>" autocomplete="off"></ui-command-input>
+  </div>
+  <ui-command-empty data-slot="command-empty"><%= empty || "No results found." %></ui-command-empty>
+  <ui-command-list data-slot="command-list">
+    <% if content %>
+    <%= content %>
+    <% else %>
+    <% groups.each_with_index do |(group, commands), index| %>
+    <%# herb:key group || index %>
+    <% if index.positive? %><ui-command-separator data-slot="command-separator"></ui-command-separator><% end %>
+    <ui-command-group data-slot="command-group">
+      <% if group %><ui-command-group-label data-slot="command-group-label"><%= group %></ui-command-group-label><% end %>
+      <% commands.each do |command| %>
+      <%# herb:key command[:value] || command[:label] %>
+      <%= tag.ui_command_item(class: "ui-item", value: (command[:value] || command[:label].to_s.parameterize).to_s, keywords: (command[:keywords] ? Array(command[:keywords]).join(",") : nil), shortcut: command[:shortcut], disabled: (command[:disabled] ? "" : nil), data: { slot: "command-item", href: command[:href], target: command[:target], runeui_open: command[:open] }) do %>
+        <% if command[:icon] %><ui-command-item-icon data-slot="command-item-icon"><%= ui_icon command[:icon] %></ui-command-item-icon><% end %>
+        <ui-command-item-text data-slot="command-item-text"><%= command[:label] %></ui-command-item-text>
+        <% if command[:shortcut] %><ui-command-shortcut data-slot="command-shortcut"></ui-command-shortcut><% end %>
+      <% end %>
+      <% end %>
+    </ui-command-group>
+    <% end %>
+    <% end %>
+  </ui-command-list>
+<% end %>
+<% end %>
+<% if dialog %>
+<%= tag.ui_dialog(**ui_attrs({ id: command_id, data: { slot: "dialog", command_dialog: "" } }, attrs)) do %>
+  <% unless trigger == false %>
+  <ui-dialog-trigger<% if shortcut != false %> shortcut="<%= shortcut || "mod+k" %>"<% end %>>
+    <% if trigger.respond_to?(:html_safe?) && trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="outline" data-size="default" data-command-trigger><%= ui_icon :search %><span><%= trigger || "Search…" %></span><% if shortcut != false %><ui-dialog-shortcut data-slot="dialog-shortcut"></ui-dialog-shortcut><% end %></button>
+    <% end %>
+  </ui-dialog-trigger>
+  <% end %>
+  <ui-dialog-backdrop data-slot="dialog-backdrop" hidden></ui-dialog-backdrop>
+  <ui-dialog-content data-slot="dialog-content" data-command-dialog hidden>
+    <ui-dialog-title data-slot="dialog-title" class="ui-sr-only"><%= title || "Command palette" %></ui-dialog-title>
+    <%= palette %>
+  </ui-dialog-content>
+<% end %>
+<% else %>
+<%= palette %>
+<% end %>

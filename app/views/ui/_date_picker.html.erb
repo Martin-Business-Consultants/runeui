@@ -1,0 +1,50 @@
+<%# locals: (name: nil, value: nil, id: nil, min: nil, max: nil, placeholder: nil, mode: nil, start_name: nil, end_name: nil, disabled: nil, required: nil, read_only: nil, invalid: nil, form: nil, months: nil, clearable: nil, size: nil, week_starts_on: nil, close_on_select: nil, **attrs) %>
+<%#
+  Date picker: a date field you can type in ("10/16/2026", "Oct 16", "2026-10-16") with a
+  calendar in a popup. The replacement for date_field: it submits YYYY-MM-DD under name:, and
+  takes a Date, a Time or an ISO string as value:. min: and max: bound it; required: and a date
+  that isn't one stop the form submitting. mode: :range shows two fields and submits both ends,
+  under start_name: and end_name: (or both under name:); its value: a Range or [start, end].
+
+    form.ui :date_picker, :due_on
+    ui :date_picker, name: "starts_on", value: Date.current, min: Date.current, clearable: true
+    ui :date_picker, mode: :range, start_name: "from", end_name: "to", value: (from..to), months: 2
+%>
+<% iso = ->(d) { d.blank? ? nil : (d.is_a?(String) ? d : d.to_date.iso8601) } %>
+<% range = mode.to_s == "range" %>
+<% dates = value.is_a?(Range) ? [ value.begin, value.end ] : Array(value) %>
+<% dates = dates.filter_map { iso.(it) } %>
+<% shown = dates.filter_map { |d| Date.iso8601(d).strftime("%m/%d/%Y") rescue d } %>
+<% count = (months || 1).to_i %>
+<% picker_id = ui_id("date-picker", id, name: name || start_name) %>
+<%= tag.ui_date_picker(**ui_attrs({ id: picker_id, name: name, "start-name": start_name, "end-name": end_name, mode: (range ? "range" : nil), "default-value": dates.join(",").presence, min: iso.(min), max: iso.(max), months: (count > 1 ? count : nil), "week-starts-on": week_starts_on, "close-on-select": (close_on_select == false ? "false" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), "read-only": (read_only ? "" : nil), form: form, data: { slot: "date-picker" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <div data-slot="date-picker-control" data-size="<%= size || "default" %>"<% if invalid %> data-invalid<% end %>>
+    <ui-date-picker-input data-morph="keep"><input type="text" class="ui-date-picker__input" id="<%= picker_id %>-input" placeholder="<%= placeholder || "MM/DD/YYYY" %>" value="<%= shown[0] %>" autocomplete="off"<% if invalid %> aria-invalid="true"<% end %>></ui-date-picker-input>
+    <% if range %>
+    <span data-slot="date-picker-separator" aria-hidden="true">–</span>
+    <ui-date-picker-input end data-morph="keep"><input type="text" class="ui-date-picker__input" placeholder="<%= placeholder || "MM/DD/YYYY" %>" value="<%= shown[1] %>" autocomplete="off"></ui-date-picker-input>
+    <% end %>
+    <% if clearable %>
+    <ui-date-picker-clear><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Clear date"><%= ui_icon :x %></button></ui-date-picker-clear>
+    <% end %>
+    <ui-date-picker-trigger><button type="button" id="<%= picker_id %>-trigger" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Choose date"><%= ui_icon :calendar %></button></ui-date-picker-trigger>
+  </div>
+  <ui-date-picker-content data-slot="date-picker-content" class="ui-popup" align="start" side-offset="4" hidden>
+    <div data-slot="calendar" data-months="<%= count %>">
+      <div data-slot="calendar-nav">
+        <ui-calendar-previous><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Previous month"><%= ui_icon "chevron-left" %></button></ui-calendar-previous>
+        <ui-calendar-heading data-slot="calendar-heading" id="<%= picker_id %>-heading" data-morph="keep"></ui-calendar-heading>
+        <ui-calendar-next><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Next month"><%= ui_icon "chevron-right" %></button></ui-calendar-next>
+      </div>
+      <div data-slot="calendar-months">
+        <% count.times do |offset| %>
+        <%# herb:key offset %>
+        <ui-calendar-grid data-slot="calendar-grid" offset="<%= offset %>">
+          <ui-calendar-weekdays data-slot="calendar-weekdays" data-morph="keep"><template><ui-calendar-weekday data-slot="calendar-weekday"></ui-calendar-weekday></template></ui-calendar-weekdays>
+          <ui-calendar-weeks data-slot="calendar-weeks" data-morph="keep"><template><ui-calendar-day data-slot="calendar-day"></ui-calendar-day></template></ui-calendar-weeks>
+        </ui-calendar-grid>
+        <% end %>
+      </div>
+    </div>
+  </ui-date-picker-content>
+<% end %>

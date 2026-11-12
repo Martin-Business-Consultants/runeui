@@ -1,0 +1,6 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("listbox") %>" method="post" data-turbo-stream>
+  <%= ui :listbox, name: "plan", id: "plan", label: "Plan", value: "pro", options: [ [ "Free", "free" ], [ "Pro", "pro" ], [ "Team", "team" ], [ "Enterprise", "enterprise", { disabled: true } ] ] %>
+  <%= ui :listbox, name: "produce[]", id: "produce", label: "Produce", multiple: true, value: %w[apple carrot], options: { "Fruits" => [ [ "Apple", "apple" ], [ "Banana", "banana" ], [ "Orange", "orange" ] ], "Vegetables" => [ [ "Carrot", "carrot" ], [ "Broccoli", "broccoli" ], [ "Spinach", "spinach" ] ] } %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>

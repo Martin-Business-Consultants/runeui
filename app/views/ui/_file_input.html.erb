@@ -1,0 +1,33 @@
+<%# locals: (name: nil, value: nil, multiple: nil, accept: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, dropzone: nil, prompt: nil, button: nil, **attrs) %>
+<%#
+  File input: a drop zone (drop or paste files on it) with a button that opens the file picker,
+  and the chosen files listed, each removable. Submits the files with its form (the form needs
+  enctype multipart, which form_with sets for you when it has a file field; otherwise pass
+  multipart: true). dropzone: false is just the button and the list.
+
+    ui :file_input, name: "attachments[]", multiple: true
+    ui :file_input, name: "avatar", accept: "image/*", prompt: "Drop an image here"
+    form.ui :file_input, :documents, multiple: true
+%>
+<%# value: is ignored: a file field never shows its file back (form.ui passes the attribute). %>
+<%= tag.ui_file_input(**ui_attrs({ id: ui_id("file-input", id, name: name), name: name, multiple: (multiple ? "" : nil), accept: accept, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "file-input" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <% if dropzone == false %>
+  <ui-file-input-trigger><button type="button" class="ui-button" data-slot="file-input-trigger" data-variant="outline" data-size="default"><%= ui_icon :upload %><%= button || (multiple ? "Choose files" : "Choose a file") %></button></ui-file-input-trigger>
+  <% else %>
+  <ui-file-input-dropzone data-slot="file-input-dropzone">
+    <span data-slot="file-input-icon"><%= ui_icon :upload, size: 20 %></span>
+    <span data-slot="file-input-prompt"><%= prompt || (multiple ? "Drag and drop files here" : "Drag and drop a file here") %></span>
+    <ui-file-input-trigger><button type="button" class="ui-button" data-slot="file-input-trigger" data-variant="outline" data-size="sm"><%= button || "Browse" %></button></ui-file-input-trigger>
+  </ui-file-input-dropzone>
+  <% end %>
+  <ui-file-input-list data-slot="file-input-list" aria-label="Files">
+    <template>
+      <ui-file-input-item data-slot="file-input-item">
+        <%= ui_icon :file %>
+        <span data-slot="file-input-name" data-file="name"></span>
+        <span data-slot="file-input-size" data-file="size"></span>
+        <ui-file-input-item-remove><button type="button" class="ui-button" data-slot="file-input-item-remove" data-variant="ghost" data-size="icon-xs" aria-label="Remove"><%= ui_icon :x %></button></ui-file-input-item-remove>
+      </ui-file-input-item>
+    </template>
+  </ui-file-input-list>
+<% end %>

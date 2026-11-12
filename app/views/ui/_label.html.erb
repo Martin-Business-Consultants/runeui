@@ -1,0 +1,9 @@
+<%# locals: (content: nil, **attrs) %>
+<%#
+  Label: names a control. ui-label also focuses and names controls a native label can't reach
+  (a radio group, a segmented control). Give it for: the control's id.
+
+    ui :label, content: "Plan", for: "plan"
+    ui(:label, for: "email") { "Email" }
+%>
+<%= tag.ui_label(content, **ui_attrs({ data: { slot: "label" } }, attrs)) %>

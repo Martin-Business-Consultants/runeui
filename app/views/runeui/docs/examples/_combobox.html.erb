@@ -1,0 +1,19 @@
+<%# locals: () %>
+<% frameworks = [ [ "Next.js", "next" ], [ "SvelteKit", "sveltekit" ], [ "Nuxt", "nuxt" ], [ "Remix", "remix" ], [ "Astro", "astro" ] ] %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("combobox") %>" method="post" data-turbo-stream>
+  <%= ui :combobox, name: "framework", id: "framework", options: frameworks, placeholder: "Select a framework", clearable: true %>
+  <%= ui :combobox, name: "timezone", id: "timezone", value: "cst", options: { "North America" => [ [ "Eastern", "est" ], [ "Central", "cst" ], [ "Pacific", "pst" ] ], "Europe" => [ [ "Greenwich", "gmt" ], [ "Central European", "cet" ] ] } %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>Several, as chips</h2>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("combobox") %>" method="post" data-turbo-stream>
+  <%= ui :combobox, name: "frameworks[]", id: "frameworks", multiple: true, value: %w[next astro], options: frameworks, placeholder: "Add a framework" %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>Tags: anything typed becomes one</h2>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("combobox") %>" method="post" data-turbo-stream>
+  <%= ui :combobox, name: "tags[]", id: "tags", multiple: true, creatable: true, value: %w[urgent], options: %w[urgent design backend follow-up], placeholder: "Add a tag", empty: "Press Enter to add it" %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>Searching on the server</h2>
+<%= ui :combobox, name: "person", id: "person", src: "/people.json", placeholder: "Search people" %>

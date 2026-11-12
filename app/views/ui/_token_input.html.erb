@@ -1,0 +1,31 @@
+<%# locals: (name: nil, value: nil, placeholder: nil, label: nil, id: nil, triggers: nil, disabled: nil, required: nil, invalid: nil, form: nil, submit_shortcut: nil, content: nil, **attrs) %>
+<%#
+  Token input: a message box whose text holds tokens, like @mentions or /commands, chips you
+  can't half-delete. Typing a trigger (@, /, #…) suggests what to insert. Submits under name: as
+  text with each token written [@label](type:value), so the server finds them with
+  text.scan(/\[@([^\]]*)\]\(([\w-]+):([^)]*)\)/) (label, type, value); value: is that text too.
+
+    ui :token_input, name: "note[body]", placeholder: "Write a note. Type @ to mention someone",
+      triggers: [ { char: "@", type: "user", items: User.all.map { { value: it.id.to_s, label: it.name } } } ]
+    ui :token_input, name: "q", triggers: [ { char: "@", type: "user", src: people_path(format: :json) } ]
+
+  A trigger: char:, type: (the token's kind), items: [{ value:, label: }] or src: (GET src?q=…
+  answering that JSON as they type), boundary: "start" to match only at the start. Needs
+  runeui/triggers. submit_shortcut: "enter" (Shift+Enter for a line) or "mod+enter" submits the
+  form from the keyboard. The block, when given, goes under the editor (a toolbar, a Send button).
+  For tags (free words, no menu), use a combobox with multiple: and creatable: instead.
+%>
+<%= tag.ui_token_input(**ui_attrs({ id: id, name: name, value: value.presence, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, "submit-shortcut": submit_shortcut&.to_s, "token-deletion": "select", data: { slot: "token-input" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <div data-slot="token-input-box"<% if invalid %> aria-invalid="true"<% end %>>
+    <ui-token-input-editor data-slot="token-input-editor" placeholder="<%= placeholder %>" aria-label="<%= label || placeholder || "Message" %>"></ui-token-input-editor>
+    <% if content %><div data-slot="token-input-footer"><%= content %></div><% end %>
+  </div>
+  <% if triggers.present? %>
+  <ui-trigger-menu data-triggers="<%= triggers.to_json %>" auto-highlight="">
+    <ui-trigger-menu-content data-slot="trigger-menu-content" class="ui-popup" hidden>
+      <ui-trigger-menu-empty data-slot="trigger-menu-empty">No matches</ui-trigger-menu-empty>
+      <ui-trigger-menu-list data-slot="trigger-menu-list"></ui-trigger-menu-list>
+    </ui-trigger-menu-content>
+  </ui-trigger-menu>
+  <% end %>
+<% end %>

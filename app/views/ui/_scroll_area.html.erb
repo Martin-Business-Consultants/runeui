@@ -1,0 +1,26 @@
+<%# locals: (content: nil, orientation: nil, type: nil, stick_to_end: nil, label: nil, **attrs) %>
+<%#
+  Scroll area: content that scrolls inside a box with thin scrollbars of its own. Give it a
+  size with a class (it's 18rem tall unless told). orientation: :vertical (default),
+  :horizontal or :both. type: when the bars show (auto, always, scroll, hover).
+  stick_to_end: true keeps the end in view as content grows (a chat, a log a stream appends to).
+  label: names the scrolling region for screen readers.
+
+    ui :scroll_area, class: "h-72", label: "Release notes" do … end
+    ui :scroll_area, stick_to_end: true, label: "Activity" do
+      turbo_stream_from project; tag.div(id: "activity") { render events }
+    end
+%>
+<% axes = (orientation || "vertical").to_s %>
+<%= tag.ui_scroll_area(**ui_attrs({ type: type&.to_s, "stick-to-end": (stick_to_end ? "" : nil), data: { slot: "scroll-area", orientation: axes } }, attrs)) do %>
+  <ui-scroll-area-viewport data-slot="scroll-area-viewport"<% if label %> role="region" aria-label="<%= label %>" tabindex="0"<% end %>>
+    <ui-scroll-area-content data-slot="scroll-area-content"><%= content %></ui-scroll-area-content>
+  </ui-scroll-area-viewport>
+  <% if axes != "horizontal" %>
+  <ui-scroll-area-scrollbar orientation="vertical" data-slot="scroll-area-scrollbar" data-orientation="vertical"><ui-scroll-area-thumb data-slot="scroll-area-thumb"></ui-scroll-area-thumb></ui-scroll-area-scrollbar>
+  <% end %>
+  <% if axes != "vertical" %>
+  <ui-scroll-area-scrollbar orientation="horizontal" data-slot="scroll-area-scrollbar" data-orientation="horizontal"><ui-scroll-area-thumb data-slot="scroll-area-thumb"></ui-scroll-area-thumb></ui-scroll-area-scrollbar>
+  <% end %>
+  <% if axes == "both" %><ui-scroll-area-corner data-slot="scroll-area-corner"></ui-scroll-area-corner><% end %>
+<% end %>

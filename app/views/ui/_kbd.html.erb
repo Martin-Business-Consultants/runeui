@@ -1,0 +1,12 @@
+<%# locals: (content: nil, keys: nil, **attrs) %>
+<%#
+  Kbd: a key, or keys pressed together (keys: %w[⌘ K]).
+
+    ui :kbd, content: "Esc"
+    ui :kbd, keys: %w[⌘ K]
+%>
+<% if keys %>
+<%= tag.span(**ui_attrs({ data: { slot: "kbd-group" } }, attrs)) do %><% Array(keys).each do |key| %><kbd data-slot="kbd"><%= key %></kbd><% end %><% end %>
+<% else %>
+<%= tag.kbd(content, **ui_attrs({ data: { slot: "kbd" } }, attrs)) %>
+<% end %>

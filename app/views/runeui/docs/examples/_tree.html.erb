@@ -1,0 +1,8 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :tree, id: "files", label: "Files", expanded: %w[app app/models], mode: "single", paths: %w[app/models/user.rb app/models/project.rb app/views/projects/index.html.erb app/views/projects/show.html.erb config/routes.rb Gemfile README.md] %>
+  <%= ui :tree, id: "docs", label: "Docs", current: "select", items: [
+    { label: "Getting started", value: "start", children: [ { label: "All components", value: "index", href: runeui_docs_path } ] },
+    { label: "Components", value: "components", children: %w[button dialog select tree].map { { label: it.humanize, value: it, href: runeui_doc_path(it) } } }
+  ] %>
+</div>

@@ -1,0 +1,22 @@
+<%# locals: (menus: nil, label: nil, content: nil, **attrs) %>
+<%#
+  Menubar: a row of menus, as in a desktop app (shadcn's Menubar). Arrow keys move between them;
+  once one is open, moving opens the next. Each menu takes the items ui :menu takes.
+
+    ui :menubar, label: "Editor", menus: [
+      { label: "File", items: [{ label: "New tab", value: "new-tab", shortcut: "mod+t" }, :separator, { label: "Print…", value: "print" }] },
+      { label: "View", items: [{ label: "Always show bookmarks", checkbox: true }] }
+    ]
+
+  The block, when given, is the bar's menus instead (ui :menu, bar: true, …).
+%>
+<%= tag.ui_menubar(**ui_attrs({ "aria-label": label, data: { slot: "menubar" } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% Array(menus).each_with_index do |menu, index| %>
+  <%# herb:key index %>
+  <%= ui :menu, trigger: menu[:label], items: menu[:items], bar: true, id: menu[:id], label: menu[:label] %>
+  <% end %>
+  <% end %>
+<% end %>

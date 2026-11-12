@@ -21,8 +21,8 @@
     transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
   }
 
-  .dark [data-slot="select-trigger"] { background: color-mix(in oklch, var(--input) 30%, transparent); }
-  .dark [data-slot="select-trigger"]:hover { background: color-mix(in oklch, var(--input) 50%, transparent); }
+  .dark [data-slot="select-trigger"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  .dark [data-slot="select-trigger"]:hover { background: color-mix(in oklab, var(--input) 50%, transparent); }
   [data-slot="select-trigger"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="select-trigger"]:is([aria-invalid="true"], [data-invalid]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
   [data-slot="select-trigger"]:is(:disabled, [data-disabled]) { opacity: 0.5; cursor: not-allowed; }

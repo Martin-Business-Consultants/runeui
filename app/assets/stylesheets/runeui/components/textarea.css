@@ -1,0 +1,27 @@
+/* Textarea: shadcn's, growing with its text where the browser can. */
+@layer runeui.components {
+  ui-textarea { display: block; width: 100%; }
+
+  .ui-textarea {
+    display: flex;
+    width: 100%;
+    min-height: 4rem;
+    field-sizing: content;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--input);
+    border-radius: var(--ui-radius-md);
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    line-height: 1.5;
+    box-shadow: var(--ui-shadow-xs);
+    outline: none;
+    resize: vertical;
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  .dark .ui-textarea { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  .ui-textarea::placeholder { color: var(--muted-foreground); }
+  .ui-textarea:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  .ui-textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ui-textarea:is([aria-invalid="true"], [data-invalid]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+}

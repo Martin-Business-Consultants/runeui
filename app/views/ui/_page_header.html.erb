@@ -1,0 +1,14 @@
+<%# locals: (title: nil, description: nil, actions: nil, content: nil, **attrs) %>
+<%#
+  The top of a page: its title, a line under it, and its actions at the end.
+
+    ui :page_header, title: @project.name, description: "Due Friday", actions: ui(:button, content: "Edit", variant: :outline)
+%>
+<%= tag.div(**ui_attrs({ data: { slot: "page-header" } }, attrs)) do %>
+  <div data-slot="page-header-text">
+    <% if title %><h1 data-slot="page-title"><%= title %></h1><% end %>
+    <% if description %><p data-slot="page-description"><%= description %></p><% end %>
+    <%= content %>
+  </div>
+  <% if actions %><div data-slot="page-actions"><%= actions %></div><% end %>
+<% end %>

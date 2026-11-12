@@ -1,0 +1,23 @@
+<%# locals: (name: nil, value: nil, length: nil, groups: nil, pattern: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, **attrs) %>
+<%#
+  One-time code: a box per character over one native input (paste, autofill from a text
+  message and undo all work). length: 6 by default; groups: [3, 3] splits it with a dash.
+  pattern: "digits" (default), "letters", "alphanumeric". Name it with aria: { label: }.
+
+    ui :otp_input, name: "code", aria: { label: "Verification code" }
+    ui :otp_input, name: "code", length: 6, groups: [3, 3]
+%>
+<% size = (length || Array(groups).sum.nonzero? || 6).to_i %>
+<% runs = Array(groups).presence || [ size ] %>
+<%= tag.ui_otp_input(**ui_attrs({ id: ui_id("otp", id, name: name), name: name, "default-value": value, "max-length": size, pattern: (pattern || "digits").to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "otp-input", invalid: (invalid ? "" : nil) } }, attrs)) do %>
+  <% runs.each_with_index do |run, index| %>
+  <%# herb:key index %>
+  <% if index.positive? %><ui-otp-input-separator data-slot="otp-input-separator"><%= ui_icon :minus %></ui-otp-input-separator><% end %>
+  <ui-otp-input-group data-slot="otp-input-group">
+    <% run.times do |slot| %>
+    <%# herb:key slot %>
+    <ui-otp-input-slot data-slot="otp-input-slot"></ui-otp-input-slot>
+    <% end %>
+  </ui-otp-input-group>
+  <% end %>
+<% end %>

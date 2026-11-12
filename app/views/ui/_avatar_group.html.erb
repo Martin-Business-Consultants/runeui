@@ -1,0 +1,17 @@
+<%# locals: (people: nil, max: nil, size: nil, **attrs) %>
+<%#
+  A row of overlapping avatars, the rest counted: people: hashes with name: and src: (or
+  anything answering name and avatar_url).
+
+    ui :avatar_group, people: project.members.map { { name: it.name, src: it.avatar_url } }, max: 4
+%>
+<% list = Array(people).map { it.is_a?(Hash) ? it : { name: it.try(:name), src: it.try(:avatar_url) } } %>
+<% shown = max ? list.first(max) : list %>
+<% rest = list.size - shown.size %>
+<%= tag.div(**ui_attrs({ role: "group", data: { slot: "avatar-group", size: (size || "default").to_s } }, attrs)) do %>
+  <% shown.each do |person| %>
+  <%# herb:key person[:name] %>
+  <%= ui :avatar, src: person[:src], name: person[:name], size: size %>
+  <% end %>
+  <% if rest.positive? %><span data-slot="avatar-group-count" title="<%= list.drop(shown.size).map { it[:name] }.compact.to_sentence %>">+<%= rest %></span><% end %>
+<% end %>

@@ -1,0 +1,8 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("toggle") %>" method="post" data-turbo-stream>
+  <%= ui :toggle, icon: :bold, aria: { label: "Bold" } %>
+  <%= ui :toggle, icon: :italic, variant: :outline, aria: { label: "Italic" } %>
+  <%= ui :toggle, icon: :star, content: "Favourite", name: "favourite", id: "favourite", unchecked_value: "0", variant: :outline %>
+  <%= ui :toggle, icon: :underline, size: :sm, disabled: true, aria: { label: "Underline" } %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>

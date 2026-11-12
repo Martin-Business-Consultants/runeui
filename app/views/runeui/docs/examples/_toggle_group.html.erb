@@ -1,0 +1,7 @@
+<%# locals: () %>
+<form class="runeui-docs__stack" action="<%= runeui_echo_path("toggle_group") %>" method="post" data-turbo-stream>
+  <%= ui :toggle_group, value: "bold", multiple: true, options: [ [ "Bold", "bold", { icon: :bold } ], [ "Italic", "italic", { icon: :italic } ], [ "Underline", "underline", { icon: :underline } ] ] %>
+  <%= ui :toggle_group, name: "days[]", id: "days", multiple: true, variant: :outline, value: %w[Mon Wed], options: %w[Mon Tue Wed Thu Fri] %>
+  <%= ui :toggle_group, name: "align", id: "align", variant: :outline, size: :sm, value: "left", options: [ [ "Left", "left" ], [ "Center", "center" ], [ "Right", "right" ] ] %>
+  <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Send", type: :submit %></div>
+</form>

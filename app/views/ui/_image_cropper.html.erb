@@ -1,0 +1,42 @@
+<%# locals: (src: nil, name: nil, alt: nil, aspect_ratio: nil, shape: nil, mode: nil, zoom: nil, rotate: nil, label: nil, form: nil, **attrs) %>
+<%#
+  Image cropper: a selection over an image to drag, resize (by its handles or the arrow keys),
+  zoom, turn and flip. src: the image's URL; aspect_ratio: 1 for a square, 16.0 / 9…;
+  shape: :circle for an avatar; mode: :frame to pan the image under a fixed frame.
+  name: submits the crop with its form as name[x], name[y], name[width], name[height],
+  name[rotation], name[flip_x], name[flip_y], in the image's own pixels, for the server to cut
+  (ImageProcessing's crop, Active Storage's variant(crop: …)).
+  zoom: true adds a zoom slider; rotate: true adds turn and flip buttons. label: names it.
+
+    form.ui :image_cropper, :avatar_crop, src: url_for(user.avatar), aspect_ratio: 1, shape: :circle, zoom: true
+%>
+<% fields = %w[x y width height rotation flip_x flip_y] %>
+<%= tag.ui_image_cropper(**ui_attrs({ src: src, "aspect-ratio": aspect_ratio, shape: shape&.to_s, mode: mode&.to_s, aria: { label: label || alt || "Crop the image" }, data: { slot: "image-cropper", shape: (shape || "rectangle").to_s, mode: (mode || "box").to_s, loading: "", crop_name: name } }, attrs)) do %>
+  <ui-image-cropper-viewport data-slot="image-cropper-viewport">
+    <ui-image-cropper-image data-slot="image-cropper-image"><img alt="<%= alt || "" %>"></ui-image-cropper-image>
+    <ui-image-cropper-selection data-slot="image-cropper-selection">
+      <ui-image-cropper-grid data-slot="image-cropper-grid"></ui-image-cropper-grid>
+      <% %w[nw ne sw se].each do |corner| %>
+      <%# herb:key corner %>
+      <ui-image-cropper-handle data-slot="image-cropper-handle" position="<%= corner %>"></ui-image-cropper-handle>
+      <% end %>
+    </ui-image-cropper-selection>
+  </ui-image-cropper-viewport>
+  <% if zoom || rotate %>
+  <div data-slot="image-cropper-controls">
+    <% if zoom %>
+    <ui-image-cropper-zoom data-slot="image-cropper-zoom"><input type="range" aria-label="Zoom" autocomplete="off"></ui-image-cropper-zoom>
+    <% end %>
+    <% if rotate %>
+    <ui-image-cropper-rotate><button type="button" class="ui-button" data-variant="outline" data-size="sm">Turn</button></ui-image-cropper-rotate>
+    <ui-image-cropper-flip><button type="button" class="ui-button" data-variant="outline" data-size="sm">Flip</button></ui-image-cropper-flip>
+    <% end %>
+  </div>
+  <% end %>
+  <% if name %>
+  <% fields.each do |field| %>
+  <%# herb:key field %>
+  <input type="hidden" name="<%= name %>[<%= field %>]" data-crop-field="<%= field %>"<% if form %> form="<%= form %>"<% end %> autocomplete="off">
+  <% end %>
+  <% end %>
+<% end %>

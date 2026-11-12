@@ -1,0 +1,12 @@
+<%# locals: () %>
+<form class="ui-trigger-menu-demo" action="<%= runeui_echo_path("trigger_menu") %>" method="post" data-turbo-stream>
+  <%= ui :field, label: "Comment", description: "Type @ to mention someone, # for a tag, or / at the start for a command." do %>
+    <%= ui :trigger_menu, id: "comment", name: "comment", placeholder: "Write a comment…",
+      triggers: [
+        { char: "@", items: [ [ "Hollis Grant", "hollis" ], [ "Inès Moreau", "ines" ], [ "Kofi Mensah", "kofi" ], [ "Wren Takahashi", "wren" ] ] },
+        { char: "#", items: %w[bug design feature question] },
+        { char: "/", boundary: "start", items: %w[assign due close] }
+      ] %>
+  <% end %>
+  <%= ui :button, content: "Send", type: :submit %>
+</form>

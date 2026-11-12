@@ -1,0 +1,9 @@
+<%# locals: () %>
+<form class="runeui-docs__stack" action="<%= runeui_echo_path("number_input") %>" method="post" data-turbo-stream>
+  <%= ui :field, label: "Quantity" do %>
+    <%= ui :number_input, name: "quantity", id: "quantity", value: 1, min: 0, max: 10 %>
+  <% end %>
+  <%= ui :number_input, name: "amount", step: 0.5, placeholder: "Amount", stepper: false, aria: { label: "Amount" } %>
+  <%= ui :number_input, name: "bad", value: 99, invalid: true, aria: { label: "Invalid" } %>
+  <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Send", type: :submit %></div>
+</form>

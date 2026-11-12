@@ -1,0 +1,19 @@
+<%# locals: () %>
+  <%= ui :tabs, label: "Account", value: "account", tabs: [
+    { value: "account", label: "Account", content: ui(:card, title: "Account", description: "Make changes to your account here.", footer: ui(:button, content: "Save changes")) { ui(:field, label: "Name") { ui(:input, name: "name", value: "Pedro Duarte") } } },
+    { value: "password", label: "Password", content: ui(:card, title: "Password", description: "Change your password here.") { ui(:field, label: "Current password") { ui(:input, name: "current", type: :password) } } },
+    { value: "lazy", label: "Loaded later", src: runeui_doc_path("progress"), frame: "lazy_tab" },
+    { value: "off", label: "Disabled", disabled: true, content: "" }
+  ] %>
+<h2>Line</h2>
+  <%= ui :tabs, variant: :line, label: "Sections", tabs: [
+    { value: "overview", label: "Overview", icon: :home, content: tag.p("The overview.") },
+    { value: "inbox", label: "Inbox", icon: :inbox, content: tag.p("Messages.") },
+    { value: "settings", label: "Settings", icon: :settings, content: tag.p("Settings.") }
+  ] %>
+<h2>Vertical</h2>
+  <%= ui :tabs, orientation: :vertical, label: "Settings", tabs: [
+    { value: "general", label: "General", content: tag.p("General settings.") },
+    { value: "members", label: "Members", content: tag.p("Who's on the team.") },
+    { value: "billing", label: "Billing", content: tag.p("Plans and invoices.") }
+  ] %>

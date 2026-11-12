@@ -1,0 +1,8 @@
+<%# locals: () %>
+<%= ui :card, title: "@peduarte starred 3 repositories", size: :sm do %>
+  <%= ui :collapsible, trigger: "Show all" do %>
+    <%= ui :badge, variant: :outline, content: "@radix-ui/primitives" %>
+    <%= ui :badge, variant: :outline, content: "@radix-ui/colors" %>
+    <%= ui :badge, variant: :outline, content: "@stitches/react" %>
+  <% end %>
+<% end %>

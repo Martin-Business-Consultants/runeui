@@ -1,0 +1,22 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("date_picker") %>" method="post" data-turbo-stream>
+  <%= ui :field, label: "Due date" do %>
+    <%= ui :date_picker, name: "due_on", id: "due-on", value: Date.new(2026, 10, 16) %>
+  <% end %>
+  <%= ui :field, label: "Starts", description: "From today on" do %>
+    <%= ui :date_picker, name: "starts_on", id: "starts-on", min: Date.current, clearable: true %>
+  <% end %>
+  <%= ui :button, content: "Send", type: :submit %>
+</form>
+<h2>Range</h2>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("date_picker") %>" method="post" data-turbo-stream>
+  <%= ui :date_picker, id: "stay", mode: :range, start_name: "from", end_name: "to", months: 2, value: (Date.new(2026, 10, 12)..Date.new(2026, 10, 16)) %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>From a form builder</h2>
+<% task = Struct.new(:due_on, :starts_at).new(Date.new(2026, 12, 1), Time.new(2026, 12, 1, 9, 0)) %>
+<%= form_with scope: :task, model: task, url: runeui_echo_path("date_picker"), class: "runeui-docs__row", data: { turbo_stream: true } do |form| %>
+  <%= form.ui :date_picker, :due_on, id: "task-due-on" %>
+  <%= form.ui :time_input, :starts_at, id: "task-starts-at" %>
+  <%= form.ui :button, content: "Send", type: :submit, variant: :outline %>
+<% end %>

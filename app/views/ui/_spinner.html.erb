@@ -1,0 +1,8 @@
+<%# locals: (label: nil, size: nil, **attrs) %>
+<%#
+  Spinner: something is working. label: is what screen readers hear ("Loading" by default).
+
+    ui :spinner
+    ui :button, disabled: true do  ui(:spinner, size: :sm) + "Saving…"  end
+%>
+<%= tag.span(**ui_attrs({ role: "status", data: { slot: "spinner", size: size&.to_s }, aria: { label: (label || "Loading") } }, attrs)) do %><%= ui_icon :loader %><% end %>

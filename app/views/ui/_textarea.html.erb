@@ -1,0 +1,11 @@
+<%# locals: (name: nil, value: nil, id: nil, placeholder: nil, rows: nil, disabled: nil, required: nil, invalid: nil, form: nil, **attrs) %>
+<%#
+  Textarea: a native textarea inside ui-textarea (data-filled, joins a Field). Grows with its
+  text where the browser can (field-sizing). Everything native goes on it: maxlength, autofocus…
+
+    ui :textarea, name: "message", placeholder: "Type your message here"
+    form.ui :textarea, :bio, rows: 4
+%>
+<ui-textarea data-slot="textarea">
+  <%= tag.textarea(value, **ui_attrs({ class: "ui-textarea", name: name, id: id, placeholder: placeholder, rows: rows, disabled: disabled.presence, required: required.presence, form: form, data: { slot: "textarea" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) %>
+</ui-textarea>

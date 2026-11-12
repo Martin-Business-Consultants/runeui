@@ -1,0 +1,40 @@
+<%# locals: (tabs: nil, value: nil, content: nil, orientation: nil, variant: nil, activation: nil, label: nil, **attrs) %>
+<%#
+  Tabs: one panel at a time, chosen from a row of tabs (arrow keys move between them). tabs:
+  hashes with value:, label:, icon:, disabled: and the panel's content:, or src: to load the
+  panel from a URL the first time its tab is chosen (a lazy Turbo Frame, frame: its id, else
+  "<value>_tab"). Its response wraps the panel in <turbo-frame id="…">.
+  value: the tab chosen at first (else the first). variant: :line for underlined tabs;
+  orientation: :vertical for tabs down the side. label: names the tab list for screen readers.
+
+    ui :tabs, label: "Project", value: "tasks", tabs: [
+      { value: "tasks", label: "Tasks", content: render("tasks/list") },
+      { value: "files", label: "Files", src: project_files_path(project) },
+      { value: "history", label: "History", src: project_events_path(project), frame: "history" }
+    ]
+%>
+<% list = Array(tabs) %>
+<% chosen = (value || list.reject { it[:disabled] }.first&.dig(:value)).to_s %>
+<% direction = (orientation || "horizontal").to_s %>
+<%= tag.ui_tabs(**ui_attrs({ "default-value": chosen.presence, orientation: (orientation ? direction : nil), activation: activation&.to_s, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <ui-tabs-list data-slot="tabs-list" data-orientation="<%= direction %>"<% if label %> aria-label="<%= label %>"<% end %>>
+    <% list.each do |tab| %>
+    <%# herb:key tab[:value] %>
+    <ui-tabs-tab value="<%= tab[:value] %>"<% if tab[:disabled] %> disabled<% end %>><button type="button" data-slot="tabs-tab" data-orientation="<%= direction %>"<% if tab[:value].to_s == chosen %> data-selected<% end %>><% if tab[:icon] %><%= ui_icon tab[:icon] %><% end %><%= tab[:label] %></button></ui-tabs-tab>
+    <% end %>
+  </ui-tabs-list>
+  <% list.each do |tab| %>
+  <%# herb:key tab[:value] %>
+  <%= tag.ui_tabs_panel(value: tab[:value], "keep-mounted": "", hidden: tab[:value].to_s != chosen, data: { slot: "tabs-panel" }) do %>
+    <% if tab[:src] %>
+    <turbo-frame id="<%= tab[:frame] || "#{tab[:value]}_tab" %>" src="<%= tab[:src] %>" loading="lazy" data-slot="tabs-frame"><div data-slot="tabs-loading"><%= ui_icon :loader %></div></turbo-frame>
+    <% else %>
+    <%= tab[:content] %>
+    <% end %>
+  <% end %>
+  <% end %>
+  <% end %>
+<% end %>

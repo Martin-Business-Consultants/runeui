@@ -1,0 +1,24 @@
+<%# locals: (items: nil, content: nil, open: nil, multiple: nil, collapsible: nil, disabled: nil, heading: nil, **attrs) %>
+<%#
+  Accordion: headings that each show and hide their panel. items: hashes with title:,
+  content: (text or markup), value: (else its position), disabled:. Or give a block of
+  accordion_item partials for anything else. open: the values open at first (one or a list);
+  multiple: true lets several be open; collapsible: false keeps one always open.
+  heading: the heading level the titles are (h3 by default).
+
+    ui :accordion, items: [ { title: "Is it accessible?", content: "Yes." }, … ], open: "0"
+    ui :accordion, multiple: true do
+      ui :accordion_item, title: "Shipping", value: "shipping" do … end
+    end
+%>
+<% opened = Array(open).map(&:to_s) %>
+<%= tag.ui_accordion(**ui_attrs({ "default-value": (opened.any? ? opened.join(",") : nil), multiple: (multiple ? "" : nil), collapsible: (collapsible == false ? "false" : nil), disabled: (disabled ? "" : nil), data: { slot: "accordion" } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% Array(items).each_with_index do |item, index| %>
+  <%# herb:key item[:value] || index %>
+  <%= ui :accordion_item, title: item[:title], value: (item[:value] || index).to_s, open: opened.include?((item[:value] || index).to_s), disabled: item[:disabled], heading: heading, content: item[:content] %>
+  <% end %>
+  <% end %>
+<% end %>

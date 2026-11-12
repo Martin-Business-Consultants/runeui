@@ -1,0 +1,81 @@
+/* Token input: a textarea-like box whose tokens are chips, and the trigger menu's .ui-popup. */
+
+@layer runeui.components {
+  ui-token-input { display: block; width: 36rem; max-width: 100%; }
+
+  [data-slot="token-input-box"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 4rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--input);
+    border-radius: var(--ui-radius-lg);
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    box-shadow: var(--ui-shadow-xs);
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+  .dark [data-slot="token-input-box"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  [data-slot="token-input-box"]:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="token-input-box"]:is([aria-invalid="true"], :has([data-invalid])) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  ui-token-input[data-disabled] [data-slot="token-input-box"], [data-slot="token-input-box"]:has([data-disabled]) { opacity: 0.5; cursor: not-allowed; }
+
+  [data-slot="token-input-editor"] {
+    display: block;
+    flex: 1;
+    min-height: 1.5rem;
+    max-height: 12rem;
+    overflow-y: auto;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    outline: none;
+  }
+  [data-slot="token-input-editor"][data-empty]::before { content: attr(aria-placeholder); color: var(--muted-foreground); pointer-events: none; }
+  /* Before it upgrades, the server's text shows as it is. */
+  ui-token-input:not(:defined) [data-slot="token-input-editor"]::before { content: attr(placeholder); color: var(--muted-foreground); }
+
+  [data-slot="token-input-host"], [data-slot="token-input-token"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline: 0.0625rem;
+    padding: 0 0.375rem;
+    border-radius: var(--ui-radius-sm);
+    background: color-mix(in oklab, var(--primary) 10%, transparent);
+    color: var(--foreground);
+    font-weight: 500;
+    line-height: 1.5;
+    vertical-align: baseline;
+    user-select: all;
+  }
+  [data-slot="token-input-host"][data-token-type="user"]::before { content: "@"; color: var(--muted-foreground); }
+  [data-slot="token-input-host"][data-token-type="command"]::before { content: "/"; color: var(--muted-foreground); }
+  [data-slot="token-input-host"]:is([data-selected]), [data-slot="token-input-token"][data-selected] { background: var(--primary); color: var(--primary-foreground); }
+  [data-slot="token-input-host"][data-selected]::before { color: inherit; }
+  [data-slot="token-input-host"][data-pending] { opacity: 0.6; }
+  [data-slot="token-input-host"][data-unresolved] { box-shadow: inset 0 0 0 1px var(--warning); }
+
+  [data-slot="token-input-footer"] { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; color: var(--muted-foreground); font-size: var(--ui-text-xs); }
+
+  /* The trigger menu: its rows are made by the element, so they're styled here, as .ui-item. */
+  [data-slot="trigger-menu-content"] { min-width: 12rem; }
+  [data-slot="trigger-menu-item"] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--ui-h-sm);
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--ui-radius-sm);
+    font-size: var(--ui-text-sm);
+    cursor: default;
+    user-select: none;
+  }
+  [data-slot="trigger-menu-item"][data-highlighted] { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="trigger-menu-item"][data-disabled] { opacity: 0.5; pointer-events: none; }
+  [data-slot="trigger-menu-item"] mark { background: transparent; color: inherit; font-weight: 600; }
+  [data-slot="trigger-menu-empty"] { display: none; padding: 0.75rem 0.5rem; color: var(--muted-foreground); text-align: center; }
+  [data-slot="trigger-menu-empty"][data-empty] { display: block; }
+}

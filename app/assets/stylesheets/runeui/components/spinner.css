@@ -1,0 +1,8 @@
+@layer runeui.components {
+  [data-slot="spinner"] { display: inline-flex; color: currentColor; }
+  [data-slot="spinner"] .ui-icon { animation: ui-spin 1s linear infinite; }
+  [data-slot="spinner"][data-size="sm"] .ui-icon { width: 0.875rem; height: 0.875rem; }
+  [data-slot="spinner"][data-size="lg"] .ui-icon { width: 1.5rem; height: 1.5rem; }
+  [data-slot="spinner"][data-size="xl"] .ui-icon { width: 2rem; height: 2rem; }
+  @keyframes ui-spin { to { rotate: 360deg; } }
+}

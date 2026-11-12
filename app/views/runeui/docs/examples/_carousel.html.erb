@@ -1,0 +1,4 @@
+<%# locals: () %>
+<%= ui :carousel, label: "Numbers", indicators: true, slides: (1..5).map { ui(:card, content: tag.span(it, data: { slot: "carousel-number" })) } %>
+<h2>Three at a time</h2>
+<%= ui :carousel, label: "Cards", per_page: 3, slides: (1..8).map { ui(:card, content: tag.span(it, data: { slot: "carousel-number" })) } %>

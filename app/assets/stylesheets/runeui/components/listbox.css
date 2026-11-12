@@ -1,0 +1,37 @@
+/* Listbox: a bordered list of options on the page; the chosen ones carry a check. */
+
+@layer runeui.components {
+  [data-slot="listbox"] {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 16rem;
+    max-width: 100%;
+    max-height: 18rem;
+    overflow-y: auto;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-md);
+    background: var(--background);
+    box-shadow: var(--ui-shadow-xs);
+    outline: none;
+  }
+
+  .dark [data-slot="listbox"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  [data-slot="listbox"]:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="listbox"][aria-invalid="true"] { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  [data-slot="listbox"][data-disabled] { opacity: 0.5; }
+  [data-slot="listbox"][data-orientation="horizontal"] { flex-direction: row; width: auto; max-height: none; overflow: auto; }
+
+  [data-slot="listbox-item"] { padding-inline-end: 2rem; cursor: pointer; }
+  [data-slot="listbox-item"]:focus-visible { box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent); }
+  [data-slot="listbox-item"][data-selected] { font-weight: 500; }
+  [data-slot="listbox-item"][data-disabled] { cursor: not-allowed; }
+  [data-slot="listbox-item-label"] { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  [data-slot="listbox-item-indicator"] { position: absolute; inset-inline-end: 0.5rem; display: flex; }
+  [data-slot="listbox-item"]:not([data-selected]) [data-slot="listbox-item-indicator"] { visibility: hidden; }
+  [data-slot="listbox-item-indicator"] .ui-icon { color: var(--foreground); }
+  [data-slot="listbox-group"] { display: block; }
+  [data-slot="listbox-group-label"] { display: block; padding: 0.375rem 0.5rem; color: var(--muted-foreground); font-size: var(--ui-text-xs); font-weight: 500; }
+  [data-slot="listbox-separator"] { display: block; height: 1px; margin: 0.25rem -0.25rem; background: var(--border); }
+}

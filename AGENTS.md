@@ -21,6 +21,10 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 | `forms.js` | fires native `change`/`input` when a form-associated component's value moves |
 | `feedback.js` | toasts (flash, `ui_toast`, `toast()`) and `data-turbo-confirm` through the alert dialog |
 | `theme.js` | `.dark` on `<html>`, `data-runeui-theme` buttons |
+| `sidebar.js` | the app shell's sidebar: collapse to icons (`[`), a cookie the server reads, the phone sheet |
+| `selection.js` | a table's picked rows: select-all, shift ranges, the bulk bar |
+| `props.js` | `data-props` JSON → element properties; an image cropper's crop → its hidden fields |
+| `remote.js`, `command.js`, `triggers.js` | server search (`src:`), commands that visit (`href:`), a trigger menu's triggers from markup |
 | `agent.js` | UI SDK's agent bridge over WebMCP, opt-in |
 | `app/assets/stylesheets/runeui/tokens.css` | shadcn's colour tokens by name, plus `--ui-*` sizes; the layer order |
 | `base.css` | page base, `.ui-popup` (every floating surface), `.ui-item` (every list/menu row), `[data-slot=choice]` |
@@ -55,13 +59,24 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
    `[data-starting-style]`/`[data-ending-style]` for transitions). Colours only from the tokens
    (`--primary`, `--muted-foreground`, `--border`, `--ring`…), sizes from `--ui-*`; it must look
    right light and dark, and match shadcn/ui's look for the same component. No hex colours.
+   Tints are `color-mix(in oklab, …)`, never `in oklch`: the neutral tokens are `oklch(L 0 0)`,
+   and mixing them in oklch drags a colour's hue to 0 (everything goes pink).
 8. **The example**, `app/views/runeui/docs/examples/_<name>.html.erb` (`<%# locals: () %>`): the
    common cases, and a form posting to `runeui_echo_path("<name>")` with `data-turbo-stream` for a
    form control, which answers with a toast of what it received.
-9. **Verify**: `bundle exec herb lint app/views` clean; the component's page with no console
+9. **Lists and data.** UI SDK takes lists in attributes comma-separated (`default-value="a,b"`; a
+   range slider's `"20/80"`), not JSON. What it takes only as a property (items, spans,
+   triggers) goes in `data-props='{"items": …}'`, which `props.js` applies and a morph updates.
+10. **Ids.** Give every root an id (`ui_id(prefix, id, name: name)`) and render the ids of parts
+   UI SDK would otherwise generate (`<root-id>-heading`, a radio's label): its counters collide
+   across components (`ui-label` and a radio's label both make `ui-sdk-label-1`), and a morph
+   pairs parts by id.
+11. **Verify**: `bundle exec herb lint app/views` clean; the component's page with no console
    errors in light and dark; `test/browser/components/<name>.test.mjs` (with `component()` from
    `test/browser/component.mjs`) opening it, using it with the keyboard and pointer, and for a form
-   control checking the value it submits. Look at the screenshots.
+   control checking the value it submits. Look at the screenshots. Hover cards and tooltips open
+   after a delay (wait about 900 ms after hovering); a tooltip opens on keyboard focus (Tab), not
+   on `element.focus()`. UI SDK's events don't bubble: listen in the capture phase.
 
 ## Rules the Hotwire layer keeps
 

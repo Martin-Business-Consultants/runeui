@@ -1,0 +1,29 @@
+<%# locals: () %>
+<%= ui :menubar, label: "Editor", menus: [
+  { label: "File", items: [
+    { label: "New tab", value: "new-tab", shortcut: "mod+t" },
+    { label: "New window", value: "new-window", shortcut: "mod+n" },
+    { label: "New incognito window", value: "incognito", disabled: true },
+    :separator,
+    { label: "Share", items: [ { label: "Email link", value: "email" }, { label: "Messages", value: "messages" }, { label: "Notes", value: "notes" } ] },
+    :separator,
+    { label: "Print…", value: "print", shortcut: "mod+p" }
+  ] },
+  { label: "Edit", items: [
+    { label: "Undo", value: "undo", shortcut: "mod+z" },
+    { label: "Redo", value: "redo", shortcut: "mod+shift+z" },
+    :separator,
+    { label: "Cut", value: "cut" }, { label: "Copy", value: "copy" }, { label: "Paste", value: "paste" }
+  ] },
+  { label: "View", items: [
+    { label: "Always show bookmarks bar", checkbox: true },
+    { label: "Always show full URLs", checkbox: true, checked: true },
+    :separator,
+    { label: "Reload", value: "reload", shortcut: "mod+r" }
+  ] },
+  { label: "Profiles", items: [
+    { radio: "profile", value: "benoit", options: [ [ "Andy", "andy" ], [ "Benoit", "benoit" ], [ "Luis", "luis" ] ] },
+    :separator,
+    { label: "Edit…", value: "edit" }
+  ] }
+] %>

@@ -1,0 +1,12 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :tooltip, text: "Add to library" do %>
+    <%= ui :button, variant: :outline, content: "Hover" %>
+  <% end %>
+  <%= ui :tooltip, text: "New task", side: :bottom do %>
+    <%= ui :button, variant: :outline, size: :icon, icon: :plus %>
+  <% end %>
+  <%= ui :tooltip, text: "Bold", shortcut: "mod+b", side: :right do %>
+    <%= ui :button, variant: :ghost, size: :icon, icon: :bold %>
+  <% end %>
+</div>

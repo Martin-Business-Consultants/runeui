@@ -1,0 +1,23 @@
+@layer runeui.components {
+  [data-slot="popover-content"] { width: 18rem; max-width: var(--available-width, 18rem); padding: 1rem; overflow: visible; outline: none; }
+  [data-slot="popover-header"] { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem; }
+  [data-slot="popover-title"] { font-weight: 500; line-height: 1; }
+  [data-slot="popover-description"] { color: var(--muted-foreground); font-size: var(--ui-text-sm); }
+
+  /* The arrow: a square turned 45°, half under the edge facing the trigger. */
+  :is([data-slot="popover-arrow"], [data-slot="hover-card-arrow"]) {
+    width: 0.625rem; height: 0.625rem;
+    background: inherit;
+    border: inherit; border-width: 1px;
+    rotate: 45deg;
+  }
+  :is([data-slot="popover-arrow"], [data-slot="hover-card-arrow"])[data-side="bottom"] { top: -0.3125rem; border-width: 1px 0 0 1px; }
+  :is([data-slot="popover-arrow"], [data-slot="hover-card-arrow"])[data-side="top"] { bottom: -0.3125rem; border-width: 0 1px 1px 0; }
+  :is([data-slot="popover-arrow"], [data-slot="hover-card-arrow"])[data-side="right"] { left: -0.3125rem; border-width: 0 0 1px 1px; }
+  :is([data-slot="popover-arrow"], [data-slot="hover-card-arrow"])[data-side="left"] { right: -0.3125rem; border-width: 1px 1px 0 0; }
+}
+
+@layer runeui.components {
+  .ui-popover-demo { display: grid; gap: 0.5rem; }
+  .ui-popover-demo [data-slot="field"] { display: grid; grid-template-columns: 4rem 1fr; }
+}

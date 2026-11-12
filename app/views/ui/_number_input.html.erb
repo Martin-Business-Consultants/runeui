@@ -1,0 +1,18 @@
+<%# locals: (name: nil, value: nil, min: nil, max: nil, step: nil, id: nil, placeholder: nil, disabled: nil, required: nil, invalid: nil, form: nil, stepper: nil, **attrs) %>
+<%#
+  Number input: a number field with − and + buttons (held, they repeat), arrow keys, Page
+  Up/Down and the wheel. Typing is checked as you go; Enter or leaving commits it, clamped to
+  min/max and snapped to step. Submits the plain number (1234.5), empty when blank.
+  stepper: false leaves the buttons out.
+
+    ui :number_input, name: "quantity", value: 1, min: 0, aria: { label: "Quantity" }
+    form.ui :number_input, :seats, min: 1, max: 50
+%>
+<% field_id = ui_id("number", id, name: name) %>
+<%= tag.ui_number_input(**ui_attrs({ name: name, "default-value": value, min: min, max: max, step: step, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "number-input" } }, attrs.except(:aria))) do %>
+  <ui-number-input-group data-slot="number-input-group"<% if invalid %> data-invalid<% end %>>
+    <% unless stepper == false %><ui-number-input-decrement><button type="button" data-slot="number-input-decrement" tabindex="-1" aria-label="Decrease"><%= ui_icon :minus %></button></ui-number-input-decrement><% end %>
+    <ui-number-input-control><%= tag.input(**ui_attrs({ id: field_id, value: value, placeholder: placeholder, inputmode: "decimal", autocomplete: "off", data: { slot: "number-input-control" }, aria: (attrs[:aria] || {}).merge(invalid: (invalid ? "true" : nil)) }, {})) %></ui-number-input-control>
+    <% unless stepper == false %><ui-number-input-increment><button type="button" data-slot="number-input-increment" tabindex="-1" aria-label="Increase"><%= ui_icon :plus %></button></ui-number-input-increment><% end %>
+  </ui-number-input-group>
+<% end %>

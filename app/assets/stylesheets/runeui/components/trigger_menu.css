@@ -1,0 +1,27 @@
+/* Trigger Menu: the field is an input or textarea (input.css's .ui-input); the suggestions a
+   .ui-popup at the caret. Items are rendered by UI SDK from the triggers' data. */
+
+@layer runeui.components {
+  [data-slot="trigger-menu"] { display: block; width: 100%; }
+  textarea.ui-trigger-menu-field { height: auto; min-height: 4rem; padding-block: 0.5rem; resize: vertical; line-height: 1.5; }
+  [data-slot="trigger-menu-content"] { min-width: 12rem; max-height: min(var(--available-height, 18rem), 18rem); }
+  [data-slot="trigger-menu-item"] {
+    display: flex; align-items: center; gap: 0.5rem;
+    min-height: var(--ui-h-sm); padding: 0.375rem 0.5rem;
+    border-radius: var(--ui-radius-sm);
+    font-size: var(--ui-text-sm);
+    cursor: default; user-select: none;
+  }
+  [data-slot="trigger-menu-item"][data-highlighted] { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="trigger-menu-item"][data-disabled] { opacity: 0.5; pointer-events: none; }
+  [data-slot="trigger-menu-item-icon"] { display: flex; color: var(--muted-foreground); }
+  [data-slot="trigger-menu-empty"]:empty { display: none; }
+  [data-slot="trigger-menu-empty"] { display: block; padding: 1.5rem 0.5rem; color: var(--muted-foreground); font-size: var(--ui-text-sm); text-align: center; }
+  [data-slot="trigger-menu-group-label"] { display: block; padding: 0.375rem 0.5rem; color: var(--muted-foreground); font-size: var(--ui-text-xs); }
+  [data-slot="trigger-menu-separator"] { display: block; height: 1px; margin: 0.25rem -0.25rem; background: var(--border); }
+  [data-slot="trigger-menu-hint"] { color: var(--muted-foreground); }
+}
+
+@layer runeui.components {
+  .ui-trigger-menu-demo { display: grid; gap: 1rem; width: min(100%, 28rem); justify-items: start; }
+}

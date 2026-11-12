@@ -1,0 +1,47 @@
+<%# locals: (items: nil, label: nil, viewport: nil, orientation: nil, content: nil, **attrs) %>
+<%#
+  Navigation Menu: a site's main links, some opening a panel of more (shadcn's Navigation
+  Menu). Real buttons show groups of ordinary links; use ui :menu for actions instead.
+
+    ui :navigation_menu, label: "Main", items: [
+      { label: "Getting started", links: [
+        { label: "Introduction", href: "/docs", description: "Components built on UI SDK" },
+        { label: "Installation", href: "/docs/install", description: "How to add it to your app" }
+      ] },
+      { label: "Docs", href: "/docs", current: true }
+    ]
+
+  A panel's links: label, href, description (optional), icon (optional), current. columns: 2
+  on an item lays its links out in two. The block, when given, replaces items.
+%>
+<%= tag.ui_navigation_menu(**ui_attrs({ "aria-label": (label || "Main"), orientation: orientation&.to_s, data: { slot: "navigation-menu" } }, attrs)) do %>
+  <ui-navigation-menu-list data-slot="navigation-menu-list">
+    <% if content %>
+    <%= content %>
+    <% else %>
+    <% Array(items).each_with_index do |item, index| %>
+    <%# herb:key index %>
+    <ui-navigation-menu-item data-slot="navigation-menu-item" value="<%= item[:value] || item[:label].to_s.parameterize %>">
+      <% if item[:links] %>
+      <ui-navigation-menu-trigger><button type="button" data-slot="navigation-menu-trigger"><%= item[:label] %><%= ui_icon "chevron-down", class: "ui-navigation-menu-chevron" %></button></ui-navigation-menu-trigger>
+      <ui-navigation-menu-content data-slot="navigation-menu-content" data-columns="<%= item[:columns] || 1 %>"<% if item[:links].none? { it[:description] } %> data-compact<% end %> hidden>
+        <ul class="ui-navigation-menu-grid">
+          <% item[:links].each do |link| %>
+          <%# herb:key link[:href] %>
+          <li>
+            <ui-navigation-menu-link><%= link_to link[:href], class: "ui-navigation-menu-panel-link", data: { slot: "navigation-menu-link" }, aria: { current: (link[:current] ? "page" : nil) } do %><% if link[:icon] %><ui-navigation-menu-link-icon data-slot="navigation-menu-link-icon"><%= ui_icon link[:icon] %></ui-navigation-menu-link-icon><% end %><span class="ui-navigation-menu-link-title"><%= link[:label] %></span><% if link[:description] %><span class="ui-navigation-menu-link-description"><%= link[:description] %></span><% end %><% end %></ui-navigation-menu-link>
+          </li>
+          <% end %>
+        </ul>
+      </ui-navigation-menu-content>
+      <% else %>
+      <ui-navigation-menu-link><%= link_to item[:label], item[:href], data: { slot: "navigation-menu-link" }, class: "ui-navigation-menu-top-link", aria: { current: (item[:current] ? "page" : nil) } %></ui-navigation-menu-link>
+      <% end %>
+    </ui-navigation-menu-item>
+    <% end %>
+    <% end %>
+  </ui-navigation-menu-list>
+  <% unless viewport == false %>
+  <ui-navigation-menu-viewport data-slot="navigation-menu-viewport" hidden></ui-navigation-menu-viewport>
+  <% end %>
+<% end %>

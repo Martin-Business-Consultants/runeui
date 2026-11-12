@@ -1,0 +1,52 @@
+/* Date input: segments (month, day, year…; each an <input> UI SDK writes) in a box that looks
+   like an input. The focused segment is highlighted, as in shadcn's date field. */
+
+@layer runeui.components {
+  [data-slot="date-input"] {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-width: 7rem;
+    height: var(--ui-h);
+    padding: 0 0.625rem;
+    border: 1px solid var(--input);
+    border-radius: var(--ui-radius-md);
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    font-variant-numeric: tabular-nums;
+    box-shadow: var(--ui-shadow-xs);
+    cursor: text;
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  .dark [data-slot="date-input"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  [data-slot="date-input"]:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="date-input"]:is([data-invalid], [aria-invalid="true"]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  [data-slot="date-input"][data-disabled] { opacity: 0.5; cursor: not-allowed; }
+  [data-slot="date-input"][data-size="sm"] { height: var(--ui-h-sm); }
+  [data-slot="date-input"][data-size="lg"] { height: var(--ui-h-lg); }
+
+  input[data-slot="date-input-segment"] {
+    width: auto;
+    field-sizing: content;
+    min-width: 1.5ch;
+    padding: 0.125rem 0.125rem;
+    border: 0;
+    border-radius: var(--ui-radius-sm);
+    background: transparent;
+    font: inherit;
+    text-align: end;
+    outline: none;
+    caret-color: transparent;
+  }
+
+  input[data-slot="date-input-segment"]::placeholder { color: var(--muted-foreground); }
+  input[data-slot="date-input-segment"]:focus { background: var(--accent); color: var(--accent-foreground); }
+  input[data-slot="date-input-segment"]::selection { background: transparent; }
+  input[data-slot="date-input-segment"][data-type="dayPeriod"] { text-align: start; }
+  ui-date-input-segment[data-type="literal"] { padding: 0 0.0625rem; color: var(--muted-foreground); }
+  [data-slot="date-input"][data-invalid] input[data-slot="date-input-segment"] { color: var(--destructive); }
+
+  /* Before it upgrades it's an empty box; keep its height. */
+  ui-date-input:not(:defined)::before { content: "\200b"; }
+}

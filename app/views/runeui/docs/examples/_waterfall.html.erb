@@ -1,0 +1,10 @@
+<%# locals: () %>
+  <%= ui :waterfall, label: "Checkout trace", columns: [ [ :status, "Status" ] ], spans: [
+    { value: "checkout", label: "POST /checkout", start: 0, duration: 820, status: 200, children: [
+      { value: "auth", label: "authenticate", start: 10, duration: 60, status: "ok" },
+      { value: "cart", label: "SELECT carts", start: 80, duration: 140, status: "ok" },
+      { value: "pay", label: "charge card", start: 230, duration: 480, status: "ok", children: [
+        { value: "stripe", label: "POST api.stripe.com", start: 250, duration: 430, status: 200 } ] },
+      { value: "mail", label: "enqueue receipt", start: 720, duration: 40, status: "ok" } ] },
+    { value: "assets", label: "GET /assets/app.js", start: 900, duration: 210, status: 304 }
+  ] %>

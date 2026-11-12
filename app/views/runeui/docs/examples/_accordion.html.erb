@@ -1,0 +1,12 @@
+<%# locals: () %>
+  <%= ui :accordion, open: "shipping", items: [
+    { value: "product", title: "Product information", content: tag.p("Our flagship product combines cutting-edge technology with sleek design. Built with premium materials, it offers unparalleled performance and reliability.") },
+    { value: "shipping", title: "Shipping details", content: tag.p("We offer worldwide shipping through trusted courier partners. Standard delivery takes 3-5 business days, while express shipping ensures delivery within 1-2 business days.") },
+    { value: "returns", title: "Return policy", content: tag.p("We stand behind our products with a 30-day return policy. If you're not completely satisfied, simply return the item in its original condition.") }
+  ] %>
+<h2>Several open, written as items</h2>
+  <%= ui :accordion, multiple: true, open: %w[a b] do %>
+    <%= ui :accordion_item, title: "Is it accessible?", value: "a", open: true do %>Yes. It follows the WAI-ARIA design pattern.<% end %>
+    <%= ui :accordion_item, title: "Is it styled?", value: "b", open: true do %>Yes. It comes with styles that match the other components.<% end %>
+    <%= ui :accordion_item, title: "Can't open this one", value: "c", disabled: true do %>Hidden.<% end %>
+  <% end %>

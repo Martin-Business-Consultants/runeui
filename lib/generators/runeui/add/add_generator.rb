@@ -16,13 +16,13 @@ module Runeui
         names = components == [ "all" ] ? Runeui.components : components
         names.each do |name|
           partial = "app/views/ui/_#{name}.html.erb"
-          sheet = "app/assets/stylesheets/runeui/components/#{name}.css"
+          sheet = [ name, name.dasherize ].map { "app/assets/stylesheets/runeui/components/#{it}.css" }.find { File.exist?(Runeui::Engine.root.join(it)) }
           unless File.exist?(Runeui::Engine.root.join(partial))
             say_status :missing, "no runeui component #{name} (#{Runeui.components.join(", ")})", :red
             next
           end
           copy_file partial, partial, force: options[:force]
-          copy_file sheet, sheet, force: options[:force] if File.exist?(Runeui::Engine.root.join(sheet))
+          copy_file sheet, sheet, force: options[:force] if sheet
         end
       end
 

@@ -1,0 +1,13 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("date_input") %>" method="post" data-turbo-stream>
+  <%= ui :field, label: "Date of birth" do %>
+    <%= ui :date_input, name: "born_on", id: "born-on", value: Date.new(1990, 4, 12) %>
+  <% end %>
+  <%= ui :field, label: "Starts at" do %>
+    <%= ui :date_input, name: "starts_at", id: "starts-at", value: Time.new(2026, 11, 2, 14, 30), granularity: :minute %>
+  <% end %>
+  <%= ui :field, label: "Empty" do %>
+    <%= ui :date_input, name: "empty_on", id: "empty-on" %>
+  <% end %>
+  <%= ui :button, content: "Send", type: :submit %>
+</form>

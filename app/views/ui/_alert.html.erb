@@ -1,0 +1,16 @@
+<%# locals: (content: nil, title: nil, description: nil, variant: nil, icon: nil, action: nil, **attrs) %>
+<%#
+  Alert: a callout in the page, not a popup. data-variant: default, destructive, success,
+  warning, info; the icon follows the variant unless icon: names another (false for none).
+
+    ui :alert, title: "Heads up!", description: "You can add components with the CLI."
+    ui :alert, variant: :destructive, title: "Couldn't save", description: record.errors.full_messages.to_sentence
+%>
+<% tone = (variant || "default").to_s %>
+<% glyph = icon.nil? ? { "destructive" => "circle-alert", "success" => "circle-check", "warning" => "triangle-alert", "info" => "info" }[tone] : icon %>
+<%= tag.div(**ui_attrs({ role: "alert", data: { slot: "alert", variant: tone } }, attrs)) do %>
+  <% if glyph %><%= ui_icon glyph %><% end %>
+  <% if title %><div data-slot="alert-title"><%= title %></div><% end %>
+  <% if description || content %><div data-slot="alert-description"><%= description %><%= content %></div><% end %>
+  <% if action %><div data-slot="alert-action"><%= action %></div><% end %>
+<% end %>

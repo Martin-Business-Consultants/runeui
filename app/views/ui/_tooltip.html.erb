@@ -1,0 +1,28 @@
+<%# locals: (content: nil, text: nil, shortcut: nil, side: nil, align: nil, type: nil, arrow: nil, **attrs) %>
+<%#
+  Tooltip: a short hint for the control it wraps (shadcn's Tooltip), shown on hover and focus.
+  Plain text only: nothing in it can be pressed. shortcut: shows the keys for the platform
+  (mod+b is ⌘B or Ctrl+B) and tells screen readers; it doesn't bind them. It names an icon-only button, and describes
+  any other.
+
+    ui :tooltip, text: "Add to library" do
+      ui :button, variant: :outline, size: :icon, icon: :plus
+    end
+    ui :tooltip, text: "Bold", shortcut: "mod+b", side: :bottom do … end
+
+  The block is the trigger (a button or a link); a plain string makes a ghost button.
+%>
+<%= tag.ui_tooltip(**ui_attrs({ shortcut: shortcut, data: { slot: "tooltip" } }, attrs)) do %>
+  <ui-tooltip-trigger>
+    <% if content.respond_to?(:html_safe?) && content.html_safe? %>
+    <%= content %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="ghost" data-size="default"><%= content %></button>
+    <% end %>
+  </ui-tooltip-trigger>
+  <%= tag.ui_tooltip_content(side: side&.to_s, align: align&.to_s, "side-offset": 4, type: type&.to_s, hidden: true, data: { slot: "tooltip-content" }) do %>
+    <% if arrow != false %><ui-tooltip-arrow data-slot="tooltip-arrow"></ui-tooltip-arrow><% end %>
+    <%= text %>
+    <% if shortcut %><ui-tooltip-shortcut data-slot="tooltip-shortcut"></ui-tooltip-shortcut><% end %>
+  <% end %>
+<% end %>

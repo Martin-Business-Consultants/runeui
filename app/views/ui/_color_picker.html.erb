@@ -1,0 +1,59 @@
+<%# locals: (name: nil, value: nil, id: nil, label: nil, presets: nil, format: nil, space: nil, alpha: nil, popover: nil, eye_dropper: nil, disabled: nil, required: nil, form: nil, **attrs) %>
+<%#
+  Color picker: a saturation and brightness area, a hue slider (and alpha: true for opacity),
+  the hex code to type into, and presets: to click. Submits the colour under name: as hex (or
+  format: "rgb", "hsl", "oklch"). With popover: true it's a swatch button that opens the picker.
+
+    ui :color_picker, name: "brand", value: "#0ea5e9", label: "Brand colour"
+    form.ui :color_picker, :color, popover: true, presets: %w[#ef4444 #f97316 #22c55e #0ea5e9 #6366f1 #a855f7]
+
+  space: "oklch" edits lightness, chroma and hue (perceptual) instead of HSV. eye_dropper: true
+  adds a button that picks from the screen where the browser can.
+%>
+<% color = (value.presence || "#000000").to_s %>
+<% picker_id = ui_id("color-picker", id, name: name) %>
+<% code_input = capture do %><ui-color-picker-input data-slot="color-picker-input"><input class="ui-input" data-size="sm" value="<%= color %>" aria-label="<%= label || "Colour" %> code" spellcheck="false" autocomplete="off"></ui-color-picker-input><% end %>
+<% panel = capture do %>
+  <ui-color-picker-area data-slot="color-picker-area"<% if space.to_s == "oklch" %> x="chroma" y="lightness"<% end %>>
+    <% if space.to_s == "oklch" %><ui-color-picker-area-canvas data-slot="color-picker-area-canvas"></ui-color-picker-area-canvas><% end %>
+    <ui-color-picker-area-thumb data-slot="color-picker-area-thumb"></ui-color-picker-area-thumb>
+  </ui-color-picker-area>
+  <div data-slot="color-picker-row">
+    <% if eye_dropper %>
+    <ui-color-picker-eye-dropper><button type="button" class="ui-button" data-variant="outline" data-size="icon-sm" aria-label="Pick from the screen"><%= ui_icon :search %></button></ui-color-picker-eye-dropper>
+    <% end %>
+    <div data-slot="color-picker-sliders">
+      <ui-color-picker-slider data-slot="color-picker-slider" channel="hue"><ui-color-picker-slider-thumb data-slot="color-picker-slider-thumb"></ui-color-picker-slider-thumb></ui-color-picker-slider>
+      <% if alpha %><ui-color-picker-slider data-slot="color-picker-slider" channel="alpha"><ui-color-picker-slider-thumb data-slot="color-picker-slider-thumb"></ui-color-picker-slider-thumb></ui-color-picker-slider><% end %>
+    </div>
+  </div>
+  <% unless popover %>
+  <div data-slot="color-picker-row">
+    <ui-color-picker-swatch data-slot="color-picker-swatch"></ui-color-picker-swatch>
+    <%= code_input %>
+  </div>
+  <% end %>
+  <% if presets.present? %>
+  <ui-color-picker-swatches data-slot="color-picker-swatches" aria-label="Presets">
+    <% presets.each do |preset| %>
+    <%# herb:key preset %>
+    <ui-color-picker-swatch-item data-slot="color-picker-swatch-item" value="<%= preset %>"></ui-color-picker-swatch-item>
+    <% end %>
+  </ui-color-picker-swatches>
+  <% end %>
+<% end %>
+<%= tag.ui_color_picker(**ui_attrs({ id: picker_id, name: name, "default-value": color, format: (format || "hex").to_s, space: space&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "color-picker", popover: (popover ? "" : nil) }, aria: { label: label || "Colour" } }, attrs)) do %>
+  <% if popover %>
+  <div data-slot="color-picker-field">
+    <ui-popover>
+      <ui-popover-trigger>
+        <button type="button" data-color-trigger aria-label="Choose <%= (label || "colour").downcase %>"><ui-color-picker-swatch data-slot="color-picker-swatch"></ui-color-picker-swatch></button>
+      </ui-popover-trigger>
+      <ui-popover-content data-slot="popover-content" class="ui-popup" data-color-panel side-offset="6" align="start" hidden><%= panel %></ui-popover-content>
+    </ui-popover>
+    <%= code_input %>
+  </div>
+  <% else %>
+  <div data-color-panel><%= panel %></div>
+  <% end %>
+<% end %>

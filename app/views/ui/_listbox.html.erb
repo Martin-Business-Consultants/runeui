@@ -1,0 +1,36 @@
+<%# locals: (name: nil, options: nil, value: nil, id: nil, label: nil, multiple: nil, disabled: nil, required: nil, invalid: nil, form: nil, orientation: nil, activation: nil, deselectable: nil, content: nil, **attrs) %>
+<%#
+  Listbox: a list of options always on the page (no popup), one chosen or several with
+  multiple: true (Shift for ranges, ⌘/Ctrl to add, ⌘/Ctrl+A for all). Arrow keys move, typing
+  jumps. Takes options as select does; submits like a native select (each value its own entry).
+  label: names it for screen readers (or put it in a field).
+
+    ui :listbox, name: "plan", label: "Plan", options: [ [ "Free", "free" ], [ "Pro", "pro" ] ], value: "pro"
+    form.ui :listbox, :role_ids, options: Role.pluck(:name, :id), multiple: true
+
+  orientation: :horizontal for a row; activation: :manual so keys only move and Space or Enter
+  chooses; deselectable: true lets a press on the chosen option clear it.
+%>
+<% choices = ui_options(options || []) %>
+<% values = Array(value).map(&:to_s).compact_blank %>
+<% check = ui_icon(:check) %>
+<%= tag.ui_listbox(**ui_attrs({ id: id, name: name, "default-value": (values.any? ? (multiple ? values.join(", ") : values.first) : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, orientation: orientation&.to_s, activation: activation&.to_s, deselectable: (deselectable ? "" : nil), loop: "", data: { slot: "listbox" }, aria: { label: label, invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% choices.each do |choice| %>
+  <%# herb:key choice[:group] || choice[:value] %>
+  <% if choice[:group] %>
+  <ui-listbox-group data-slot="listbox-group">
+    <ui-listbox-group-label data-slot="listbox-group-label"><%= choice[:group] %></ui-listbox-group-label>
+    <% choice[:options].each do |item| %>
+    <%# herb:key item[:value] %>
+    <ui-listbox-item data-slot="listbox-item" class="ui-item" value="<%= item[:value] %>"<% if values.include?(item[:value]) %> data-selected<% end %><% if item[:disabled] %> disabled<% end %>><span data-slot="listbox-item-label"><%= item[:label] %></span><ui-listbox-item-indicator data-slot="listbox-item-indicator"><%= check %></ui-listbox-item-indicator></ui-listbox-item>
+    <% end %>
+  </ui-listbox-group>
+  <% else %>
+  <ui-listbox-item data-slot="listbox-item" class="ui-item" value="<%= choice[:value] %>"<% if values.include?(choice[:value]) %> data-selected<% end %><% if choice[:disabled] %> disabled<% end %>><span data-slot="listbox-item-label"><%= choice[:label] %></span><ui-listbox-item-indicator data-slot="listbox-item-indicator"><%= check %></ui-listbox-item-indicator></ui-listbox-item>
+  <% end %>
+  <% end %>
+  <% end %>
+<% end %>

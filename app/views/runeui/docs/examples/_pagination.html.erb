@@ -1,0 +1,4 @@
+<%# locals: () %>
+<%= ui :pagination, page: params.fetch(:page, 1), pages: 10 %>
+<h2>From a total, five pages on each side</h2>
+<%= ui :pagination, page: params.fetch(:page, 1), total: 240, per_page: 20, siblings: 2 %>

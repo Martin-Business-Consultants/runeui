@@ -1,0 +1,77 @@
+/* Calendar: a month grid, shadcn's look. Used on its own and inside the date picker's popup.
+   Days are gridcells UI SDK writes from the weeks' template; they carry data-selected,
+   data-today, data-outside, data-disabled, data-unavailable and, in a range, data-range-start,
+   -middle, -end and data-preview. */
+
+@layer runeui.components {
+  [data-slot="calendar"] {
+    --cell: 2rem;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: fit-content;
+    padding: 0.75rem;
+    font-size: var(--ui-text-sm);
+  }
+
+  /* Before it upgrades the grid is empty: keep the room a month takes so nothing jumps. */
+  ui-calendar:not(:defined) { min-height: calc(var(--cell) * 7 + 3.25rem); min-width: calc(var(--cell) * 7 + 1.5rem); }
+
+  [data-slot="calendar-nav"] { display: flex; align-items: center; justify-content: space-between; gap: 0.25rem; height: var(--cell); }
+  [data-slot="calendar-heading"] { flex: 1; font-weight: 500; text-align: center; user-select: none; }
+  :is([data-slot="calendar-previous"], [data-slot="calendar-next"]).ui-button { width: var(--cell); height: var(--cell); }
+  :is([data-slot="calendar-previous"], [data-slot="calendar-next"]):is(:disabled, [data-disabled]) { opacity: 0.5; pointer-events: none; }
+
+  [data-slot="calendar-months"] { display: flex; flex-wrap: wrap; gap: 1rem; }
+  [data-slot="calendar-grid"] { display: flex; flex-direction: column; gap: 0.25rem; outline: none; }
+  ui-calendar-weekdays, ui-calendar-weeks { display: flex; flex-direction: column; gap: 0.25rem; }
+  div[data-slot="calendar-weekdays"], [data-slot="calendar-week"] { display: flex; }
+
+  [data-slot="calendar-weekday"] {
+    width: var(--cell);
+    color: var(--muted-foreground);
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-align: center;
+    user-select: none;
+  }
+
+  [data-slot="calendar-day"] {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: var(--ui-radius-md);
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--ui-duration), color var(--ui-duration);
+  }
+
+  [data-slot="calendar-day"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="calendar-day"]:focus-visible { box-shadow: var(--ui-focus-ring); z-index: 1; }
+  [data-slot="calendar-day"][data-today] { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="calendar-day"][data-outside] { color: var(--muted-foreground); cursor: default; }
+  [data-slot="calendar-day"][data-outside]:hover { background: transparent; }
+  [data-slot="calendar-day"]:is([data-disabled], [data-unavailable]) { color: var(--muted-foreground); opacity: 0.5; cursor: not-allowed; }
+  [data-slot="calendar-day"][data-unavailable] { text-decoration: line-through; }
+  [data-slot="calendar-day"][data-disabled]:hover { background: transparent; }
+
+  [data-slot="calendar-day"][data-selected] { background: var(--primary); color: var(--primary-foreground); }
+
+  /* A range: its ends solid, the days between a band; the days being picked a fainter band. */
+  :is([data-slot="calendar-day"][data-range-middle], [data-slot="calendar-day"][data-preview]:not([data-range-start], [data-range-end])) {
+    border-radius: 0;
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+  [data-slot="calendar-day"][data-preview]:not([data-selected]) { background: color-mix(in oklab, var(--accent) 70%, transparent); }
+  [data-slot="calendar-day"][data-range-start] { border-start-end-radius: 0; border-end-end-radius: 0; background: var(--primary); color: var(--primary-foreground); }
+  [data-slot="calendar-day"][data-range-end] { border-start-start-radius: 0; border-end-start-radius: 0; background: var(--primary); color: var(--primary-foreground); }
+  [data-slot="calendar-day"][data-range-start][data-range-end] { border-radius: var(--ui-radius-md); }
+
+  [data-slot="calendar"]:is([data-disabled], [data-readonly]) [data-slot="calendar-day"] { cursor: default; }
+  [data-slot="calendar"][data-disabled] { opacity: 0.5; }
+}

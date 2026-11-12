@@ -1,0 +1,18 @@
+<%# locals: (title: nil, value: nil, content: nil, open: nil, disabled: nil, heading: nil, **attrs) %>
+<%#
+  One heading and panel in an accordion. open: true when its value is among the accordion's
+  open: (so it's drawn open before the page's JavaScript runs).
+
+    ui :accordion_item, title: "Returns", value: "returns" do
+      tag.p "Thirty days, no questions."
+    end
+%>
+<% state = open ? { open: "" } : { closed: "" } %>
+<%= tag.ui_accordion_item(**ui_attrs({ value: value, disabled: (disabled ? "" : nil), data: { slot: "accordion-item" }.merge(state) }, attrs)) do %>
+  <ui-accordion-header data-slot="accordion-header">
+    <%= content_tag (heading || :h3), class: "ui-accordion-heading" do %>
+      <ui-accordion-trigger><button type="button" data-slot="accordion-trigger"<% if open %> data-open<% end %>><span><%= title %></span><%= ui_icon "chevron-down", class: "ui-accordion-icon" %></button></ui-accordion-trigger>
+    <% end %>
+  </ui-accordion-header>
+  <ui-accordion-panel data-slot="accordion-panel"<% if !open %> hidden<% end %>><div data-slot="accordion-content"><%= content %></div></ui-accordion-panel>
+<% end %>

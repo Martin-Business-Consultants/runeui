@@ -1,0 +1,5 @@
+<%# locals: () %>
+<%= ui :alert, title: "Heads up!", description: "You can add components to your app with bin/rails g runeui:add." %>
+<%= ui :alert, variant: :destructive, title: "Couldn't save the project", description: "Name can't be blank." %>
+<%= ui :alert, variant: :success, title: "Invoice sent", action: ui(:button, size: :xs, variant: :outline, content: "Undo") %>
+<%= ui :alert, variant: :warning, title: "Your trial ends in 3 days" %>

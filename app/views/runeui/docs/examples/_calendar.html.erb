@@ -1,0 +1,7 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :card, size: :sm do %><%= ui :calendar, id: "cal-single", value: Date.new(2026, 10, 16) %><% end %>
+  <%= ui :card, size: :sm do %><%= ui :calendar, id: "cal-multiple", mode: :multiple, value: [ Date.new(2026, 10, 6), Date.new(2026, 10, 9) ], min: Date.new(2026, 10, 3) %><% end %>
+</div>
+<h2>Range, two months</h2>
+<%= ui :card, size: :sm do %><%= ui :calendar, id: "cal-range", mode: :range, months: 2, value: (Date.new(2026, 10, 12)..Date.new(2026, 10, 16)) %><% end %>

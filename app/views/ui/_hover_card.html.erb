@@ -1,0 +1,25 @@
+<%# locals: (content: nil, trigger: nil, href: nil, side: nil, align: nil, arrow: nil, **attrs) %>
+<%#
+  Hover Card: a preview of what a link leads to, for people who pause on it (shadcn's Hover
+  Card). Everything in it should be on the page the link goes to: touch and screen reader users
+  may never see it.
+
+    ui :hover_card, trigger: "@nextjs", href: "https://github.com/vercel" do
+      render "profiles/preview", profile: profile
+    end
+
+  trigger: a string with href: makes a link; markup (a link of your own) is used as it is.
+%>
+<%= tag.ui_hover_card(**ui_attrs({ data: { slot: "hover-card" } }, attrs)) do %>
+  <ui-hover-card-trigger>
+    <% if trigger.respond_to?(:html_safe?) && trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <a href="<%= href || "#" %>" class="ui-hover-card-link" data-slot="hover-card-trigger"><%= trigger %></a>
+    <% end %>
+  </ui-hover-card-trigger>
+  <%= tag.ui_hover_card_content(class: "ui-popup", side: side&.to_s, align: (align || "center").to_s, "side-offset": 4, hidden: true, data: { slot: "hover-card-content" }) do %>
+    <% if arrow %><ui-hover-card-arrow data-slot="hover-card-arrow"></ui-hover-card-arrow><% end %>
+    <%= content %>
+  <% end %>
+<% end %>

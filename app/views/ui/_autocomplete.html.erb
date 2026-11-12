@@ -1,0 +1,51 @@
+<%# locals: (name: nil, options: nil, value: nil, placeholder: nil, id: nil, type: nil, disabled: nil, required: nil, invalid: nil, form: nil, empty: nil, src: nil, clearable: nil, inline: nil, open_on_focus: nil, submit_on_select: nil, content: nil, **attrs) %>
+<%#
+  Autocomplete: a text field with suggestions. Unlike a combobox the text itself is the value
+  (what's typed submits, chosen or not): a search box, a city, a tag. options: are the
+  suggestions (strings, or groups as a hash); they filter as you type.
+
+    ui :autocomplete, name: "city", options: City.pluck(:name), placeholder: "City"
+    ui :autocomplete, name: "q", type: :search, src: search_suggestions_path(format: :json), submit_on_select: true
+
+  src: suggests from the server: GET src?q=<text> answering a JSON array of strings (runeui/remote).
+  inline: true completes the text with the first match as you type; open_on_focus: true shows
+  them before anything is typed; submit_on_select: true submits the form when one is chosen.
+%>
+<% choices = ui_options(options || []) %>
+<% field_id = ui_id("autocomplete", id, name: name) %>
+<%= tag.ui_autocomplete(**ui_attrs({ id: field_id, name: name, "default-value": value.presence&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, filter: (src ? "false" : nil), "inline-complete": (inline ? "" : nil), "open-on-focus": (open_on_focus ? "" : nil), "submit-on-select": (submit_on_select ? "" : nil), "auto-highlight": (inline ? nil : ""), data: { slot: "autocomplete", src: src }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <div data-slot="autocomplete-control"<% if invalid %> aria-invalid="true"<% end %>>
+    <% if type.to_s == "search" %><%= ui_icon :search, class: "ui-autocomplete-icon" %><% end %>
+    <ui-autocomplete-input data-slot="autocomplete-input"><%= tag.input(type: (type || "text").to_s, placeholder: placeholder, value: value, autocomplete: "off", aria: { invalid: (invalid ? "true" : nil) }) %></ui-autocomplete-input>
+    <% if clearable %>
+    <ui-autocomplete-clear><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Clear"><%= ui_icon :x %></button></ui-autocomplete-clear>
+    <% end %>
+  </div>
+  <ui-autocomplete-content data-slot="autocomplete-content" class="ui-popup" anchor="#<%= field_id %> [data-slot=autocomplete-control]" side-offset="4" hidden>
+    <% if src %><ui-autocomplete-status data-slot="autocomplete-status"></ui-autocomplete-status><% end %>
+    <% if empty %><ui-autocomplete-empty data-slot="autocomplete-empty"><%= empty %></ui-autocomplete-empty><% end %>
+    <ui-autocomplete-list data-slot="autocomplete-list">
+      <% if content %>
+      <%= content %>
+      <% else %>
+      <% choices.each do |choice| %>
+      <%# herb:key choice[:group] || choice[:value] %>
+      <% if choice[:group] %>
+      <ui-autocomplete-group data-slot="autocomplete-group">
+        <ui-autocomplete-group-label data-slot="autocomplete-group-label"><%= choice[:group] %></ui-autocomplete-group-label>
+        <% choice[:options].each do |item| %>
+        <%# herb:key item[:value] %>
+        <ui-autocomplete-item data-slot="autocomplete-item" class="ui-item" value="<%= item[:label] %>"<% if item[:disabled] %> disabled<% end %>><ui-autocomplete-item-text data-slot="autocomplete-item-text"><%= item[:label] %></ui-autocomplete-item-text></ui-autocomplete-item>
+        <% end %>
+      </ui-autocomplete-group>
+      <% else %>
+      <ui-autocomplete-item data-slot="autocomplete-item" class="ui-item" value="<%= choice[:label] %>"<% if choice[:disabled] %> disabled<% end %>><ui-autocomplete-item-text data-slot="autocomplete-item-text"><%= choice[:label] %></ui-autocomplete-item-text></ui-autocomplete-item>
+      <% end %>
+      <% end %>
+      <% end %>
+    </ui-autocomplete-list>
+  </ui-autocomplete-content>
+  <% if src %>
+  <template><ui-autocomplete-item data-slot="autocomplete-item" class="ui-item"></ui-autocomplete-item></template>
+  <% end %>
+<% end %>

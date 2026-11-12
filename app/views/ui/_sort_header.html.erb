@@ -1,0 +1,17 @@
+<%# locals: (label: nil, key: nil, sort: nil, direction: nil, param: nil, align: nil, **attrs) %>
+<%#
+  A sortable column's <th>: a link to this page sorted by key, the other query params kept,
+  flipping the direction when it's already the sort. The controller reads params[:sort] and
+  params[:direction] (or param: and "#{param}_direction").
+
+    ui :sort_header, label: "Due", key: :due_on, sort: params[:sort], direction: params[:direction]
+%>
+<% name = (param || "sort").to_s %>
+<% current = sort.to_s == key.to_s %>
+<% now = (direction.to_s == "desc") ? "desc" : "asc" %>
+<% following = current && now == "asc" ? "desc" : "asc" %>
+<% direction_param = name == "sort" ? "direction" : "#{name}_direction" %>
+<% href = url_for(request.query_parameters.merge(name => key.to_s, direction_param => following, "page" => nil).compact) %>
+<%= tag.th(**ui_attrs({ data: { align: align&.to_s }, aria: { sort: (current ? (now == "asc" ? "ascending" : "descending") : nil) } }, attrs)) do %>
+  <a data-slot="table-sort" href="<%= href %>"><%= label %><%= ui_icon(current ? (now == "asc" ? "chevron-up" : "chevron-down") : "chevrons-up-down") %></a>
+<% end %>

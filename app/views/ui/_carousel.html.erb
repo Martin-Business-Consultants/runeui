@@ -1,0 +1,40 @@
+<%# locals: (slides: nil, content: nil, label: nil, orientation: nil, loop: nil, per_page: nil, indicators: nil, autoplay: nil, interval: nil, align: nil, **attrs) %>
+<%#
+  Carousel: slides that scroll a page at a time, by Previous and Next, swipes, drags and the
+  arrow keys. slides: a list of markup (one per slide); or a block of
+  <ui-carousel-item data-slot="carousel-item"> elements. label: names it (needed).
+  per_page: how many show at once (a number, or "auto" to fit by the slides' width);
+  indicators: true adds a dot per slide; loop: true goes round; autoplay: true rotates
+  (every interval: ms), pausing on hover.
+
+    ui :carousel, label: "Screenshots", slides: project.images.map { image_tag(it) }
+    ui :carousel, label: "Plans", per_page: 3, indicators: true, slides: plans.map { render it }
+%>
+<% direction = (orientation || "horizontal").to_s %>
+<% list = Array(slides) %>
+<%= tag.ui_carousel(**ui_attrs({ orientation: (orientation ? direction : nil), loop: (loop ? "" : nil), "slides-per-page": per_page&.to_s, "default-playing": (autoplay ? "" : nil), interval: interval, align: align&.to_s, aria: { label: label }, data: { slot: "carousel", orientation: direction, per_page: per_page&.to_s } }, attrs)) do %>
+  <div data-slot="carousel-frame">
+    <ui-carousel-viewport data-slot="carousel-viewport" data-orientation="<%= direction %>">
+      <ui-carousel-content data-slot="carousel-content" data-orientation="<%= direction %>">
+        <% if content %>
+        <%= content %>
+        <% else %>
+        <% list.each_with_index do |slide, index| %>
+        <%# herb:key index %>
+        <ui-carousel-item data-slot="carousel-item" data-orientation="<%= direction %>"><%= slide %></ui-carousel-item>
+        <% end %>
+        <% end %>
+      </ui-carousel-content>
+    </ui-carousel-viewport>
+    <ui-carousel-previous><button type="button" class="ui-button" data-variant="outline" data-size="icon-sm" data-slot="carousel-previous" aria-label="Previous slide"><%= ui_icon(direction == "vertical" ? "chevron-up" : "chevron-left") %></button></ui-carousel-previous>
+    <ui-carousel-next><button type="button" class="ui-button" data-variant="outline" data-size="icon-sm" data-slot="carousel-next" aria-label="Next slide"><%= ui_icon(direction == "vertical" ? "chevron-down" : "chevron-right") %></button></ui-carousel-next>
+  </div>
+  <% if indicators && list.any? %>
+  <ui-carousel-indicator-group data-slot="carousel-indicator-group" aria-label="Choose a slide">
+    <% list.each_index do |index| %>
+    <%# herb:key index %>
+    <ui-carousel-indicator><button type="button" data-slot="carousel-indicator" aria-label="Slide <%= index + 1 %>"<% if index.zero? %> data-selected<% end %>></button></ui-carousel-indicator>
+    <% end %>
+  </ui-carousel-indicator-group>
+  <% end %>
+<% end %>

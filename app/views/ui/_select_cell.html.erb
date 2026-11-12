@@ -1,0 +1,14 @@
+<%# locals: (value: nil, name: nil, label: nil, all: nil, checked: nil, **attrs) %>
+<%#
+  The checkbox column of a table whose rows can be picked: in each row a <td> submitting the
+  row's value as ids[] (name: to change it), in the header (all: true) a <th> that picks every
+  row, shows mixed when some are, and counts them for the bulk bar. Shift-click picks a range.
+  Put the table and ui :bulk_bar in one form.
+
+    <th> ui :select_cell, all: true </th> … per row: ui :select_cell, value: project.id, label: project.name
+%>
+<% if all %>
+<%= tag.th(**ui_attrs({ data: { slot: "table-select" } }, attrs)) do %><%= tag.ui_checkbox(tag.ui_checkbox_indicator(ui_icon(:check), data: { slot: "checkbox-indicator" }) + ui_icon(:minus, class: "ui-mixed-icon"), data: { slot: "checkbox", runeui_select_all: "" }, aria: { label: (label || "Pick every row") }) %><% end %>
+<% else %>
+<%= tag.td(**ui_attrs({ data: { slot: "table-select" } }, attrs)) do %><%= tag.ui_checkbox(tag.ui_checkbox_indicator(ui_icon(:check), data: { slot: "checkbox-indicator" }), name: (name || "ids[]"), value: value.to_s, "default-checked": (checked ? "" : nil), data: { slot: "checkbox", runeui_select: "" }, aria: { label: (label ? "Pick #{label}" : "Pick this row") }) %><% end %>
+<% end %>

@@ -1,0 +1,47 @@
+<%# locals: (items: nil, paths: nil, label: nil, id: nil, mode: nil, value: nil, expanded: nil, current: nil, icons: nil, **attrs) %>
+<%#
+  Tree: nested items that open and close, like files and folders or a site's pages. Arrow keys
+  move (Right opens, Left closes or goes up), typing jumps, Enter runs. An item with href: is a
+  link (Turbo follows it); current: marks the page you're on and opens its folders.
+
+    ui :tree, label: "Files", paths: %w[app/models/user.rb app/views/users/show.html.erb README.md]
+    ui :tree, label: "Docs", current: "install", items: [
+      { label: "Guides", value: "guides", children: [
+        { label: "Install", value: "install", href: guide_path("install") },
+        { label: "Deploy", value: "deploy", href: guide_path("deploy") } ] },
+      { label: "Changelog", value: "changelog", href: changelog_path }
+    ]
+
+  An item: label:, value: (unique; the label otherwise), href:, icon:, disabled:, children:.
+  paths: builds folders from file paths, folders first, with file and folder icons (icons: true
+  gives items: them too). mode: "single" or "multiple" selects (listen for valuechange, in the
+  capture phase); "none" (the default) only navigates. expanded: lists the folders open at first.
+%>
+<% tree_items = items || begin
+  root = {}
+  Array(paths).each { |path| path.to_s.split("/").reject(&:blank?).inject(root) { |node, part| node[part] ||= {} } }
+  build = ->(node, prefix) { node.sort_by { |name, children| [ children.empty? ? 1 : 0, name.downcase ] }.map { |name, children| full = [ prefix, name ].compact.join("/"); { label: name, value: full, children: (children.empty? ? nil : build.(children, full)) } } }
+  build.(root, nil)
+end %>
+<% with_icons = icons.nil? ? paths.present? : icons %>
+<%# The folders open at first: those asked for, and the ones holding current: (UI SDK marks the
+    current item but doesn't open its folders when the items are markup). %>
+<% ancestors = ->(list, trail) { list.each { |item| v = (item[:value] || item[:label]).to_s; return trail if v == current.to_s; found = item[:children].present? && ancestors.(item[:children], trail + [ v ]); return found if found }; nil } %>
+<% open_folders = (Array(expanded).map(&:to_s) + (current.present? ? (ancestors.(tree_items, []) || []) : [])).uniq %>
+<% chevron = ui_icon("chevron-right") %>
+<% render_items = nil %>
+<% render_items = ->(list) {
+  safe_join(list.map { |item|
+    item_value = (item[:value] || item[:label]).to_s
+    branch = item[:children].present?
+    icon = item[:icon] || (with_icons ? (branch ? :folder : :file) : nil)
+    inner = safe_join([
+      (branch ? tag.ui_tree_item_indicator(chevron, data: { slot: "tree-indicator" }) : tag.span(data: { tree_spacer: "" })),
+      (icon ? ui_icon(icon, class: "ui-tree-icon") : nil),
+      tag.span(item[:label], data: { tree_text: "" })
+    ].compact)
+    label_part = item[:href] ? tag.ui_tree_item_label(link_to(inner, item[:href], data: { slot: "tree-label" }), "as-child": "") : tag.ui_tree_item_label(inner, data: { slot: "tree-label" })
+    tag.ui_tree_item(safe_join([ label_part, (branch ? tag.ui_tree_group(render_items.(item[:children]), hidden: !open_folders.include?(item_value), data: { slot: "tree-group" }) : nil) ].compact), value: item_value, disabled: (item[:disabled] ? "" : nil), data: { slot: "tree-item" })
+  })
+} %>
+<%= tag.ui_tree(render_items.(tree_items), **ui_attrs({ id: id, mode: (mode || "none").to_s, "default-value": (value.present? ? Array(value).join(",") : nil), "default-expanded": open_folders.join(",").presence, current: current&.to_s, "expand-on-press": "", data: { slot: "tree" }, aria: { label: label || "Tree" } }, attrs)) %>

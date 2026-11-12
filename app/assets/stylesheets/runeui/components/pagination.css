@@ -1,0 +1,10 @@
+@layer runeui.components {
+  [data-slot="pagination"] { display: flex; justify-content: center; width: 100%; }
+  [data-slot="pagination-list"] { display: flex; flex-direction: row; align-items: center; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+  [data-slot="pagination-item"] { display: contents; }
+  :is([data-slot="pagination-previous"], [data-slot="pagination-next"]) { gap: 0.25rem; padding-inline: 0.625rem; }
+  :is([data-slot="pagination-previous"], [data-slot="pagination-next"])[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+  [data-slot="pagination-link"] { font-variant-numeric: tabular-nums; }
+  [data-slot="pagination-ellipsis"] { display: flex; align-items: center; justify-content: center; width: var(--ui-h); height: var(--ui-h); color: var(--muted-foreground); }
+  @media (max-width: 480px) { :is([data-slot="pagination-previous"], [data-slot="pagination-next"]) span { display: none; } }
+}

@@ -1,0 +1,7 @@
+<%# locals: () %>
+<% presets = %w[#ef4444 #f97316 #eab308 #22c55e #0ea5e9 #6366f1 #a855f7 #ec4899] %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("color_picker") %>" method="post" data-turbo-stream>
+  <%= ui :color_picker, name: "brand", id: "brand", value: "#0ea5e9", label: "Brand colour", presets: presets %>
+  <%= ui :color_picker, name: "accent", id: "accent", value: "#a855f7", label: "Accent", popover: true, presets: presets, alpha: true %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>

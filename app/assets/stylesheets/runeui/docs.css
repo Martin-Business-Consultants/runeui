@@ -16,3 +16,9 @@
 .runeui-docs__example h2 { margin: 0; font-size: 0.75rem; font-weight: 500; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.04em; }
 .runeui-docs__source pre { overflow-x: auto; padding: 1rem; border-radius: var(--ui-radius-md); background: var(--muted); font-size: 0.8125rem; }
 @media (max-width: 720px) { .runeui-docs { grid-template-columns: 1fr; } .runeui-docs__nav { position: static; height: auto; flex-direction: row; flex-wrap: wrap; } .runeui-docs__main { padding: 1rem; } }
+.runeui-docs__stack { display: flex; flex-direction: column; gap: 0.5rem; }
+.runeui-docs__w-60 { width: 15rem; }
+.runeui-docs__w-40 { width: 10rem; }
+.runeui-shell-brand { display: flex; align-items: center; gap: 0.5rem; color: inherit; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.runeui-shell-logo { display: grid; place-items: center; flex-shrink: 0; width: 2rem; height: 2rem; border-radius: var(--ui-radius-md); background: var(--sidebar-primary); color: var(--sidebar-primary-foreground); }
+.runeui-docs__full { align-self: stretch; }

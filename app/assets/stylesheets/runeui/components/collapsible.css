@@ -1,0 +1,15 @@
+@layer runeui.components {
+  [data-slot="collapsible"] { display: flex; flex-direction: column; gap: 0.5rem; }
+  [data-slot="collapsible-trigger"] { align-self: flex-start; }
+  [data-slot="collapsible-trigger"] .ui-collapsible-icon { color: var(--muted-foreground); transition: rotate var(--ui-duration) var(--ui-ease); }
+  [data-slot="collapsible-trigger"][data-open] .ui-collapsible-icon { rotate: 180deg; }
+
+  [data-slot="collapsible-panel"] {
+    overflow: hidden;
+    height: var(--collapsible-panel-height, auto);
+    transition: height var(--ui-duration-slow) var(--ui-ease), opacity var(--ui-duration-slow) var(--ui-ease);
+  }
+
+  [data-slot="collapsible-panel"]:is([data-starting-style], [data-ending-style]) { height: 0; opacity: 0; }
+  [data-slot="collapsible-content"] { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+}

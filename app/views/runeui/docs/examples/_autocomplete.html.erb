@@ -1,0 +1,10 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("autocomplete") %>" method="post" data-turbo-stream>
+  <%= ui :autocomplete, name: "fruit", id: "fruit", options: %w[Apple Apricot Banana Blueberry Cherry Grape Mango Orange Peach Pear Pineapple], placeholder: "Type a fruit", clearable: true %>
+  <%= ui :autocomplete, name: "city", id: "city", value: "Lisbon", options: { "Europe" => %w[Berlin Lisbon Paris], "Americas" => %w[Lima Toronto] }, inline: true, empty: "No cities match." %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>A search box</h2>
+<form action="<%= runeui_echo_path("autocomplete") %>" method="post" data-turbo-stream>
+  <%= ui :autocomplete, name: "q", id: "search", type: :search, placeholder: "Search", options: [ "invoices", "invoices overdue", "projects", "people" ], submit_on_select: true %>
+</form>

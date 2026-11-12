@@ -1,0 +1,41 @@
+<%# locals: (content: nil, trigger: nil, title: nil, description: nil, footer: nil, side: nil, id: nil, open: nil, size: nil, closable: nil, dismissible: nil, handle: nil, **attrs) %>
+<%#
+  Drawer: a panel that slides in from an edge (shadcn's Sheet; from the bottom, its Drawer),
+  dragged or swiped away on a touch screen. side: right (the default), left, top or bottom.
+
+    ui :drawer, trigger: "Filters", title: "Filters", description: "Narrow the list", footer: ui(:button, content: "Apply", type: :submit, form: "filters") do
+      render "filters/form"
+    end
+    ui :drawer, side: :bottom, trigger: "Share", title: "Share this page" do … end
+
+  size: sm, lg or full (a side panel's width, a top or bottom panel's height). A bottom or top
+  drawer shows a handle (handle: false hides it). Open it from elsewhere by id, as a dialog.
+%>
+<% edge = (side || "right").to_s %>
+<% grip = handle.nil? ? %w[top bottom].include?(edge) : handle %>
+<%= tag.ui_drawer(**ui_attrs({ id: id, side: edge, "default-open": (open ? "" : nil), dismissible: (dismissible == false ? "false" : nil), data: { slot: "drawer" } }, attrs)) do %>
+  <% if trigger %>
+  <ui-drawer-trigger>
+    <% if trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="outline" data-size="default" data-slot="drawer-trigger"><%= trigger %></button>
+    <% end %>
+  </ui-drawer-trigger>
+  <% end %>
+  <ui-drawer-backdrop data-slot="drawer-backdrop" hidden></ui-drawer-backdrop>
+  <ui-drawer-content data-slot="drawer-content" data-side="<%= edge %>" data-size="<%= (size || "default") %>" hidden>
+    <% if grip %><ui-drawer-handle data-slot="drawer-handle" aria-label="Resize"></ui-drawer-handle><% end %>
+    <% if title || description %>
+    <div data-slot="drawer-header">
+      <% if title %><ui-drawer-title data-slot="drawer-title"><%= title %></ui-drawer-title><% end %>
+      <% if description %><ui-drawer-description data-slot="drawer-description"><%= description %></ui-drawer-description><% end %>
+    </div>
+    <% end %>
+    <% if content %><div data-slot="drawer-body"><%= content %></div><% end %>
+    <% if footer %><div data-slot="drawer-footer"><%= footer %></div><% end %>
+    <% unless closable == false || grip %>
+    <ui-drawer-close><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-drawer-x data-slot="drawer-close" aria-label="Close"><%= ui_icon :x %></button></ui-drawer-close>
+    <% end %>
+  </ui-drawer-content>
+<% end %>

@@ -1,0 +1,13 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("time_input") %>" method="post" data-turbo-stream>
+  <%= ui :field, label: "Meeting time" do %>
+    <%= ui :time_input, name: "meets_at", id: "meets-at", value: "09:30" %>
+  <% end %>
+  <%= ui :field, label: "24-hour, with seconds" do %>
+    <%= ui :time_input, name: "precise", id: "precise", value: "14:05:30", granularity: :second, hour_cycle: 24 %>
+  <% end %>
+  <%= ui :field, label: "Office hours only", description: "Between 8:00 and 18:00" do %>
+    <%= ui :time_input, name: "office", id: "office", min: "08:00", max: "18:00" %>
+  <% end %>
+  <%= ui :button, content: "Send", type: :submit %>
+</form>

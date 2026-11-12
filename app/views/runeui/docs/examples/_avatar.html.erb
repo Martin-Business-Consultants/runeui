@@ -1,0 +1,11 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :avatar, src: "https://github.com/shadcn.png", name: "shadcn" %>
+  <%= ui :avatar, name: "Ada Lovelace" %>
+  <%= ui :avatar, src: "data:image/png;base64,AAAA", name: "Grace Hopper" %>
+  <%= ui :avatar, name: "Sm All", size: :sm %>
+  <%= ui :avatar, name: "Large One", size: :lg %>
+  <%= ui :avatar, name: "Square Co", shape: :square %>
+</div>
+<h2>Group</h2>
+<%= ui :avatar_group, max: 3, people: [ { name: "Ada Lovelace" }, { name: "Grace Hopper" }, { name: "Alan Turing" }, { name: "Katherine Johnson" }, { name: "Edsger Dijkstra" } ] %>

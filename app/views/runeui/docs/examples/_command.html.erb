@@ -1,0 +1,19 @@
+<%# locals: () %>
+<% commands = {
+  "Suggestions" => [
+    { label: "Calendar", icon: :calendar, href: runeui_doc_path("calendar") },
+    { label: "Search emoji", icon: :search, disabled: true },
+    { label: "Calculator", icon: :settings, keywords: %w[math sum] }
+  ],
+  "Settings" => [
+    { label: "Profile", icon: :user, shortcut: "mod+p", value: "profile" },
+    { label: "Billing", icon: :file, shortcut: "mod+b", value: "billing" },
+    { label: "Settings", icon: :settings, shortcut: "mod+s", value: "settings" }
+  ]
+} %>
+<%= ui :command, id: "inline-command", items: commands %>
+<h2>A palette: press ⌘K or Ctrl+K</h2>
+<%= ui :command, id: "palette", dialog: true, trigger: "Search docs…", items: {
+  "Components" => [ { label: "Button", href: runeui_doc_path("button"), icon: "arrow-right" }, { label: "Select", href: runeui_doc_path("select"), icon: "arrow-right" }, { label: "Dialog", href: runeui_doc_path("dialog"), icon: "arrow-right" } ],
+  "Docs" => [ { label: "All components", href: runeui_docs_path, icon: :home, keywords: %w[index home] } ]
+} %>

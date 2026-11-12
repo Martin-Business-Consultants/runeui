@@ -1,0 +1,3 @@
+<%# locals: () %>
+<p>The shell around a whole app. Open the full-page demo: <%= link_to "app shell", runeui_doc_path("app_shell", full: 1), data: { turbo_frame: "_top" } %>. Press [ to collapse the sidebar.</p>
+<%= ui :page_header, title: "Spring launch", description: "Bloom Florists · due Friday", actions: safe_join([ ui(:button, variant: :outline, content: "Share"), ui(:button, content: "New task", icon: :plus) ]) %>

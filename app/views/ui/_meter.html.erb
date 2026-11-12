@@ -1,0 +1,20 @@
+<%# locals: (value: nil, max: nil, min: nil, label: nil, show_value: nil, tone: nil, **attrs) %>
+<%#
+  Meter: a reading within a known range (storage used, a score), not progress on a task.
+  tone: success, warning or destructive colours the fill.
+
+    ui :meter, value: 72, label: "Storage", show_value: true
+    ui :meter, value: account.seats_used, max: account.seats, label: "Seats", tone: :warning
+%>
+<% low = (min || 0).to_f %>
+<% high = (max || 100).to_f %>
+<% percent = high <= low ? 0 : (((value.to_f - low) / (high - low)) * 100).clamp(0, 100).round %>
+<%= tag.ui_meter(**ui_attrs({ value: (value || 0), max: max, min: min, data: { slot: "meter", tone: tone&.to_s } }, attrs)) do %>
+  <% if label || show_value %>
+  <div data-slot="meter-header">
+    <% if label %><ui-meter-label data-slot="meter-label"><%= label %></ui-meter-label><% end %>
+    <% if show_value %><ui-meter-value data-slot="meter-value" data-label="<%= percent %>%"></ui-meter-value><% end %>
+  </div>
+  <% end %>
+  <ui-meter-track data-slot="meter-track"><ui-meter-indicator data-slot="meter-indicator" data-percent="<%= percent %>"></ui-meter-indicator></ui-meter-track>
+<% end %>

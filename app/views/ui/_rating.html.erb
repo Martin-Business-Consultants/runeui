@@ -1,0 +1,20 @@
+<%# locals: (name: nil, value: nil, max: nil, step: nil, id: nil, readonly: nil, disabled: nil, required: nil, invalid: nil, form: nil, size: nil, **attrs) %>
+<%#
+  Rating: stars, one to max (5). step: 0.5 for half stars. readonly: true shows any score (an
+  average of 4.2) without changing it. Name it with aria: { label: }.
+
+    ui :rating, name: "score", aria: { label: "Rating" }
+    ui :rating, value: 4.2, readonly: true, aria: { label: "Average rating" }
+    form.ui :rating, :stars
+%>
+<% stars = (max || 5).to_i %>
+<% score = value.to_f %>
+<%= tag.ui_rating(**ui_attrs({ id: ui_id("rating", id, name: name), name: name, "default-value": value, max: max, step: step, "read-only": (readonly ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "rating", size: (size || "default").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <template>
+    <ui-rating-item data-slot="rating-item"><%= ui_icon :star, data: { part: "empty" } %><%= ui_icon :star, data: { part: "fill" } %></ui-rating-item>
+  </template>
+  <% stars.times do |index| %>
+  <%# herb:key index %>
+  <span data-slot="rating-placeholder"<% if score >= index + 1 %> data-filled<% end %>><%= ui_icon :star %></span>
+  <% end %>
+<% end %>

@@ -1,0 +1,49 @@
+/* Scroll area: a box of its own height (18rem unless a class says otherwise), with thin
+   scrollbars over its edges that show while the content overflows. */
+
+@layer runeui.components {
+  [data-slot="scroll-area"] {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 18rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-md);
+  }
+
+  [data-slot="scroll-area"][data-orientation="horizontal"] { height: auto; }
+
+  [data-slot="scroll-area-viewport"] {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    border-radius: inherit;
+    outline: none;
+    scrollbar-width: none;
+  }
+
+  [data-slot="scroll-area-viewport"]:focus-visible { box-shadow: inset var(--ui-focus-ring); }
+  [data-slot="scroll-area-content"] { display: block; padding: 1rem; font-size: var(--ui-text-sm); }
+  [data-slot="scroll-area"][data-orientation="horizontal"] [data-slot="scroll-area-content"] { width: max-content; }
+  [data-slot="scroll-area-content"] [data-slot="separator"] { margin-block: 0.5rem; }
+
+  [data-slot="scroll-area-scrollbar"] {
+    position: absolute;
+    display: flex;
+    padding: 1px;
+    touch-action: none;
+    user-select: none;
+    transition: opacity var(--ui-duration);
+  }
+
+  [data-slot="scroll-area-scrollbar"][data-orientation="vertical"] { inset-block: 0; inset-inline-end: 0; width: 0.625rem; border-inline-start: 1px solid transparent; }
+  [data-slot="scroll-area-scrollbar"][data-orientation="horizontal"] { inset-inline: 0; bottom: 0; flex-direction: column; height: 0.625rem; border-top: 1px solid transparent; }
+  [data-slot="scroll-area-scrollbar"][hidden] { display: none; }
+
+  [data-slot="scroll-area-thumb"] { position: relative; flex: 1; border-radius: var(--ui-radius-full); background: var(--border); }
+  [data-slot="scroll-area-thumb"]:hover { background: color-mix(in oklab, var(--muted-foreground) 50%, transparent); }
+  [data-slot="scroll-area-corner"] { position: absolute; right: 0; bottom: 0; }
+}

@@ -1,0 +1,63 @@
+/* Resizable panels: a bordered group (12rem tall unless a class says otherwise), panels split by
+   a hairline handle, its grip shown with with_handle. */
+
+@layer runeui.components {
+  [data-slot="resizable"] {
+    display: flex;
+    width: 100%;
+    height: 12rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-lg);
+  }
+
+  [data-slot="resizable"][data-orientation="vertical"] { flex-direction: column; }
+  [data-slot="resizable-panel"] [data-slot="resizable"] { height: 100%; border: 0; border-radius: 0; }
+
+  [data-slot="resizable-panel"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 1.5rem;
+    font-size: var(--ui-text-sm);
+    font-weight: 600;
+  }
+
+  [data-slot="resizable-panel"]:has(> [data-slot="resizable"]) { padding: 0; align-items: stretch; justify-content: stretch; }
+  [data-slot="resizable-panel"] > [data-slot="resizable"] { flex: 1; }
+
+  [data-slot="resizable-handle"] {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1px;
+    background: var(--border);
+    outline: none;
+    cursor: col-resize;
+  }
+
+  [data-slot="resizable-handle"]::after { content: ""; position: absolute; inset-block: 0; inset-inline: -0.25rem; }
+  [data-slot="resizable-handle"][data-orientation="vertical"] { width: auto; height: 1px; cursor: row-resize; }
+  [data-slot="resizable-handle"][data-orientation="vertical"]::after { inset-inline: 0; inset-block: -0.25rem; }
+  [data-slot="resizable-handle"]:focus-visible { box-shadow: 0 0 0 1px var(--ring); }
+  [data-slot="resizable-handle"]:is([data-dragging], [data-hovering]) { background: var(--ring); }
+  [data-slot="resizable-handle"][data-disabled] { cursor: default; }
+
+  [data-slot="resizable-grip"] {
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.75rem;
+    height: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-sm);
+    background: var(--border);
+  }
+
+  [data-slot="resizable-grip"] .ui-icon { width: 0.625rem; height: 0.625rem; }
+  [data-slot="resizable-handle"][data-orientation="vertical"] [data-slot="resizable-grip"] { rotate: 90deg; }
+}

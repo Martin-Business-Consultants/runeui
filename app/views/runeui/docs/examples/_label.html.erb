@@ -1,0 +1,9 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :label, content: "Email", for: "label-email" %>
+  <%= ui :input, name: "email", id: "label-email", placeholder: "Email" %>
+</div>
+<div class="runeui-docs__row">
+  <%= ui :label, content: "Plan", for: "label-plan" %>
+  <%= ui :radio_group, id: "label-plan", options: %w[Free Pro], value: "Pro", orientation: :horizontal %>
+</div>

@@ -1,0 +1,46 @@
+/* Date picker: a field that looks like an input, holding the typed date (or a range's two),
+   a clear button and the calendar button; the calendar in a .ui-popup (see calendar.css). */
+
+@layer runeui.components {
+  [data-slot="date-picker"] { display: inline-flex; flex-direction: column; width: fit-content; }
+
+  [data-slot="date-picker-control"] {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: var(--ui-h);
+    padding: 0 0.25rem 0 0.75rem;
+    border: 1px solid var(--input);
+    border-radius: var(--ui-radius-md);
+    background: transparent;
+    box-shadow: var(--ui-shadow-xs);
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  .dark [data-slot="date-picker-control"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  [data-slot="date-picker-control"]:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="date-picker-control"]:is([data-invalid], :has([aria-invalid="true"], [data-invalid])),
+  [data-slot="date-picker"][data-invalid] [data-slot="date-picker-control"] { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  [data-slot="date-picker"][data-disabled] [data-slot="date-picker-control"] { opacity: 0.5; cursor: not-allowed; }
+  [data-slot="date-picker-control"][data-size="sm"] { height: var(--ui-h-sm); }
+  [data-slot="date-picker-control"][data-size="lg"] { height: var(--ui-h-lg); }
+
+  [data-slot="date-picker-input"], .ui-date-picker__input {
+    width: 6.6em;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    font-variant-numeric: tabular-nums;
+    outline: none;
+  }
+
+  .ui-date-picker__input::placeholder { color: var(--muted-foreground); }
+  [data-slot="date-picker-separator"] { color: var(--muted-foreground); }
+  :is([data-slot="date-picker-trigger"], [data-slot="date-picker-clear"]) .ui-icon { color: var(--muted-foreground); }
+  [data-slot="date-picker-trigger"] { margin-inline-start: auto; }
+  [data-slot="date-picker-clear"][data-empty] { visibility: hidden; }
+
+  [data-slot="date-picker-content"] { min-width: 0; max-height: none; padding: 0; overflow: visible; }
+}

@@ -1,0 +1,17 @@
+<%# locals: () %>
+<%= ui :scroll_area, label: "Tags" do %>
+  <% (1..50).each do |n| %>
+  <%# herb:key n %>
+  <div>v1.2.0-beta.<%= 51 - n %></div>
+  <%= ui :separator, decorative: true %>
+  <% end %>
+<% end %>
+<h2>Horizontal</h2>
+<%= ui :scroll_area, orientation: :horizontal, label: "Artists" do %>
+  <div class="runeui-docs__row">
+    <% %w[Ornella Tom Vladimir Bilal Mia Josef Ana Kofi].each do |artist| %>
+    <%# herb:key artist %>
+    <%= ui :card, size: :sm, title: artist, description: "Photographer" %>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,14 @@
+<%# locals: (content: nil, title: nil, description: nil, icon: nil, action: nil, **attrs) %>
+<%#
+  Empty: what an empty list says, where its records come from, and the way to make one.
+
+    ui :empty, icon: :folder, title: "No projects yet", description: "Projects you create show here.",
+       action: ui(:button, content: "Create a project", href: new_project_path)
+%>
+<%= tag.div(**ui_attrs({ data: { slot: "empty" } }, attrs)) do %>
+  <% if icon %><div data-slot="empty-media"><%= ui_icon icon, size: 24 %></div><% end %>
+  <% if title %><div data-slot="empty-title"><%= title %></div><% end %>
+  <% if description %><div data-slot="empty-description"><%= description %></div><% end %>
+  <% if content %><div data-slot="empty-content"><%= content %></div><% end %>
+  <% if action %><div data-slot="empty-action"><%= action %></div><% end %>
+<% end %>

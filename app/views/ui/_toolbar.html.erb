@@ -1,0 +1,28 @@
+<%# locals: (items: nil, content: nil, label: nil, orientation: nil, **attrs) %>
+<%#
+  Toolbar: a row of buttons, links and fields that's one Tab stop, arrows moving along it.
+  items: hashes with label:, icon:, href: (a link), aria_label: (for icon-only ones), data:,
+  or separator: true. Or a block of your own ui-toolbar-* parts. label: names it.
+
+    ui :toolbar, label: "Formatting", items: [
+      { icon: :bold, aria_label: "Bold" }, { icon: :italic, aria_label: "Italic" },
+      { separator: true },
+      { label: "Share", href: share_path }
+    ]
+%>
+<%= tag.ui_toolbar(**ui_attrs({ orientation: orientation&.to_s, aria: { label: label }, data: { slot: "toolbar", orientation: (orientation || "horizontal").to_s } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% Array(items).each_with_index do |item, index| %>
+  <%# herb:key index %>
+  <% if item[:separator] %>
+  <ui-toolbar-separator data-slot="toolbar-separator"></ui-toolbar-separator>
+  <% elsif item[:href] %>
+  <ui-toolbar-link><%= link_to item[:href], class: "ui-button", data: { variant: "ghost", size: (item[:label] ? "sm" : "icon-sm") }.merge(item[:data] || {}), aria: { label: item[:aria_label] } do %><% if item[:icon] %><%= ui_icon item[:icon] %><% end %><%= item[:label] %><% end %></ui-toolbar-link>
+  <% else %>
+  <ui-toolbar-button><%= tag.button type: "button", class: "ui-button", disabled: item[:disabled], data: { variant: "ghost", size: (item[:label] ? "sm" : "icon-sm") }.merge(item[:data] || {}), aria: { label: item[:aria_label] } do %><% if item[:icon] %><%= ui_icon item[:icon] %><% end %><%= item[:label] %><% end %></ui-toolbar-button>
+  <% end %>
+  <% end %>
+  <% end %>
+<% end %>

@@ -1,0 +1,18 @@
+<%# locals: () %>
+<h2>Sheet</h2>
+<div class="runeui-docs__row">
+  <%= ui :drawer, id: "edit-sheet", trigger: "Edit profile", title: "Edit profile", description: "Make changes to your profile here. Press Save when you're done.",
+    footer: ui(:button, content: "Save changes", type: :submit, form: "sheet-form") do %>
+    <form id="sheet-form" action="<%= runeui_echo_path("drawer") %>" method="post" data-turbo-stream class="ui-drawer-demo-form">
+      <%= ui :field, label: "Name" do %><%= ui :input, name: "name", value: "Pedro Duarte" %><% end %>
+      <%= ui :field, label: "Username" do %><%= ui :input, name: "username", value: "@peduarte" %><% end %>
+    </form>
+  <% end %>
+  <%= ui :drawer, side: :left, trigger: "Left", title: "Menu", description: "Jump to a section." %>
+  <%= ui :drawer, side: :top, trigger: "Top", title: "Notifications", description: "You're all caught up." %>
+</div>
+<h2>Drawer</h2>
+<%= ui :drawer, id: "goal-drawer", side: :bottom, trigger: "Open drawer", title: "Move goal", description: "Set your daily activity goal.",
+  footer: ui(:button, content: "Submit", data: { runeui_close: "goal-drawer" }) do %>
+  <p class="ui-drawer-demo-goal">350 <span>calories / day</span></p>
+<% end %>

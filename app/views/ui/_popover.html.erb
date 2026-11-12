@@ -1,0 +1,33 @@
+<%# locals: (content: nil, trigger: nil, title: nil, description: nil, side: nil, align: nil, id: nil, open: nil, arrow: nil, **attrs) %>
+<%#
+  Popover: rich content beside its trigger, opened with a press (shadcn's Popover). Its content
+  can hold anything, forms included; Escape or a press outside closes it.
+
+    ui :popover, trigger: "Dimensions", title: "Dimensions", description: "Set the layer's size." do
+      render "layers/size_form"
+    end
+
+  side: top, right, bottom (default), left; align: start, center (default), end. arrow: true
+  points it at the trigger. trigger: a string makes an outline button; markup is used as it is.
+%>
+<%= tag.ui_popover(**ui_attrs({ id: id, "default-open": (open ? "" : nil), data: { slot: "popover" } }, attrs)) do %>
+  <% if trigger %>
+  <ui-popover-trigger>
+    <% if trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="outline" data-size="default" data-slot="popover-trigger"><%= trigger %></button>
+    <% end %>
+  </ui-popover-trigger>
+  <% end %>
+  <%= tag.ui_popover_content(class: "ui-popup", side: side&.to_s, align: (align || "center").to_s, "side-offset": 4, hidden: true, data: { slot: "popover-content" }) do %>
+    <% if arrow %><ui-popover-arrow data-slot="popover-arrow"></ui-popover-arrow><% end %>
+    <% if title || description %>
+    <div data-slot="popover-header">
+      <% if title %><ui-popover-title data-slot="popover-title"><%= title %></ui-popover-title><% end %>
+      <% if description %><ui-popover-description data-slot="popover-description"><%= description %></ui-popover-description><% end %>
+    </div>
+    <% end %>
+    <%= content %>
+  <% end %>
+<% end %>

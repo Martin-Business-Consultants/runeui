@@ -1,0 +1,47 @@
+/* Accordion: headings over a hairline each, a chevron that turns as the panel opens. */
+
+@layer runeui.components {
+  [data-slot="accordion"] { display: block; width: 100%; }
+  ui-accordion-item[data-slot="accordion-item"] { display: block; border-bottom: 1px solid var(--border); }
+  ui-accordion-item[data-slot="accordion-item"]:last-child { border-bottom: 0; }
+  ui-accordion-header { display: block; }
+  .ui-accordion-heading { display: flex; margin: 0; font-size: inherit; font-weight: inherit; }
+
+  [data-slot="accordion-trigger"] {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+    border: 0;
+    border-radius: var(--ui-radius-md);
+    background: none;
+    font-size: var(--ui-text-sm);
+    font-weight: 500;
+    text-align: start;
+    outline: none;
+    cursor: pointer;
+    transition: color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  [data-slot="accordion-trigger"]:hover span { text-decoration: underline; text-underline-offset: 4px; }
+  [data-slot="accordion-trigger"]:focus-visible { box-shadow: var(--ui-focus-ring); }
+  [data-slot="accordion-trigger"]:is([data-disabled], [aria-disabled="true"]) { opacity: 0.5; cursor: not-allowed; }
+  [data-slot="accordion-trigger"]:is([data-disabled], [aria-disabled="true"]):hover span { text-decoration: none; }
+  [data-slot="accordion-trigger"] .ui-accordion-icon { margin-top: 0.125rem; color: var(--muted-foreground); transition: rotate var(--ui-duration-slow) var(--ui-ease); }
+  [data-slot="accordion-trigger"][data-open]:not([data-closed]) .ui-accordion-icon { rotate: 180deg; }
+
+  [data-slot="accordion-panel"] {
+    display: block;
+    overflow: hidden;
+    height: var(--accordion-panel-height, auto);
+    font-size: var(--ui-text-sm);
+    transition: height var(--ui-duration-slow) var(--ui-ease);
+  }
+
+  [data-slot="accordion-panel"]:is([data-starting-style], [data-ending-style]) { height: 0; }
+  [data-slot="accordion-content"] { padding-bottom: 1rem; }
+  [data-slot="accordion-content"] > :first-child { margin-top: 0; }
+  [data-slot="accordion-content"] > :last-child { margin-bottom: 0; }
+}

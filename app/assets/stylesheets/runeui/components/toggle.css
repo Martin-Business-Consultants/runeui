@@ -1,0 +1,32 @@
+/* Toggle (class ui-toggle on its button, data-variant default or outline, data-size sm,
+   default, lg), shared by Toggle Group. */
+@layer runeui.components {
+  .ui-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: var(--ui-h);
+    height: var(--ui-h);
+    padding: 0 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--ui-radius-md);
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    outline: none;
+    cursor: pointer;
+    transition: background-color var(--ui-duration), color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  .ui-toggle:hover { background: var(--muted); color: var(--muted-foreground); }
+  .ui-toggle:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  .ui-toggle:is([aria-pressed="true"], [data-pressed]) { background: var(--accent); color: var(--accent-foreground); }
+  .ui-toggle:is(:disabled, [data-disabled], [aria-disabled="true"]) { opacity: 0.5; pointer-events: none; }
+  .ui-toggle[data-variant="outline"] { border-color: var(--input); box-shadow: var(--ui-shadow-xs); }
+  .ui-toggle[data-variant="outline"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  .ui-toggle[data-size="sm"] { min-width: var(--ui-h-sm); height: var(--ui-h-sm); padding: 0 0.375rem; }
+  .ui-toggle[data-size="lg"] { min-width: var(--ui-h-lg); height: var(--ui-h-lg); padding: 0 0.625rem; }
+  [data-slot="toggle-icon"] { display: inline-flex; }
+}

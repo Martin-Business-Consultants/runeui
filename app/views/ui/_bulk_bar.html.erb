@@ -1,0 +1,16 @@
+<%# locals: (content: nil, noun: nil, **attrs) %>
+<%#
+  What to do with the rows picked in the table beside it (in the same form): shows while any are,
+  with how many ("3 projects selected") and a Clear. The block is the actions, usually buttons
+  that submit the form elsewhere:
+
+    ui :bulk_bar, noun: "project" do
+      ui :button, variant: :outline, size: :sm, content: "Close", formaction: bulk_close_projects_path, formmethod: :patch
+      ui :button, variant: :destructive, size: :sm, content: "Delete", formaction: bulk_delete_projects_path, data: { turbo_confirm: "Delete them?" }
+    end
+%>
+<%= tag.div(**ui_attrs({ data: { slot: "bulk-bar", noun: (noun || "row").to_s }, role: "toolbar", aria: { label: "Selected rows" }, hidden: true }, attrs)) do %>
+  <span data-slot="bulk-count" aria-live="polite"></span>
+  <button type="button" class="ui-button" data-variant="ghost" data-size="sm" data-runeui-select-clear>Clear</button>
+  <span data-slot="bulk-actions"><%= content %></span>
+<% end %>

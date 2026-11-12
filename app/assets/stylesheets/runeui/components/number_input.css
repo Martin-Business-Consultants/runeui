@@ -1,0 +1,54 @@
+/* Number input: one bordered box, − and + inside it at either end. */
+@layer runeui.components {
+  [data-slot="number-input"] { display: inline-flex; width: 100%; max-width: 12rem; }
+
+  [data-slot="number-input-group"] {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: var(--ui-h);
+    overflow: hidden;
+    border: 1px solid var(--input);
+    border-radius: var(--ui-radius-md);
+    box-shadow: var(--ui-shadow-xs);
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+
+  .dark [data-slot="number-input-group"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
+  [data-slot="number-input-group"]:has(input:focus-visible) { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="number-input-group"]:is([data-invalid], :has([aria-invalid="true"])) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  [data-slot="number-input-group"][data-disabled] { opacity: 0.5; cursor: not-allowed; }
+
+  ui-number-input-control { display: flex; flex: 1; min-width: 0; }
+  [data-slot="number-input-control"] {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0.75rem;
+    border: 0;
+    background: transparent;
+    font-size: var(--ui-text-sm);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    outline: none;
+  }
+
+  [data-slot="number-input-control"]::placeholder { color: var(--muted-foreground); }
+  ui-number-input-decrement, ui-number-input-increment { display: flex; }
+
+  :is([data-slot="number-input-decrement"], [data-slot="number-input-increment"]) {
+    display: grid;
+    place-items: center;
+    width: var(--ui-h);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: background-color var(--ui-duration), color var(--ui-duration);
+  }
+
+  [data-slot="number-input-decrement"] { border-inline-end: 1px solid var(--input); }
+  [data-slot="number-input-increment"] { border-inline-start: 1px solid var(--input); }
+  :is([data-slot="number-input-decrement"], [data-slot="number-input-increment"]):hover { background: var(--accent); color: var(--accent-foreground); }
+  :is([data-slot="number-input-decrement"], [data-slot="number-input-increment"]):is([data-disabled], :disabled) { opacity: 0.4; pointer-events: none; }
+}

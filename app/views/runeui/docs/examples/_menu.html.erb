@@ -1,0 +1,39 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :menu, id: "account-menu", trigger: "Open", label: "My account", items: [
+    { heading: "My account" },
+    { group: "Profile", items: [
+      { label: "Profile", href: "#profile", icon: :user, shortcut: "mod+shift+p" },
+      { label: "Settings", href: "#settings", icon: :settings, shortcut: "mod+," }
+    ] },
+    :separator,
+    { label: "Invite users", items: [
+      { label: "Email", value: "email", icon: :mail },
+      { label: "Message", value: "message" },
+      :separator,
+      { label: "More…", value: "more" }
+    ] },
+    { label: "New team", value: "new-team", shortcut: "mod+t" },
+    { label: "API", value: "api", disabled: true },
+    :separator,
+    { label: "Log out", value: "logout", icon: "log-out", variant: :destructive }
+  ] %>
+  <%= ui :menu, id: "view-menu", trigger: "View", items: [
+    { heading: "Appearance" },
+    { label: "Status bar", checkbox: true, checked: true, value: "status-bar" },
+    { label: "Activity bar", checkbox: true, value: "activity-bar" },
+    :separator,
+    { heading: "Panel position" },
+    { radio: "position", value: "bottom", options: [ [ "Top", "top" ], [ "Bottom", "bottom" ], [ "Right", "right" ] ] }
+  ] %>
+</div>
+<h2>Context menu</h2>
+<%= ui :menu, id: "context-menu", context: true, items: [
+  { label: "Back", value: "back", shortcut: "mod+[" },
+  { label: "Forward", value: "forward", shortcut: "mod+]", disabled: true },
+  { label: "Reload", value: "reload", shortcut: "mod+r" },
+  :separator,
+  { label: "Show bookmarks", checkbox: true, checked: true }
+] do %>
+  <div class="ui-context-area">Right-click here</div>
+<% end %>

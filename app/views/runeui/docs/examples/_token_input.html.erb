@@ -1,0 +1,11 @@
+<%# locals: () %>
+<% people = [ [ "Ada Lovelace", "1" ], [ "Alan Turing", "2" ], [ "Grace Hopper", "3" ], [ "Katherine Johnson", "4" ] ].map { |label, value| { value: value, label: label } } %>
+<form action="<%= runeui_echo_path("token_input") %>" method="post" data-turbo-stream>
+  <%= ui :token_input, name: "note", id: "note", placeholder: "Write a note. Type @ to mention someone, / for a command", value: "Ask [@Grace Hopper](user:3) about the release", submit_shortcut: :enter, triggers: [
+    { char: "@", type: "user", items: people },
+    { char: "/", type: "command", boundary: "start", items: [ { value: "remind", label: "remind" }, { value: "assign", label: "assign" }, { value: "estimate", label: "estimate" } ] }
+  ] do %>
+    <span>Enter sends, Shift+Enter starts a line</span>
+    <%= ui :button, size: "icon-sm", type: :submit, icon: "arrow-right", aria: { label: "Send" } %>
+  <% end %>
+</form>

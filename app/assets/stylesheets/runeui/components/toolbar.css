@@ -1,0 +1,20 @@
+@layer runeui.components {
+  [data-slot="toolbar"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: fit-content;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-lg);
+    background: var(--background);
+    box-shadow: var(--ui-shadow-xs);
+  }
+
+  [data-slot="toolbar"][data-orientation="vertical"] { flex-direction: column; }
+  ui-toolbar-button, ui-toolbar-link, ui-toolbar-input { display: contents; }
+  [data-slot="toolbar-group"] { display: inline-flex; align-items: center; gap: 0.25rem; }
+  [data-slot="toolbar-separator"] { display: block; align-self: stretch; width: 1px; margin: 0.25rem 0.125rem; background: var(--border); }
+  [data-slot="toolbar"][data-orientation="vertical"] [data-slot="toolbar-separator"] { width: auto; height: 1px; margin: 0.125rem 0.25rem; }
+  [data-slot="toolbar-button"][aria-pressed="true"], [data-slot="toolbar-button"][data-pressed] { background: var(--accent); color: var(--accent-foreground); }
+}

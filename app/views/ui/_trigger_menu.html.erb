@@ -1,0 +1,36 @@
+<%# locals: (name: nil, value: nil, triggers: nil, placeholder: nil, id: nil, rows: nil, input: nil, empty: nil, invalid: nil, **attrs) %>
+<%#
+  Trigger Menu: suggestions at the caret when someone types a trigger character in a text
+  field, like @ for people, # for tags or / for commands. Narrows as they type; Enter or Tab
+  inserts the choice. (shadcn has no equivalent; it's how mentions and slash commands work.)
+
+    ui :trigger_menu, name: "comment[body]", placeholder: "Type @ to mention someone",
+       triggers: [
+         { char: "@", items: User.pluck(:name, :username) },
+         { char: "/", boundary: "start", items: %w[assign due close] }
+       ]
+    form.ui :trigger_menu, :body, triggers: [...]   (name, value and id from the form)
+
+  Each trigger: char:, items: (as select's options: values, [label, value] pairs or a hash),
+  and any of UI SDK's options (boundary: "start", spaces: 2, maxLength:). input: :input for a
+  single line (textarea by default). empty: the words when nothing matches.
+%>
+<% menu_id = ui_id("trigger-menu", id && "#{id}-menu", name: name) %>
+<% definitions = Array(triggers).map do |trigger|
+     trigger = trigger.to_h.symbolize_keys
+     trigger.merge(items: ui_options(trigger[:items] || []).map { { value: it[:value], label: it[:label], disabled: it[:disabled] || nil }.compact })
+   end %>
+<% field = { id: id, name: name, placeholder: placeholder, class: "ui-input ui-trigger-menu-field", rows: (input.to_s == "input" ? nil : (rows || 3)), data: { slot: "trigger-menu-input" }, aria: { invalid: (invalid ? "true" : nil) } } %>
+<%= tag.ui_trigger_menu(**ui_attrs({ id: menu_id, data: { slot: "trigger-menu", triggers: definitions.to_json } }, attrs)) do %>
+  <ui-trigger-menu-input>
+    <% if input.to_s == "input" %>
+    <%= tag.input(**field, value: value, type: "text") %>
+    <% else %>
+    <%= tag.textarea(value, **field) %>
+    <% end %>
+  </ui-trigger-menu-input>
+  <ui-trigger-menu-content class="ui-popup" data-slot="trigger-menu-content" hidden>
+    <ui-trigger-menu-empty data-slot="trigger-menu-empty"><%= empty || "No matches" %></ui-trigger-menu-empty>
+    <ui-trigger-menu-list data-slot="trigger-menu-list"></ui-trigger-menu-list>
+  </ui-trigger-menu-content>
+<% end %>

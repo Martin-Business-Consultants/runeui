@@ -1,0 +1,6 @@
+/* Alert Dialog: dialog.css draws its parts (alert-dialog-*); this keeps an action that submits a
+   form in line with Cancel. */
+
+@layer runeui.components {
+  .ui-alert-dialog-form { display: contents; }
+}

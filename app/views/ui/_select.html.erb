@@ -15,7 +15,7 @@
 <% choices = ui_options(options || []) %>
 <% values = Array(value).map(&:to_s) %>
 <% shown = ui_selected_label(choices, values) %>
-<% default = multiple ? values.to_json : values.first %>
+<% default = multiple ? values.join(",") : values.first %>
 <%= tag.ui_select(**ui_attrs({ id: id, name: name, "default-value": (values.any? ? default : nil), placeholder: placeholder, multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "select" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
   <ui-select-trigger>
     <button type="button" data-slot="select-trigger" data-size="<%= (size || "default") %>"<% if invalid %> aria-invalid="true"<% end %>>

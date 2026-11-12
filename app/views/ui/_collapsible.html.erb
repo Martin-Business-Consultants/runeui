@@ -1,0 +1,21 @@
+<%# locals: (content: nil, trigger: nil, open: nil, disabled: nil, **attrs) %>
+<%#
+  Collapsible: a panel shown and hidden by a button. trigger: a string makes a ghost button
+  with a chevron; markup is used as it is (it must hold a <button>).
+
+    ui :collapsible, trigger: "Show 3 more" do
+      render tasks.drop(3)
+    end
+%>
+<%= tag.ui_collapsible(**ui_attrs({ "default-open": (open ? "" : nil), disabled: (disabled ? "" : nil), data: { slot: "collapsible", open: (open ? "" : nil), closed: (open ? nil : "") } }, attrs)) do %>
+  <% if trigger %>
+  <ui-collapsible-trigger>
+    <% if trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="ghost" data-size="sm" data-slot="collapsible-trigger"><%= trigger %><%= ui_icon "chevron-down", class: "ui-collapsible-icon" %></button>
+    <% end %>
+  </ui-collapsible-trigger>
+  <% end %>
+  <ui-collapsible-panel data-slot="collapsible-panel"<% if !open %> hidden<% end %>><div data-slot="collapsible-content"><%= content %></div></ui-collapsible-panel>
+<% end %>

@@ -1,0 +1,28 @@
+<% sidebar = capture do %>
+  <div data-slot="sidebar-header">
+    <%= link_to runeui_docs_path, class: "runeui-shell-brand" do %><span class="runeui-shell-logo">R</span><span data-slot="sidebar-label">Acme Studio</span><% end %>
+  </div>
+  <%= ui :sidebar_group do %>
+    <%= ui :sidebar_item, label: "Inbox", href: "#", icon: :inbox, badge: 4 %>
+    <%= ui :sidebar_item, label: "Tasks", href: runeui_doc_path("app_shell", full: 1), icon: :check, active: true %>
+    <%= ui :sidebar_item, label: "Clients", href: "#", icon: :user %>
+    <%= ui :sidebar_item, label: "Settings", href: "#", icon: :settings %>
+  <% end %>
+  <%= ui :sidebar_group, label: "Projects", collapsible: true, action: nil do %>
+    <%= ui :sidebar_item, label: "Spring launch", href: "#", icon: :folder %>
+    <%= ui :sidebar_item, label: "Website refresh", href: "#", icon: :folder %>
+    <%= ui :sidebar_item, label: "Local search", href: "#", icon: :folder %>
+  <% end %>
+<% end %>
+<%= ui :app_shell, variant: :inset, sidebar: sidebar, header: ui(:breadcrumb, items: [ [ "Projects", "#" ], "Spring launch" ]) do %>
+  <%= ui :page_header, title: "Spring launch", description: "Bloom Florists · due Friday", actions: safe_join([ ui(:button, variant: :outline, content: "Share"), ui(:button, content: "New task", icon: :plus) ]) %>
+  <%= ui :table do %>
+    <thead><tr><th>Task</th><th>Status</th><th>Owner</th><th data-align="end">Due</th></tr></thead>
+    <tbody>
+      <% [ [ "Write the launch email", "In progress", "Priya", "Oct 20" ], [ "Photograph the spring range", "Planned", "Marcus", "Oct 22" ], [ "Landing page copy", "In review", "Sarah", "Oct 18" ] ].each do |title, status, owner, due| %>
+      <%# herb:key title %>
+      <tr><td><%= title %></td><td><%= ui :badge, variant: :secondary, content: status %></td><td><%= owner %></td><td data-align="end"><%= due %></td></tr>
+      <% end %>
+    </tbody>
+  <% end %>
+<% end %>

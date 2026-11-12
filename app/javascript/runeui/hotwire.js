@@ -4,6 +4,14 @@ import { guardMorphs } from "runeui/morph"
 import { bridgeFormEvents } from "runeui/forms"
 import { wireFeedback } from "runeui/feedback"
 import { wireTheme } from "runeui/theme"
+import { wireSidebar } from "runeui/sidebar"
+import { wireSelection } from "runeui/selection"
+import { wireProps } from "runeui/props"
+// These listen on the document as they load: server search for comboboxes and autocompletes,
+// commands that visit a page, and a trigger menu's triggers from markup.
+import "runeui/remote"
+import "runeui/command"
+import "runeui/triggers"
 
 // Turbo snapshots the page for Back before it leaves. A popup open in that snapshot would come
 // back open, so popups close first. (Dialogs and menus close themselves on a visit anyway.)
@@ -22,6 +30,9 @@ export function hotwire(options = {}) {
   closePopupsBeforeCache()
   wireFeedback(options)
   wireTheme()
+  wireSidebar()
+  wireSelection()
+  wireProps()
 }
 
 // A button anywhere opening or closing a dialog, sheet, popover or menu by its id:

@@ -1,0 +1,7 @@
+<%# locals: () %>
+<form class="runeui-docs__stack" action="<%= runeui_echo_path("otp_input") %>" method="post" data-turbo-stream>
+  <%= ui :otp_input, name: "code", id: "code", groups: [ 3, 3 ], aria: { label: "Verification code" } %>
+  <%= ui :otp_input, name: "pin", length: 4, value: "12", aria: { label: "PIN" } %>
+  <%= ui :otp_input, name: "bad", length: 4, value: "9", invalid: true, aria: { label: "Invalid code" } %>
+  <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Verify", type: :submit %></div>
+</form>

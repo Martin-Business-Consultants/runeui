@@ -1,0 +1,16 @@
+<%# locals: (content: nil, icon: nil, pressed: nil, checked: nil, value: nil, variant: nil, size: nil, disabled: nil, invalid: nil, name: nil, unchecked_value: nil, id: nil, **attrs) %>
+<%#
+  Toggle: a button that's on or off (bold, italic, a favourite). aria-pressed tells screen
+  readers. With name:, a hidden field submits value ("1") while pressed and unchecked_value
+  (if given) while not; form.ui :toggle, :pinned does that for a boolean.
+  variant: default or outline; size: sm, default, lg. An icon alone needs aria: { label: }.
+
+    ui :toggle, icon: :bold, aria: { label: "Bold" }
+    ui :toggle, icon: :star, content: "Favourite", variant: :outline, pressed: true
+%>
+<% on = pressed.nil? ? checked : pressed %>
+<% toggle_id = ui_id("toggle", id, name: name) %>
+<%= tag.ui_toggle(id: toggle_id, "default-pressed": (on ? "" : nil), value: (name ? nil : value), disabled: (disabled ? "" : nil), data: { name: name, on_value: (name ? (value || "1").to_s : nil), off_value: unchecked_value&.to_s }) do %>
+  <%= tag.button(**ui_attrs({ type: "button", class: "ui-toggle", data: { slot: "toggle", variant: (variant || "default").to_s, size: (size || "default").to_s }, aria: { pressed: (on ? "true" : "false"), invalid: (invalid ? "true" : nil) } }, attrs)) do %><% if icon %><ui-toggle-icon data-slot="toggle-icon"><%= ui_icon icon %></ui-toggle-icon><% end %><%= content %><% end %>
+  <% if name %><input type="hidden" name="<%= name %>" value="<%= on ? (value || "1") : unchecked_value %>"<% if !on && unchecked_value.nil? %> disabled<% end %> data-toggle-field autocomplete="off"><% end %>
+<% end %>

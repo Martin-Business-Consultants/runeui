@@ -8,6 +8,12 @@ pin "runeui/forms", to: "runeui/forms.js"
 pin "runeui/feedback", to: "runeui/feedback.js"
 pin "runeui/agent", to: "runeui/agent.js", preload: false
 pin "runeui/theme", to: "runeui/theme.js"
+pin "runeui/sidebar", to: "runeui/sidebar.js"
+pin "runeui/selection", to: "runeui/selection.js"
+pin "runeui/props", to: "runeui/props.js"
+pin "runeui/remote", to: "runeui/remote.js"
+pin "runeui/command", to: "runeui/command.js"
+pin "runeui/triggers", to: "runeui/triggers.js"
 
 # UI SDK's components, vendored by script/vendor-ui-sdk.
 instance_eval File.read(File.expand_path("sdk_pins.rb", __dir__))

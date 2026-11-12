@@ -1,0 +1,7 @@
+<%# locals: () %>
+<% picture = "data:image/svg+xml," + ERB::Util.url_encode(%(<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs><rect width="800" height="500" fill="url(#s)"/><circle cx="560" cy="150" r="70" fill="#fb923c"/><path d="M0 380 L200 220 L360 340 L520 200 L800 400 L800 500 L0 500Z" fill="#166534"/><path d="M0 430 L260 300 L470 420 L800 330 L800 500 L0 500Z" fill="#15803d"/></svg>)) %>
+<form action="<%= runeui_echo_path("image_cropper") %>" method="post" data-turbo-stream>
+  <%= ui :image_cropper, name: "crop", src: picture, alt: "Hills under a sun", aspect_ratio: 1, shape: :circle, zoom: true, rotate: true %>
+</form>
+<h2>Free crop</h2>
+<%= ui :image_cropper, src: picture, alt: "Hills under a sun" %>

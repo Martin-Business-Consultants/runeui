@@ -1,0 +1,13 @@
+@layer runeui.components {
+  [data-slot="label"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--ui-text-sm);
+    font-weight: 500;
+    line-height: 1;
+    user-select: none;
+  }
+
+  [data-slot="label"][data-disabled] { opacity: 0.5; cursor: not-allowed; }
+}

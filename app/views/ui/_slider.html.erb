@@ -1,0 +1,27 @@
+<%# locals: (name: nil, value: nil, min: nil, max: nil, step: nil, id: nil, disabled: nil, invalid: nil, form: nil, orientation: nil, show_value: nil, thumb_labels: nil, **attrs) %>
+<%#
+  Slider: a number, or a range with value: [low, high] (two thumbs). Submits the number, or a
+  range as "low/high". Name each thumb for screen readers: aria: { label: } on the slider for one
+  thumb, thumb_labels: for a range. show_value: true prints the value above the track.
+
+    ui :slider, name: "volume", value: 50, aria: { label: "Volume" }
+    ui :slider, name: "price", value: [20, 80], min: 0, max: 100, step: 5, thumb_labels: ["Minimum price", "Maximum price"]
+    form.ui :slider, :volume, max: 11
+%>
+<% values = Array(value.nil? ? (min || 0) : value).map { |v| v.is_a?(String) && v.include?("/") ? v.split("/") : v }.flatten.map { |v| v.to_s.include?(".") ? v.to_f : v.to_i } %>
+<% low = (min || 0).to_f %>
+<% high = (max || 100).to_f %>
+<% percent = ->(v) { (((v - low) / (high - low)) * 100).clamp(0, 100).round(2) } %>
+<% labels = Array(thumb_labels) %>
+<%= tag.ui_slider(**ui_attrs({ id: ui_id("slider", id, name: name), name: name, "default-value": values.join("/"), min: min, max: max, step: step, disabled: (disabled ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "slider", orientation: (orientation || "horizontal").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <% if show_value %><ui-slider-value data-slot="slider-value" data-label="<%= values.join(" – ") %>"></ui-slider-value><% end %>
+  <ui-slider-control data-slot="slider-control">
+    <ui-slider-track data-slot="slider-track">
+      <ui-slider-indicator data-slot="slider-indicator" data-start="<%= values.size > 1 ? percent.(values.first) : 0 %>" data-end="<%= percent.(values.last) %>"></ui-slider-indicator>
+      <% values.each_with_index do |v, index| %>
+      <%# herb:key index %>
+      <ui-slider-thumb data-slot="slider-thumb" data-position="<%= percent.(v) %>"<% if labels[index] %> aria-label="<%= labels[index] %>"<% end %>></ui-slider-thumb>
+      <% end %>
+    </ui-slider-track>
+  </ui-slider-control>
+<% end %>

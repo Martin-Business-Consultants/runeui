@@ -8,7 +8,7 @@
 const VALUE_EVENTS = [ "valuechange", "checkedchange", "pressedchange", "valuecommit" ]
 
 function current(element) {
-  for (const property of [ "value", "checked", "pressed" ]) {
+  for (const property of [ "checked", "pressed", "value" ]) {
     if (property in element) {
       const value = element[property]
       return JSON.stringify(value instanceof Date ? value.toISOString() : value)
@@ -37,4 +37,32 @@ export function bridgeFormEvents() {
     }, true)
   }
 
+}
+
+// Toggles aren't form-associated. One rendered with name: (ui :toggle, ui :toggle_group) carries
+// hidden fields marked data-toggle-field; these follow what's pressed, then fire change.
+function syncToggleFields(element) {
+  const host = element.closest?.("ui-toggle-group[data-name], ui-toggle[data-name]")
+  if (!host) return
+  requestAnimationFrame(() => {
+    if (host.localName === "ui-toggle") {
+      const field = host.querySelector(":scope > [data-toggle-field]")
+      if (!field) return
+      const on = host.pressed ?? host.querySelector("button")?.getAttribute("aria-pressed") === "true"
+      field.value = on ? host.dataset.onValue : (host.dataset.offValue ?? "")
+      field.disabled = !on && host.dataset.offValue === undefined
+    } else {
+      for (const field of host.querySelectorAll(":scope > [data-toggle-field]")) field.remove()
+      for (const value of [].concat(host.value ?? [])) {
+        const field = Object.assign(document.createElement("input"), { type: "hidden", name: host.dataset.name, value, autocomplete: "off" })
+        field.dataset.toggleField = ""
+        host.append(field)
+      }
+    }
+    host.dispatchEvent(new Event("change", { bubbles: true }))
+  })
+}
+
+for (const type of [ "pressedchange", "valuechange" ]) {
+  document.addEventListener(type, (event) => syncToggleFields(event.target), true)
 }

@@ -1,0 +1,13 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :popover, trigger: "Open popover", title: "Dimensions", description: "Set the dimensions for the layer." do %>
+    <form class="ui-popover-demo" action="<%= runeui_echo_path("popover") %>" method="post" data-turbo-stream>
+      <%= ui :field, label: "Width", orientation: :horizontal do %><%= ui :input, name: "width", value: "100%", size: :sm %><% end %>
+      <%= ui :field, label: "Height", orientation: :horizontal do %><%= ui :input, name: "height", value: "25px", size: :sm %><% end %>
+      <%= ui :button, content: "Apply", size: :sm, type: :submit %>
+    </form>
+  <% end %>
+  <%= ui :popover, trigger: "With an arrow", side: :right, arrow: true do %>
+    <p>Popovers can point at what opened them.</p>
+  <% end %>
+</div>

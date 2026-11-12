@@ -16,7 +16,7 @@
     transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
   }
 
-  .dark .ui-input { background: color-mix(in oklch, var(--input) 30%, transparent); }
+  .dark .ui-input { background: color-mix(in oklab, var(--input) 30%, transparent); }
   .ui-input::placeholder { color: var(--muted-foreground); }
   .ui-input:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   .ui-input:disabled { opacity: 0.5; cursor: not-allowed; }

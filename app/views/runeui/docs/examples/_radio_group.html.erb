@@ -1,0 +1,6 @@
+<%# locals: () %>
+<form class="runeui-docs__stack" action="<%= runeui_echo_path("radio_group") %>" method="post" data-turbo-stream>
+  <%= ui :radio_group, name: "density", id: "density", value: "comfortable", options: [ [ "Default", "default" ], [ "Comfortable", "comfortable" ], [ "Compact", "compact" ], [ "Spacious", "spacious", { disabled: true } ] ] %>
+  <%= ui :radio_group, name: "plan", options: %w[Monthly Yearly], value: "Monthly", orientation: :horizontal %>
+  <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Send", type: :submit %></div>
+</form>

@@ -1,0 +1,9 @@
+<%# locals: () %>
+<form class="runeui-docs__stack runeui-docs__w-60" action="<%= runeui_echo_path("textarea") %>" method="post" data-turbo-stream>
+  <%= ui :field, label: "Your message", description: "It goes to the whole team." do %>
+    <%= ui :textarea, name: "message", id: "message", placeholder: "Type your message here." %>
+  <% end %>
+  <%= ui :textarea, name: "bad", value: "Too short", invalid: true %>
+  <%= ui :textarea, name: "off", placeholder: "Disabled", disabled: true %>
+  <div class="runeui-docs__row"><%= ui :button, content: "Send message", type: :submit %></div>
+</form>

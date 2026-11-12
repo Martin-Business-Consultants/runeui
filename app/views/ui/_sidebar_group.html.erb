@@ -1,0 +1,22 @@
+<%# locals: (content: nil, label: nil, action: nil, collapsible: nil, open: nil, **attrs) %>
+<%#
+  A group of the sidebar's items, under an optional label (hidden while the sidebar is icons).
+  collapsible: true makes the label open and close it (a <details>; open: false starts closed).
+
+    ui :sidebar_group, label: "Projects", action: ui(:button, variant: :ghost, size: :icon_xs, icon: :plus, href: new_project_path, aria: { label: "New project" }) do
+      ui :sidebar_item, label: "Spring launch", href: project_path(project), icon: :folder
+    end
+%>
+<% if collapsible %>
+<%= tag.details(**ui_attrs({ data: { slot: "sidebar-group" }, open: (open == false ? nil : true) }, attrs)) do %>
+  <summary data-slot="sidebar-group-label"><span><%= label %></span><%= ui_icon "chevron-right", class: "ui-sidebar-chevron" %></summary>
+  <ul data-slot="sidebar-menu"><%= content %></ul>
+<% end %>
+<% else %>
+<%= tag.section(**ui_attrs({ data: { slot: "sidebar-group" } }, attrs)) do %>
+  <% if label || action %>
+  <div data-slot="sidebar-group-label"><% if label %><span><%= label %></span><% end %><% if action %><span data-slot="sidebar-group-action"><%= action %></span><% end %></div>
+  <% end %>
+  <ul data-slot="sidebar-menu"><%= content %></ul>
+<% end %>
+<% end %>

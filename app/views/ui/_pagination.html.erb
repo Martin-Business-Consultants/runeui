@@ -1,0 +1,49 @@
+<%# locals: (page: nil, pages: nil, total: nil, per_page: nil, param: nil, siblings: nil, label: nil, frame: nil, **attrs) %>
+<%#
+  Pagination: links to the pages of a list, for a Rails index. page: the current page (from 1);
+  pages: how many, or total: and per_page:. Each link is the current URL with param: (:page)
+  set, the other query parameters kept. siblings: how many pages show beside the current one.
+  frame: a Turbo Frame id the links load in (else the whole page).
+
+    ui :pagination, page: @page.number, pages: @page.recordset.page_count
+    ui :pagination, page: params.fetch(:page, 1).to_i, total: @count, per_page: 25, frame: "results"
+%>
+<% current = [ page.to_i, 1 ].max %>
+<% count = pages ? pages.to_i : (total && per_page ? (total.to_f / per_page).ceil : 1) %>
+<% count = [ count, 1 ].max %>
+<% current = [ current, count ].min %>
+<% near = siblings || 1 %>
+<% key = (param || :page).to_s %>
+<% href = ->(n) { query = request.query_parameters.merge(key => n); n == 1 ? (query.except(key).any? ? "#{request.path}?#{query.except(key).to_query}" : request.path) : "#{request.path}?#{query.to_query}" } %>
+<% shown = ([ 1, count ] + ((current - near)..(current + near)).to_a).select { it.between?(1, count) }.uniq.sort %>
+<% range = shown.each_with_index.flat_map { |n, i| i.positive? && n - shown[i - 1] > 1 ? (n - shown[i - 1] == 2 ? [ n - 1, n ] : [ :gap, n ]) : [ n ] } %>
+<%= tag.nav(**ui_attrs({ aria: { label: label || "Pagination" }, data: { slot: "pagination", turbo_frame: frame } }, attrs)) do %>
+  <ul data-slot="pagination-list">
+    <li data-slot="pagination-item">
+      <% if current > 1 %>
+      <a href="<%= href.(current - 1) %>" rel="prev" class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-previous"><%= ui_icon "chevron-left" %><span>Previous</span></a>
+      <% else %>
+      <span class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-previous" aria-disabled="true"><%= ui_icon "chevron-left" %><span>Previous</span></span>
+      <% end %>
+    </li>
+    <% range.each_with_index do |n, i| %>
+    <%# herb:key "#{n}-#{i}" %>
+    <li data-slot="pagination-item">
+      <% if n == :gap %>
+      <span data-slot="pagination-ellipsis" aria-hidden="true"><%= ui_icon :ellipsis %></span>
+      <% elsif n == current %>
+      <a href="<%= href.(n) %>" aria-current="page" class="ui-button" data-variant="outline" data-size="icon" data-slot="pagination-link" data-current><%= n %></a>
+      <% else %>
+      <a href="<%= href.(n) %>" class="ui-button" data-variant="ghost" data-size="icon" data-slot="pagination-link"><%= n %></a>
+      <% end %>
+    </li>
+    <% end %>
+    <li data-slot="pagination-item">
+      <% if current < count %>
+      <a href="<%= href.(current + 1) %>" rel="next" class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-next"><span>Next</span><%= ui_icon "chevron-right" %></a>
+      <% else %>
+      <span class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-next" aria-disabled="true"><span>Next</span><%= ui_icon "chevron-right" %></span>
+      <% end %>
+    </li>
+  </ul>
+<% end %>

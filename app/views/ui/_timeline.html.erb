@@ -1,0 +1,37 @@
+<%# locals: (items: nil, label: nil, orientation: nil, feed: nil, content: nil, **attrs) %>
+<%#
+  Timeline: dated events in order, like a piece of work's activity, an order's progress or a
+  changelog. A list for screen readers, one tab stop, arrow keys between events. items: each a
+  hash: title:, at: (a Time, Date or ISO string, shown in a <time>), time: (the text to show
+  instead), description:, status: (complete, current or upcoming: a process's steps), icon:.
+  Or write <ui-timeline-item>s yourself in the block. label: names the list.
+
+    ui :timeline, label: "Activity", items: @events.map { { title: it.summary, at: it.created_at } }
+    ui :timeline, orientation: :horizontal, items: [
+      { title: "Ordered", at: order.placed_at, status: :complete },
+      { title: "Shipped", status: :current },
+      { title: "Delivered", status: :upcoming } ]
+%>
+<% tid = ui_id("timeline", attrs[:id]) %>
+<% stamp = ->(at) { at.is_a?(Date) && !at.is_a?(DateTime) ? at.strftime("%b %-d, %Y") : at.strftime("%b %-d, %Y, %-l:%M %p") } %>
+<%= tag.ui_timeline(**ui_attrs({ id: tid, orientation: orientation&.to_s, feed: (feed ? "" : nil), data: { slot: "timeline", orientation: (orientation || "vertical").to_s }, aria: { label: label } }, attrs)) do %>
+  <% if content %>
+  <%= content %>
+  <% else %>
+  <% Array(items).each_with_index do |item, index| %>
+  <%# herb:key index %>
+  <% at = item[:at].is_a?(String) ? (Time.zone.parse(item[:at]) rescue nil) : item[:at] %>
+  <ui-timeline-item data-slot="timeline-item"<% if item[:status] %> status="<%= item[:status] %>"<% end %>>
+    <ui-timeline-marker data-slot="timeline-marker"><% if item[:icon] %><%= ui_icon item[:icon] %><% end %></ui-timeline-marker>
+    <ui-timeline-connector data-slot="timeline-connector"></ui-timeline-connector>
+    <div data-slot="timeline-body">
+      <ui-timeline-title data-slot="timeline-title" id="<%= tid %>-title-<%= index %>"><%= item[:title] %></ui-timeline-title>
+      <% if at || item[:time] %>
+      <ui-timeline-time data-slot="timeline-time" id="<%= tid %>-time-<%= index %>"><% if at %><time datetime="<%= at.iso8601 %>"><%= item[:time] || stamp.(at) %></time><% else %><%= item[:time] %><% end %></ui-timeline-time>
+      <% end %>
+      <% if item[:description] %><ui-timeline-description data-slot="timeline-description" id="<%= tid %>-description-<%= index %>"><%= item[:description] %></ui-timeline-description><% end %>
+    </div>
+  </ui-timeline-item>
+  <% end %>
+  <% end %>
+<% end %>

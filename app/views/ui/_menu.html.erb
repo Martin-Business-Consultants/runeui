@@ -1,0 +1,78 @@
+<%# locals: (items: nil, trigger: nil, content: nil, context: nil, label: nil, side: nil, align: nil, id: nil, bar: nil, part: nil, **attrs) %>
+<%#
+  Menu: shadcn's Dropdown Menu (and, with context: true, its Context Menu). The trigger opens a
+  list of actions; arrows, typeahead and Escape work; submenus open toward their arrow.
+
+  items: is the menu as data, each one of:
+    { label: "Profile", href: profile_path, icon: :user, shortcut: "mod+p" }     a link
+    { label: "Sign out", href: session_path, method: :delete, confirm: "Sign out?" }
+    { label: "Delete", value: "delete", variant: :destructive, disabled: true }  an action:
+        the menu fires action (event.detail.value) for Stimulus: data-action="action->x#run"
+    :separator
+    { heading: "My account" }
+    { group: "Team", items: [...] }
+    { label: "More", items: [...] }                                       a submenu
+    { label: "Status bar", checkbox: true, checked: true, value: "status" }
+    { radio: "position", value: "bottom", options: [["Top", "top"], ["Bottom", "bottom"]] }
+
+    ui :menu, trigger: "Open", items: [{ label: "Profile", href: "/me" }, :separator, { label: "Log out", href: "/logout", method: :delete }]
+    ui :menu, context: true, items: [...] do
+      tag.div("Right-click here", class: "my-area")
+    end
+
+  trigger: a string makes an outline button; markup is used as it is.
+%>
+<% render_items = lambda do |list|
+     safe_join(Array(list).map do |item|
+       item = { label: item.to_s } if item.is_a?(String) && item != "-"
+       if item == :separator || item == "-"
+         tag.ui_menu_separator(data: { slot: "menu-separator" })
+       elsif item[:heading]
+         tag.ui_menu_group_label(item[:heading], data: { slot: "menu-group-label" })
+       elsif item[:group]
+         tag.ui_menu_group(safe_join([ tag.ui_menu_group_label(item[:group], data: { slot: "menu-group-label" }), render_items.call(item[:items]) ]), data: { slot: "menu-group" })
+       elsif item[:radio]
+         radios = ui_options(item[:options] || []).map do |option|
+           tag.ui_menu_radio_item(safe_join([ tag.ui_menu_item_indicator(ui_icon(:dot), data: { slot: "menu-item-indicator" }), option[:label] ]), value: option[:value], disabled: (option[:disabled] ? "" : nil), class: "ui-item", data: { slot: "menu-radio-item" })
+         end
+         tag.ui_menu_radio_group(safe_join(radios), name: item[:radio], "default-value": item[:value]&.to_s, data: { slot: "menu-radio-group" })
+       elsif item[:checkbox]
+         tag.ui_menu_checkbox_item(safe_join([ tag.ui_menu_item_indicator(ui_icon(:check), "keep-mounted": "", data: { slot: "menu-item-indicator" }), item[:label] ]), value: (item[:value] || item[:label]).to_s, "default-checked": (item[:checked] ? "" : nil), disabled: (item[:disabled] ? "" : nil), class: "ui-item", data: { slot: "menu-checkbox-item" })
+       elsif item[:items]
+         tag.ui_menu_sub(safe_join([
+           tag.ui_menu_sub_trigger(safe_join([ (item[:icon] ? tag.ui_menu_item_icon(ui_icon(item[:icon]), data: { slot: "menu-item-icon" }) : nil), item[:label], ui_icon("chevron-right", class: "ui-menu-sub-arrow") ].compact), class: "ui-item", data: { slot: "menu-trigger" }),
+           tag.ui_menu_sub_content(render_items.call(item[:items]), class: "ui-popup", hidden: true, data: { slot: "menu-content" })
+         ]), data: { slot: "menu-sub" })
+       else
+         inner = safe_join([ (item[:icon] ? tag.ui_menu_item_icon(ui_icon(item[:icon]), data: { slot: "menu-item-icon" }) : nil), item[:label] ].compact)
+         common = { disabled: (item[:disabled] ? "" : nil), shortcut: item[:shortcut], class: "ui-item", data: { slot: "menu-item", variant: item[:variant]&.to_s } }
+         if item[:href]
+           link_data = (item[:data] || {}).merge(turbo_method: item[:method]&.to_s, turbo_confirm: item[:confirm]).compact
+           tag.ui_menu_item(link_to(inner, item[:href], data: link_data, target: item[:target]), "as-child": "", **common.merge(data: { slot: "menu-link-item", variant: item[:variant]&.to_s }))
+         else
+           tag.ui_menu_item(inner, value: (item[:value] || item[:label]).to_s, **ui_attrs(common, item[:data] ? { data: item[:data] } : {}))
+         end
+       end
+     end)
+   end %>
+<% if part.to_s == "items" %>
+<%= render_items.call(items) %>
+<% else %>
+<% list = capture do %><% if content && !context %><%= content %><% end %><%= render_items.call(items) %><% end %>
+<%= tag.ui_menu(**ui_attrs({ id: id, data: { slot: "menu" } }, attrs)) do %>
+  <% if context %>
+  <ui-menu-context-trigger data-slot="menu-context-trigger" tabindex="0"><%= content %></ui-menu-context-trigger>
+  <% elsif trigger %>
+  <ui-menu-trigger>
+    <% if trigger.html_safe? %>
+    <%= trigger %>
+    <% elsif bar %>
+    <button type="button" data-slot="menu-trigger" class="ui-menubar-trigger"><%= trigger %></button>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="outline" data-size="default"><%= trigger %></button>
+    <% end %>
+  </ui-menu-trigger>
+  <% end %>
+  <%= tag.ui_menu_content(list, class: "ui-popup", side: side&.to_s, align: (align || (bar ? "start" : nil))&.to_s, "aria-label": label, hidden: true, data: { slot: "menu-content" }) %>
+<% end %>
+<% end %>

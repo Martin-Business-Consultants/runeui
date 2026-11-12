@@ -1,0 +1,9 @@
+<%# locals: (orientation: nil, decorative: nil, **attrs) %>
+<%#
+  Separator: a line between groups of content, across (horizontal) or, in a row, up and down
+  (vertical). decorative: true hides it from screen readers when it only looks like a break.
+
+    ui :separator
+    ui :separator, orientation: :vertical, decorative: true
+%>
+<%= tag.ui_separator(**ui_attrs({ orientation: (orientation || "horizontal").to_s, decorative: (decorative ? "" : nil), data: { slot: "separator", orientation: (orientation || "horizontal").to_s } }, attrs)) %>

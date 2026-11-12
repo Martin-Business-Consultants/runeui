@@ -1,0 +1,31 @@
+@layer runeui.components {
+  [data-slot="empty"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 3rem 1.5rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--ui-radius-lg);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  [data-slot="empty-media"] {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--ui-radius-lg);
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  [data-slot="empty-media"] .ui-icon { width: 1.5rem; height: 1.5rem; }
+  [data-slot="empty-title"] { font-size: var(--ui-text-lg); font-weight: 500; }
+  [data-slot="empty-description"] { max-width: 24rem; color: var(--muted-foreground); }
+  [data-slot="empty-action"], [data-slot="empty-content"] { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+}

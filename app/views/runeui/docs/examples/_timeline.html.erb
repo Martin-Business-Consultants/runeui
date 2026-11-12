@@ -1,0 +1,14 @@
+<%# locals: () %>
+<%= ui :timeline, id: "activity", label: "Activity", items: [
+  { title: "Deployed to production", at: Time.new(2026, 11, 10, 14, 32), time: "Today, 2:32 PM", description: "Version 2.4.1 is live in every region.", icon: :check },
+  { title: "Checks passed", at: Time.new(2026, 11, 10, 14, 20), time: "Today, 2:20 PM", description: "312 tests and the bundle size budget." },
+  { title: "Pull request merged", at: Time.new(2026, 11, 9, 16, 5), description: "Fix the invoice totals when a discount applies." },
+  { title: "Project started", at: Date.new(2026, 10, 1) }
+] %>
+<h2>Steps</h2>
+<%= ui :timeline, id: "order", label: "Order progress", orientation: :horizontal, items: [
+  { title: "Ordered", time: "Nov 8", status: :complete, icon: :check },
+  { title: "Packed", time: "Nov 9", status: :complete, icon: :check },
+  { title: "Shipped", time: "Nov 10", status: :current },
+  { title: "Delivered", time: "Expected Nov 12", status: :upcoming }
+] %>

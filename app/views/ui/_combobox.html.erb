@@ -1,0 +1,81 @@
+<%# locals: (name: nil, options: nil, value: nil, placeholder: nil, id: nil, multiple: nil, disabled: nil, required: nil, invalid: nil, form: nil, empty: nil, src: nil, clearable: nil, creatable: nil, size: nil, content: nil, **attrs) %>
+<%#
+  Combobox: an input that filters a list as you type, then picks one value, or several with
+  multiple: true (shown as chips; Backspace removes the last). Takes options as select does
+  (values, [label, value] pairs, a hash, or groups). Submits the chosen value (not the text) under
+  name:, each value as its own entry with multiple, like a native select; fires change.
+
+    ui :combobox, name: "country", options: Country.pluck(:name, :code), placeholder: "Search countries"
+    form.ui :combobox, :tag_ids, options: Tag.pluck(:name, :id), multiple: true
+    ui :combobox, name: "owner_id", src: people_path(format: :json), placeholder: "Search people"
+
+  src: searches on the server as they type: GET src?q=<text> answering JSON,
+  [{ "value": "12", "label": "Ada Lovelace" }, …] (groups as { "type": "group", "label":, "items": [] }).
+  runeui/remote does the fetching (debounced, stale requests cancelled). With src:, a value: the
+  page already knows needs its label in options: too.
+
+  creatable: true takes what's typed when nothing matches (Enter), so with multiple: it's a tags
+  input: ui :combobox, name: "tags[]", multiple: true, creatable: true, options: Tag.pluck(:name)
+
+  empty: is the line shown when nothing matches ("No results." by default). clearable: adds a
+  button that empties it. The block, when given, is the list instead, for items of your own:
+  ui-combobox-item value="…" data-slot="combobox-item" class="ui-item".
+%>
+<% choices = ui_options(options || []) %>
+<% values = Array(value).map(&:to_s).compact_blank %>
+<% shown = ui_selected_label(choices, values) %>
+<% default = multiple ? values.join(", ") : values.first %>
+<% check = ui_icon(:check) %>
+<% combobox_id = ui_id("combobox", id, name: name) %>
+<% input = tag.input(type: "text", placeholder: placeholder, value: (multiple ? nil : shown), autocomplete: "off", aria: { invalid: (invalid ? "true" : nil) }) %>
+<%= tag.ui_combobox(**ui_attrs({ id: combobox_id, name: name, "default-value": (values.any? ? default : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, filter: (src ? "false" : nil), "auto-highlight": "", "allow-custom-value": (creatable ? "" : nil), data: { slot: "combobox", size: size&.to_s, src: src }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <div data-slot="combobox-control"<% if invalid %> aria-invalid="true"<% end %>>
+    <% if multiple %>
+    <ui-combobox-chips data-slot="combobox-chips">
+      <% choices.flat_map { it[:group] ? it[:options] : [ it ] }.select { values.include?(it[:value]) }.each do |chosen| %>
+      <%# herb:key chosen[:value] %>
+      <span data-slot="combobox-chip" data-server-chip><%= chosen[:label] %></span>
+      <% end %>
+      <ui-combobox-input data-slot="combobox-input"><%= input %></ui-combobox-input>
+    </ui-combobox-chips>
+    <% else %>
+    <ui-combobox-input data-slot="combobox-input"><%= input %></ui-combobox-input>
+    <% end %>
+    <% if clearable %>
+    <ui-combobox-clear><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Clear"><%= ui_icon :x %></button></ui-combobox-clear>
+    <% end %>
+    <ui-combobox-trigger><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Show options" tabindex="-1"><%= ui_icon "chevron-down" %></button></ui-combobox-trigger>
+  </div>
+  <ui-combobox-content data-slot="combobox-content" class="ui-popup" anchor="#<%= combobox_id %> [data-slot=combobox-control]" side-offset="4" hidden>
+    <% if src %><ui-combobox-status data-slot="combobox-status"></ui-combobox-status><% end %>
+    <ui-combobox-empty data-slot="combobox-empty"><%= empty || "No results." %></ui-combobox-empty>
+    <ui-combobox-list data-slot="combobox-list">
+      <% if content %>
+      <%= content %>
+      <% else %>
+      <% choices.each do |choice| %>
+      <%# herb:key choice[:group] || choice[:value] %>
+      <% if choice[:group] %>
+      <ui-combobox-group data-slot="combobox-group">
+        <ui-combobox-group-label data-slot="combobox-group-label"><%= choice[:group] %></ui-combobox-group-label>
+        <% choice[:options].each do |item| %>
+        <%# herb:key item[:value] %>
+        <ui-combobox-item data-slot="combobox-item" class="ui-item" value="<%= item[:value] %>" label="<%= item[:label] %>"<% if item[:disabled] %> disabled<% end %>><ui-combobox-item-text data-slot="combobox-item-text"><%= item[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
+        <% end %>
+      </ui-combobox-group>
+      <% else %>
+      <ui-combobox-item data-slot="combobox-item" class="ui-item" value="<%= choice[:value] %>" label="<%= choice[:label] %>"<% if choice[:disabled] %> disabled<% end %>><ui-combobox-item-text data-slot="combobox-item-text"><%= choice[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
+      <% end %>
+      <% end %>
+      <% end %>
+    </ui-combobox-list>
+  </ui-combobox-content>
+  <template>
+    <% if multiple %>
+    <ui-combobox-chip data-slot="combobox-chip"><ui-combobox-chip-remove data-slot="combobox-chip-remove"><button type="button" aria-label="Remove"><%= ui_icon :x %></button></ui-combobox-chip-remove></ui-combobox-chip>
+    <% end %>
+    <% if src %>
+    <ui-combobox-item data-slot="combobox-item" class="ui-item"><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
+    <% end %>
+  </template>
+<% end %>
