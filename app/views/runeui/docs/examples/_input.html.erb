@@ -1,0 +1,8 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("input") %>" method="post" data-turbo-stream>
+  <%= ui :input, name: "email", type: :email, placeholder: "Email" %>
+  <%= ui :input, name: "q", type: :search, placeholder: "Search", clearable: true %>
+  <%= ui :input, name: "bad", value: "not an email", invalid: true %>
+  <%= ui :input, name: "off", placeholder: "Disabled", disabled: true %>
+  <%= ui :button, content: "Send", type: :submit %>
+</form>

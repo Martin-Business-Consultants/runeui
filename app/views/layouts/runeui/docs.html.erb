@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= [ @component&.titleize, "runeui" ].compact.join(" · ") %></title>
+    <%= csrf_meta_tags %>
+    <%= runeui_tags %>
+    <%= stylesheet_link_tag "runeui/docs" %>
+    <%= javascript_importmap_tags "runeui/docs" %>
+  </head>
+  <body class="runeui-docs">
+    <nav class="runeui-docs__nav" aria-label="Components">
+      <a class="runeui-docs__brand" href="<%= runeui_docs_path %>">runeui</a>
+      <% (@components || []).each do |name| %>
+      <%# herb:key name %>
+      <a href="<%= runeui_doc_path(name) %>" <% if name == @component %>aria-current="page"<% end %>><%= name.humanize %></a>
+      <% end %>
+    </nav>
+    <main class="runeui-docs__main">
+      <div class="runeui-docs__bar">
+        <button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-runeui-theme="toggle" aria-label="Light or dark"><%= ui_icon :sun %></button>
+      </div>
+      <%= yield %>
+    </main>
+    <%= ui :toaster %>
+    <%= ui :confirm %>
+    <%= ui_flash_toasts %>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<%# locals: (name: nil, options: nil, value: nil, placeholder: nil, id: nil, multiple: nil, disabled: nil, required: nil, invalid: nil, size: nil, form: nil, content: nil, **attrs) %>
+<%#
+  Select: one value, or several with multiple: true, from a popup list. Takes options as Rails'
+  select does (an array of values, [label, value] pairs, a hash, or groups). The block, when
+  given, is the list instead, for items of your own: ui-select-item value="…" data-slot="select-item".
+  Submits with its form like a native select; fires change when the value moves.
+
+  ui-select-value stays empty: the element writes the chosen label into it (anything inside it
+  would be taken as custom content). data-label shows the server's label until it upgrades.
+
+    ui :select, name: "status", options: %w[draft live archived], value: "live"
+    form.ui :select, :owner_id, options: User.pluck(:name, :id), placeholder: "Nobody"
+    form.ui :select, :tags, options: Tag.pluck(:name), multiple: true
+%>
+<% choices = ui_options(options || []) %>
+<% values = Array(value).map(&:to_s) %>
+<% shown = ui_selected_label(choices, values) %>
+<% default = multiple ? values.to_json : values.first %>
+<%= tag.ui_select(**ui_attrs({ id: id, name: name, "default-value": (values.any? ? default : nil), placeholder: placeholder, multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "select" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+  <ui-select-trigger>
+    <button type="button" data-slot="select-trigger" data-size="<%= (size || "default") %>"<% if invalid %> aria-invalid="true"<% end %>>
+      <ui-select-value data-slot="select-value" data-label="<%= shown || placeholder %>"<% if shown.nil? %> data-placeholder<% end %>></ui-select-value>
+      <%= ui_icon "chevrons-up-down", class: "ui-select-icon" %>
+    </button>
+  </ui-select-trigger>
+  <ui-select-content data-slot="select-content" class="ui-popup" hidden>
+    <% if content %>
+    <%= content %>
+    <% else %>
+    <% choices.each do |choice| %>
+    <%# herb:key choice[:group] || choice[:value] %>
+    <% if choice[:group] %>
+    <ui-select-group data-slot="select-group">
+      <ui-select-group-label data-slot="select-group-label"><%= choice[:group] %></ui-select-group-label>
+      <% choice[:options].each do |item| %>
+      <%# herb:key item[:value] %>
+      <ui-select-item data-slot="select-item" class="ui-item" value="<%= item[:value] %>"<% if item[:disabled] %> disabled<% end %>><ui-select-item-text><%= item[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
+      <% end %>
+    </ui-select-group>
+    <% else %>
+    <ui-select-item data-slot="select-item" class="ui-item" value="<%= choice[:value] %>"<% if choice[:disabled] %> disabled<% end %>><ui-select-item-text><%= choice[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
+    <% end %>
+    <% end %>
+    <% end %>
+  </ui-select-content>
+<% end %>

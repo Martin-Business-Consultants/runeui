@@ -1,0 +1,6 @@
+<%# locals: () %>
+<%= ui :card, title: "Create project", description: "Deploy your new project in one click.", action: ui(:button, variant: :link, content: "Templates"), footer: ui(:button, content: "Create") do %>
+  <%= ui :field, label: "Name" do %>
+    <%= ui :input, name: "name", placeholder: "Name of your project" %>
+  <% end %>
+<% end %>

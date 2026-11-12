@@ -1,0 +1,18 @@
+<%# locals: (content: nil, variant: nil, size: nil, href: nil, icon: nil, icon_end: nil, **attrs) %>
+<%#
+  Button. A <button>, or an <a> with href:. Anything can look like one: class "ui-button" with
+  data-variant (default, secondary, outline, ghost, link, destructive) and data-size (xs, sm,
+  default, lg, icon, icon-xs, icon-sm, icon-lg).
+
+    ui :button, content: "Save", type: :submit
+    ui(:button, variant: :outline, icon: :plus) { "Add a project" }
+    ui :button, href: projects_path, variant: :link, content: "All projects"
+    ui :button, variant: :ghost, size: :icon, icon: :x, aria: { label: "Close" }
+%>
+<% options = ui_attrs({ class: "ui-button", data: { variant: (variant || "default").to_s, size: (size || "default").to_s } }, attrs) %>
+<% inner = capture do %><% if icon %><%= ui_icon icon %><% end %><%= content %><% if icon_end %><%= ui_icon icon_end %><% end %><% end %>
+<% if href %>
+<%= link_to inner, href, **options %>
+<% else %>
+<%= tag.button inner, **options %>
+<% end %>

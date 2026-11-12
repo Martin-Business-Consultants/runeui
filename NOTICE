@@ -1,0 +1,11 @@
+runeui includes third-party software:
+
+- UI SDK (@ui-sdk/web and @ui-sdk/core), by Vercel, under the Apache License 2.0, vendored and
+  bundled unmodified in app/javascript/runeui/sdk (the licence is in app/javascript/runeui/sdk/LICENSE).
+  https://github.com/vercel-labs/ui
+
+- Lucide icons' shapes, under the ISC License, in lib/runeui/icons.rb. https://lucide.dev
+  Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT).
+  All other copyright (c) for Lucide are held by Lucide Contributors 2022.
+
+- The colour tokens follow shadcn/ui's names and default values (MIT). https://ui.shadcn.com

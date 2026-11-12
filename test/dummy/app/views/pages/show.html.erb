@@ -1,0 +1,17 @@
+<main id="page" data-saves="<%= @state["saves"] %>">
+  <h1>Saves: <span id="saves"><%= @state["saves"] %></span></h1>
+  <%= form_with url: root_path, method: :patch, id: "settings" do |form| %>
+    <%= ui :select, name: "status", id: "status", value: @state["status"], options: [ [ "Draft", "draft" ], [ "Live", "live" ], [ "Archived", "archived" ] ] %>
+    <%= ui :switch, name: "public", id: "public", checked: @state["public"] == "1", unchecked_value: "0", label: "Public" %>
+    <%= ui :input, name: "note", value: @state["note"], id: "note" %>
+    <%= ui :button, content: "Save", type: :submit, id: "save" %>
+  <% end %>
+  <%= ui :select, name: "unsaved", id: "unsaved", options: %w[one two three], placeholder: "Not saved" %>
+  <%= ui :dialog, id: "dlg", trigger: "Open dialog", title: "A dialog" do %>
+    <p>Inside</p>
+  <% end %>
+  <%= button_to "Delete", root_path, method: :patch, id: "delete", params: { note: "deleted" }, class: "ui-button", data: { variant: "destructive", size: "default", turbo_confirm: "Really?", turbo_confirm_button: "Delete" } %>
+  <turbo-frame id="lazy" src="<%= frame_path %>"></turbo-frame>
+  <div id="streamed"></div>
+  <%= button_to "Stream", stream_path, id: "stream", form: { data: { turbo_stream: true } } %>
+</main>

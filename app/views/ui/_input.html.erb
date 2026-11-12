@@ -1,0 +1,18 @@
+<%# locals: (name: nil, value: nil, type: nil, id: nil, placeholder: nil, invalid: nil, size: nil, clearable: nil, **attrs) %>
+<%#
+  Input. A native <input> inside <ui-input>, which tracks data-filled and joins a Field.
+  Everything native goes on the input: type, placeholder, autocomplete, required, pattern…
+
+    ui :input, name: "q", type: :search, placeholder: "Search"
+    form.ui :input, :email, type: :email, autocomplete: "email"
+    ui :input, name: "q", clearable: true     (a button that empties it)
+%>
+<% input = tag.input(**ui_attrs({ class: "ui-input", type: (type || "text").to_s, name: name, value: value, id: id, placeholder: placeholder, data: { slot: "field-control", size: size&.to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) %>
+<% if clearable %>
+<ui-input-group data-slot="input-group">
+  <ui-input data-slot="input"><%= input %></ui-input>
+  <ui-input-clear data-slot="input-clear"><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Clear"><%= ui_icon :x %></button></ui-input-clear>
+</ui-input-group>
+<% else %>
+<ui-input data-slot="input"><%= input %></ui-input>
+<% end %>

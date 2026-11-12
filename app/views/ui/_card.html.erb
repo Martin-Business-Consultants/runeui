@@ -1,0 +1,21 @@
+<%# locals: (content: nil, title: nil, description: nil, action: nil, footer: nil, size: nil, **attrs) %>
+<%#
+  Card. A title and description in its header (action: sits at the header's end), the block as
+  its content, footer: at the foot. Write the parts yourself for anything else:
+  [data-slot=card-header], card-title, card-description, card-action, card-content, card-footer.
+
+    ui :card, title: "Team", description: "Who can see this project", footer: ui(:button, content: "Invite") do
+      …
+    end
+%>
+<%= tag.div(**ui_attrs({ data: { slot: "card", size: size&.to_s } }, attrs)) do %>
+  <% if title || description || action %>
+  <div data-slot="card-header">
+    <% if title %><div data-slot="card-title"><%= title %></div><% end %>
+    <% if description %><div data-slot="card-description"><%= description %></div><% end %>
+    <% if action %><div data-slot="card-action"><%= action %></div><% end %>
+  </div>
+  <% end %>
+  <% if content %><div data-slot="card-content"><%= content %></div><% end %>
+  <% if footer %><div data-slot="card-footer"><%= footer %></div><% end %>
+<% end %>

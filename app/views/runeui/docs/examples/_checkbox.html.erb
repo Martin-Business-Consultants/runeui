@@ -1,0 +1,7 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("checkbox") %>" method="post" data-turbo-stream>
+  <%= ui :checkbox, name: "terms", label: "Accept terms and conditions", unchecked_value: "0" %>
+  <%= ui :checkbox, name: "news", label: "Send me news", checked: true %>
+  <%= ui :checkbox, name: "off", label: "Disabled", disabled: true %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>

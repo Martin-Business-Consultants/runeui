@@ -1,0 +1,24 @@
+<%# locals: (**attrs) %>
+<%#
+  The alert dialog that asks data-turbo-confirm's question (and confirm() in JavaScript), once
+  in the layout, yours to restyle. Without it runeui makes a plain one.
+
+    ui :confirm
+
+    button_to "Delete", project_path(project), method: :delete,
+      data: { turbo_confirm: "Delete this project?", turbo_confirm_description: "Its tasks go too.",
+              turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" }
+%>
+<%= tag.ui_alert_dialog(**ui_attrs({ id: "runeui-confirm", data: { turbo_permanent: "" } }, attrs)) do %>
+  <ui-alert-dialog-backdrop data-slot="alert-dialog-backdrop" hidden></ui-alert-dialog-backdrop>
+  <ui-alert-dialog-content data-slot="alert-dialog-content" data-size="sm" hidden>
+    <div data-slot="dialog-header">
+      <ui-alert-dialog-title data-slot="alert-dialog-title"></ui-alert-dialog-title>
+      <ui-alert-dialog-description data-slot="alert-dialog-description"></ui-alert-dialog-description>
+    </div>
+    <div data-slot="dialog-footer">
+      <ui-alert-dialog-close><button type="button" class="ui-button" data-variant="outline" data-size="default" data-confirm-cancel>Cancel</button></ui-alert-dialog-close>
+      <ui-alert-dialog-close value="confirm"><button type="button" class="ui-button" data-variant="default" data-size="default" data-confirm-accept>Continue</button></ui-alert-dialog-close>
+    </div>
+  </ui-alert-dialog-content>
+<% end %>

@@ -1,0 +1,65 @@
+/* Button: class ui-button, data-variant and data-size. (A class, not data-slot: UI SDK gives a
+   trigger's button its own data-slot, select-trigger or dialog-trigger, and it should still
+   look like a button.) */
+
+@layer runeui.components {
+  .ui-button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: var(--ui-h);
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--ui-radius-md);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-size: var(--ui-text-sm);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    box-shadow: var(--ui-shadow-xs);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--ui-duration), color var(--ui-duration), box-shadow var(--ui-duration), border-color var(--ui-duration);
+  }
+
+  .ui-button:hover { background: color-mix(in oklch, var(--primary) 90%, transparent); }
+  .ui-button:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  .ui-button:is(:disabled, [aria-disabled="true"], [data-disabled]) { opacity: 0.5; pointer-events: none; }
+  .ui-button[aria-invalid="true"] { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  /* Busy while its form submits through Turbo, or while its own action runs. */
+  .ui-button:is([data-pending], form[aria-busy] [type="submit"]) { cursor: progress; opacity: 0.7; }
+  .ui-button .ui-icon { width: 1rem; height: 1rem; }
+
+  .ui-button[data-variant="destructive"] { background: var(--destructive); color: white; }
+  .ui-button[data-variant="destructive"]:hover { background: color-mix(in oklch, var(--destructive) 90%, transparent); }
+  .ui-button[data-variant="destructive"]:focus-visible { box-shadow: var(--ui-invalid-ring); }
+
+  .ui-button[data-variant="outline"] { border-color: var(--border); background: var(--background); color: var(--foreground); }
+  .ui-button[data-variant="outline"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  .dark .ui-button[data-variant="outline"] { border-color: var(--input); background: color-mix(in oklch, var(--input) 30%, transparent); }
+  .dark .ui-button[data-variant="outline"]:hover { background: color-mix(in oklch, var(--input) 50%, transparent); }
+
+  .ui-button[data-variant="secondary"] { background: var(--secondary); color: var(--secondary-foreground); }
+  .ui-button[data-variant="secondary"]:hover { background: color-mix(in oklch, var(--secondary) 80%, transparent); }
+
+  .ui-button[data-variant="ghost"] { background: transparent; color: inherit; box-shadow: none; }
+  .ui-button[data-variant="ghost"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  .dark .ui-button[data-variant="ghost"]:hover { background: color-mix(in oklch, var(--accent) 50%, transparent); }
+
+  .ui-button[data-variant="link"] { background: transparent; color: var(--primary); box-shadow: none; text-underline-offset: 4px; }
+  .ui-button[data-variant="link"]:hover { text-decoration: underline; }
+
+  .ui-button[data-size="xs"] { height: var(--ui-h-xs); gap: 0.25rem; padding: 0 0.5rem; border-radius: var(--ui-radius-sm); font-size: var(--ui-text-xs); }
+  .ui-button[data-size="xs"] .ui-icon { width: 0.75rem; height: 0.75rem; }
+  .ui-button[data-size="sm"] { height: var(--ui-h-sm); gap: 0.375rem; padding: 0 0.75rem; }
+  .ui-button[data-size="lg"] { height: var(--ui-h-lg); padding: 0 1.5rem; }
+  .ui-button[data-size="icon"] { width: var(--ui-h); padding: 0; }
+  .ui-button[data-size="icon-xs"] { width: var(--ui-h-xs); height: var(--ui-h-xs); padding: 0; border-radius: var(--ui-radius-sm); }
+  .ui-button[data-size="icon-xs"] .ui-icon { width: 0.875rem; height: 0.875rem; }
+  .ui-button[data-size="icon-sm"] { width: var(--ui-h-sm); height: var(--ui-h-sm); padding: 0; }
+  .ui-button[data-size="icon-lg"] { width: var(--ui-h-lg); height: var(--ui-h-lg); padding: 0; }
+}

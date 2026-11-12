@@ -1,0 +1,6 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("switch") %>" method="post" data-turbo-stream>
+  <%= ui :switch, name: "airplane", label: "Airplane mode", unchecked_value: "0" %>
+  <%= ui :switch, name: "wifi", label: "Wi-Fi", checked: true, size: :sm %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>

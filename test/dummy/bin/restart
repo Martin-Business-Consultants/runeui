@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Restarts the dummy app (default port 3311; bin/restart 3312 for another). The gem's lib/
+# doesn't reload; views, stylesheets and JavaScript do.
+cd "$(dirname "$0")/.."
+PORT="${1:-3311}"
+PID="tmp/server-$PORT.pid"
+[ -f "$PID" ] && kill "$(cat "$PID")" 2>/dev/null && sleep 1
+(LOG=1 bundle exec rails server -p "$PORT" -P "$PID" > "log/server-$PORT.log" 2>&1 &)
+for i in $(seq 1 60); do curl -s -o /dev/null "localhost:$PORT/runeui" && break; sleep 0.5; done
+echo "dummy app on http://localhost:$PORT"

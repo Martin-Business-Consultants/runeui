@@ -1,0 +1,40 @@
+<%# locals: (content: nil, trigger: nil, title: nil, description: nil, footer: nil, id: nil, open: nil, size: nil, closable: nil, dismissible: nil, **attrs) %>
+<%#
+  Dialog: a window over the page. trigger: is the button that opens it (a string makes an
+  outline button; markup is used as it is). To open it from elsewhere, give it an id: a button
+  anywhere with data-runeui-open="that-id", turbo_stream.ui_open(id) from the server, or
+  dialog.open = true in JavaScript. title: names it for screen readers.
+
+    ui :dialog, trigger: "Edit profile", title: "Edit profile", description: "Changes save when you press Save",
+       footer: ui(:button, content: "Save", type: :submit, form: "profile") do
+      render "profiles/form"
+    end
+
+  A form inside that should close the dialog when it saves: answer with a redirect or
+  turbo_stream.ui_close(id). With size: sm, lg, xl or full.
+%>
+<%= tag.ui_dialog(**ui_attrs({ id: id, "default-open": (open ? "" : nil), dismissible: (dismissible == false ? "false" : nil), data: { slot: "dialog" } }, attrs)) do %>
+  <% if trigger %>
+  <ui-dialog-trigger>
+    <% if trigger.html_safe? %>
+    <%= trigger %>
+    <% else %>
+    <button type="button" class="ui-button" data-variant="outline" data-size="default"><%= trigger %></button>
+    <% end %>
+  </ui-dialog-trigger>
+  <% end %>
+  <ui-dialog-backdrop data-slot="dialog-backdrop" hidden></ui-dialog-backdrop>
+  <ui-dialog-content data-slot="dialog-content" data-size="<%= (size || "default") %>" hidden>
+    <% if title || description %>
+    <div data-slot="dialog-header">
+      <% if title %><ui-dialog-title data-slot="dialog-title"><%= title %></ui-dialog-title><% end %>
+      <% if description %><ui-dialog-description data-slot="dialog-description"><%= description %></ui-dialog-description><% end %>
+    </div>
+    <% end %>
+    <% if content %><div data-slot="dialog-body"><%= content %></div><% end %>
+    <% if footer %><div data-slot="dialog-footer"><%= footer %></div><% end %>
+    <% unless closable == false %>
+    <ui-dialog-close><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-dialog-x aria-label="Close"><%= ui_icon :x %></button></ui-dialog-close>
+    <% end %>
+  </ui-dialog-content>
+<% end %>

@@ -1,0 +1,11 @@
+<%# locals: () %>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("select") %>" method="post" data-turbo-stream>
+  <%= ui :select, name: "fruit", placeholder: "Select a fruit", options: %w[Apple Banana Blueberry Grapes Pineapple] %>
+  <%= ui :select, name: "timezone", value: "cst", options: { "North America" => [ [ "Eastern", "est" ], [ "Central", "cst" ], [ "Pacific", "pst" ] ], "Europe" => [ [ "Greenwich", "gmt" ], [ "Central European", "cet" ] ] } %>
+  <%= ui :select, name: "size", size: :sm, value: "m", options: [ [ "Small", "s" ], [ "Medium", "m" ], [ "Large", "l", { disabled: true } ] ] %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>Saves as it changes</h2>
+<form action="<%= runeui_echo_path("select") %>" method="post" data-turbo-stream data-autosave>
+  <%= ui :select, name: "status", value: "draft", options: [ [ "Draft", "draft" ], [ "Live", "live" ], [ "Archived", "archived" ] ], onchange: "this.form.requestSubmit()" %>
+</form>

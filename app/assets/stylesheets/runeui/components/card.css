@@ -1,0 +1,32 @@
+@layer runeui.components {
+  [data-slot="card"] {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-block: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-xl);
+    background: var(--card);
+    color: var(--card-foreground);
+    box-shadow: var(--ui-shadow-sm);
+  }
+
+  [data-slot="card"][data-size="sm"] { gap: 1rem; padding-block: 1rem; }
+  [data-slot="card"][data-size="sm"] > * { padding-inline: 1rem; }
+
+  [data-slot="card-header"] {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: min-content;
+    align-items: start;
+    gap: 0.375rem;
+    padding-inline: 1.5rem;
+  }
+
+  [data-slot="card-header"]:not(:has([data-slot="card-action"])) { grid-template-columns: 1fr; }
+  [data-slot="card-title"] { font-weight: 600; line-height: 1; }
+  [data-slot="card-description"] { color: var(--muted-foreground); font-size: var(--ui-text-sm); }
+  [data-slot="card-action"] { grid-column: 2; grid-row: 1 / span 2; align-self: start; justify-self: end; }
+  [data-slot="card-content"] { padding-inline: 1.5rem; }
+  [data-slot="card-footer"] { display: flex; align-items: center; gap: 0.5rem; padding-inline: 1.5rem; }
+}

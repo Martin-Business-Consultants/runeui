@@ -1,0 +1,7 @@
+<%# locals: () %>
+<%= ui :field, label: "Username", description: "This is your public display name." do %>
+  <%= ui :input, name: "username", placeholder: "shadcn" %>
+<% end %>
+<%= ui :field, label: "Email", errors: [ "Email is taken" ] do %>
+  <%= ui :input, name: "email", value: "taken@example.com", invalid: true %>
+<% end %>

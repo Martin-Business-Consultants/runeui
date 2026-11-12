@@ -1,0 +1,9 @@
+<h1 class="runeui-docs__title">runeui</h1>
+<p class="runeui-docs__lead">Components for Rails with no build step: an ERB partial and a stylesheet each, yours to change,
+  on UI SDK's accessible behaviours, themed with shadcn's tokens, and at home in Turbo.</p>
+<div class="runeui-docs__grid">
+  <% @components.each do |name| %>
+  <%# herb:key name %>
+  <a class="runeui-docs__tile" href="<%= runeui_doc_path(name) %>"><%= name.humanize %></a>
+  <% end %>
+</div>

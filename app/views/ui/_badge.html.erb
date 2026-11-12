@@ -1,0 +1,13 @@
+<%# locals: (content: nil, variant: nil, href: nil, icon: nil, **attrs) %>
+<%#
+  Badge. data-variant: default, secondary, outline, destructive, success, warning, info.
+
+    ui :badge, content: "Draft", variant: :secondary
+%>
+<% options = ui_attrs({ data: { slot: "badge", variant: (variant || "default").to_s } }, attrs) %>
+<% inner = capture do %><% if icon %><%= ui_icon icon %><% end %><%= content %><% end %>
+<% if href %>
+<%= link_to inner, href, **options %>
+<% else %>
+<%= tag.span inner, **options %>
+<% end %>

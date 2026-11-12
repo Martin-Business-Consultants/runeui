@@ -1,0 +1,21 @@
+<%# locals: () %>
+<h2>Variants</h2>
+<div class="runeui-docs__row">
+  <%= ui :button, content: "Default" %>
+  <%= ui :button, variant: :secondary, content: "Secondary" %>
+  <%= ui :button, variant: :outline, content: "Outline" %>
+  <%= ui :button, variant: :ghost, content: "Ghost" %>
+  <%= ui :button, variant: :link, content: "Link" %>
+  <%= ui :button, variant: :destructive, content: "Delete" %>
+</div>
+<h2>Sizes and icons</h2>
+<div class="runeui-docs__row">
+  <%= ui :button, size: :xs, content: "Extra small" %>
+  <%= ui :button, size: :sm, variant: :outline, icon: :plus, content: "Small" %>
+  <%= ui :button, size: :lg, icon_end: "arrow-right", content: "Large" %>
+  <%= ui :button, size: :icon, variant: :outline, icon: "chevron-right", aria: { label: "Next" } %>
+  <%= ui :button, href: "#", variant: :outline, content: "A link" %>
+  <%= ui :button, disabled: true, content: "Disabled" %>
+</div>
+<h2>Confirm before submitting</h2>
+<%= button_to "Delete project", runeui_echo_path("button"), method: :post, class: "ui-button", data: { variant: "destructive", size: "default", turbo_confirm: "Delete this project?", turbo_confirm_description: "Its tasks and files go too. This can't be undone.", turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" }, params: { deleted: "yes" } %>

@@ -1,0 +1,25 @@
+@layer runeui.components {
+  [data-slot="checkbox"] {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--input);
+    border-radius: 4px;
+    box-shadow: var(--ui-shadow-xs);
+    outline: none;
+    cursor: pointer;
+    transition: box-shadow var(--ui-duration), background-color var(--ui-duration);
+  }
+
+  .dark [data-slot="checkbox"] { background: color-mix(in oklch, var(--input) 30%, transparent); }
+  [data-slot="checkbox"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="checkbox"]:is([data-checked], [data-indeterminate]) { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+  [data-slot="checkbox"]:is([aria-invalid="true"], [data-invalid]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+  [data-slot="checkbox"][data-disabled] { opacity: 0.5; cursor: not-allowed; }
+  [data-slot="checkbox-indicator"] { display: grid; place-items: center; }
+  [data-slot="checkbox-indicator"] .ui-icon { width: 0.875rem; height: 0.875rem; }
+  /* Before it upgrades, a checkbox shows nothing checked unless the server said so. */
+  ui-checkbox:not(:defined):not([default-checked]) [data-slot="checkbox-indicator"] { visibility: hidden; }
+}

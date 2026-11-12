@@ -1,0 +1,132 @@
+/* runeui: tokens.
+ *
+ * The cascade layers, in order. UI SDK puts the little CSS its behaviours need (a closed popup
+ * hidden, each element's display) in ui-sdk; runeui's in runeui.*; your own CSS, unlayered, wins
+ * over all of it whatever its specificity.
+ *
+ * The colour tokens are shadcn/ui's, by name and meaning, so any shadcn theme works as it is:
+ * paste its :root { … } and .dark { … } blocks into your own stylesheet (tweakcn,
+ * ui.shadcn.com/themes). Dark mode is .dark on <html>, which runeui_tags sets before the first
+ * paint from the person's choice or the system's. Components read only these tokens and the
+ * --ui-* sizes below. */
+
+@layer ui-sdk, runeui.tokens, runeui.base, runeui.components, runeui.utilities;
+
+@layer runeui.tokens {
+  :root {
+    color-scheme: light;
+
+    --radius: 0.625rem;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+
+    /* Beyond shadcn's set: status colours for badges, alerts and toasts. */
+    --success: oklch(0.6 0.15 150);
+    --warning: oklch(0.75 0.16 75);
+    --info: oklch(0.6 0.15 250);
+
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  .dark, [data-theme="dark"] {
+    color-scheme: dark;
+
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+
+    --success: oklch(0.7 0.15 150);
+    --warning: oklch(0.8 0.15 80);
+    --info: oklch(0.7 0.13 250);
+  }
+
+  /* runeui's own scale, derived from the theme: change --radius and every corner follows. */
+  :root {
+    --ui-radius-sm: calc(var(--radius) - 4px);
+    --ui-radius-md: calc(var(--radius) - 2px);
+    --ui-radius-lg: var(--radius);
+    --ui-radius-xl: calc(var(--radius) + 4px);
+    --ui-radius-full: 9999px;
+
+    --ui-h-xs: 1.5rem;
+    --ui-h-sm: 2rem;
+    --ui-h: 2.25rem;
+    --ui-h-lg: 2.5rem;
+
+    --ui-text-xs: 0.75rem;
+    --ui-text-sm: 0.875rem;
+    --ui-text: 1rem;
+    --ui-text-lg: 1.125rem;
+
+    --ui-shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+    --ui-shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --ui-shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.1), 0 2px 4px -2px oklch(0 0 0 / 0.1);
+    --ui-shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.1), 0 4px 6px -4px oklch(0 0 0 / 0.1);
+    --ui-focus-ring: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+    --ui-invalid-ring: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+
+    --ui-duration: 150ms;
+    --ui-duration-slow: 200ms;
+    --ui-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}

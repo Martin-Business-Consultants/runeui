@@ -1,0 +1,23 @@
+<%# locals: (side: nil, align: nil, **attrs) %>
+<%#
+  Where toasts appear: once, near the end of the layout's body. It stays put through Turbo
+  visits (data-turbo-permanent), so a toast shown as a page changes isn't lost. The flash
+  shows here (ui_flash_toasts), as does turbo_stream.ui_toast and toast() in JavaScript.
+
+    ui :toaster
+    ui :toaster, side: :top, align: :center
+%>
+<%= tag.ui_toast_region(**ui_attrs({ id: "runeui-toaster", side: (side || "bottom").to_s, align: (align || "end").to_s, data: { slot: "toast-region", turbo_permanent: "" } }, attrs)) do %>
+  <template>
+    <ui-toast data-slot="toast">
+      <span data-slot="toast-icon" data-show="success"><%= ui_icon "circle-check" %></span>
+      <span data-slot="toast-icon" data-show="info"><%= ui_icon :info %></span>
+      <span data-slot="toast-icon" data-show="warning"><%= ui_icon "triangle-alert" %></span>
+      <span data-slot="toast-icon" data-show="error"><%= ui_icon "circle-alert" %></span>
+      <span data-slot="toast-icon" data-show="loading"><%= ui_icon :loader %></span>
+      <div data-slot="toast-body"><ui-toast-title data-slot="toast-title"></ui-toast-title><ui-toast-description data-slot="toast-description"></ui-toast-description></div>
+      <ui-toast-action data-slot="toast-action"></ui-toast-action>
+      <ui-toast-close data-slot="toast-close"><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Close"><%= ui_icon :x %></button></ui-toast-close>
+    </ui-toast>
+  </template>
+<% end %>

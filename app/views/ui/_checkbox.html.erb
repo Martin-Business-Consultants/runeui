@@ -1,0 +1,16 @@
+<%# locals: (name: nil, value: nil, checked: nil, label: nil, id: nil, unchecked_value: nil, disabled: nil, required: nil, invalid: nil, indeterminate: nil, **attrs) %>
+<%#
+  Checkbox. Submits value ("1" by default) while checked; with unchecked_value: a hidden field
+  submits that otherwise, as Rails' check_box does (form.ui :checkbox does it for you).
+
+    ui :checkbox, name: "terms", label: "I agree to the terms"
+    form.ui :checkbox, :newsletter, label: "Send me the newsletter"
+%>
+<% box_id = ui_id("checkbox", id, name: name) %>
+<% if unchecked_value && name %><input type="hidden" name="<%= name %>" value="<%= unchecked_value %>" autocomplete="off"><% end %>
+<% control = tag.ui_checkbox(**ui_attrs({ id: box_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), indeterminate: (indeterminate ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), data: { slot: "checkbox" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) { tag.ui_checkbox_indicator(ui_icon(indeterminate ? :minus : :check), data: { slot: "checkbox-indicator" }) } %>
+<% if label %>
+<label data-slot="choice" for="<%= box_id %>"><%= control %><span data-slot="choice-label"><%= label %></span></label>
+<% else %>
+<%= control %>
+<% end %>

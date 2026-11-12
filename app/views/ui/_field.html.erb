@@ -1,0 +1,16 @@
+<%# locals: (content: nil, label: nil, description: nil, errors: nil, invalid: nil, orientation: nil, **attrs) %>
+<%#
+  Field: a label, the control (the block), a description and its errors, linked for screen
+  readers by <ui-field>. With form.ui :field, :name the errors come from the record.
+
+    form.ui :field, :email, label: "Email", description: "We'll never share it" do
+      form.ui :input, :email, type: :email
+    end
+%>
+<% messages = Array(errors).compact_blank %>
+<%= tag.ui_field(**ui_attrs({ data: { slot: "field", orientation: orientation&.to_s }, invalid: ((invalid || messages.any?) ? "" : nil) }, attrs)) do %>
+  <% if label %><ui-field-label data-slot="field-label"><%= label %></ui-field-label><% end %>
+  <%= content %>
+  <% if description %><ui-field-description data-slot="field-description"><%= description %></ui-field-description><% end %>
+  <% if messages.any? %><ui-field-error data-slot="field-error" match><%= messages.to_sentence %></ui-field-error><% end %>
+<% end %>

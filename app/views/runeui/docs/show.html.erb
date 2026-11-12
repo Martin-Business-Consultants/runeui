@@ -1,0 +1,8 @@
+<h1 class="runeui-docs__title"><%= @component.humanize %></h1>
+<section class="runeui-docs__example" data-example="<%= @component %>">
+  <%= render "runeui/docs/examples/#{@component}" %>
+</section>
+<details class="runeui-docs__source">
+  <summary>ERB</summary>
+  <pre><code><%= @source %></code></pre>
+</details>

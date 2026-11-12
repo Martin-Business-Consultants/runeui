@@ -1,0 +1,53 @@
+/* Dialog and Alert Dialog: a backdrop, and the content centred over it. An alert dialog's parts
+   are named alert-dialog-* (UI SDK names them so once it upgrades), its header and footer share
+   the dialog's. */
+
+@layer runeui.components {
+  [data-slot="dialog-backdrop"], [data-slot="alert-dialog-backdrop"] {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: oklch(0 0 0 / 0.5);
+    transition: opacity var(--ui-duration-slow) var(--ui-ease);
+  }
+
+  :is([data-slot="dialog-backdrop"], [data-slot="alert-dialog-backdrop"]):is([data-starting-style], [data-ending-style]) { opacity: 0; }
+
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"]) {
+    position: fixed;
+    inset: 50% auto auto 50%;
+    z-index: 50;
+    display: grid;
+    gap: 1rem;
+    width: min(calc(100% - 2rem), 32rem);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    margin: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-lg);
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--ui-shadow-lg);
+    translate: -50% -50%;
+    outline: none;
+    transition: opacity var(--ui-duration-slow) var(--ui-ease), scale var(--ui-duration-slow) var(--ui-ease);
+  }
+
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])::backdrop { background: transparent; }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"]):is([data-starting-style], [data-ending-style]) { opacity: 0; scale: 0.95; }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-size="sm"] { width: min(calc(100% - 2rem), 24rem); }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-size="lg"] { width: min(calc(100% - 2rem), 42rem); }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-size="xl"] { width: min(calc(100% - 2rem), 56rem); }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-size="full"] { width: calc(100% - 2rem); height: calc(100dvh - 2rem); }
+
+  [data-slot="dialog-header"] { display: flex; flex-direction: column; gap: 0.5rem; text-align: center; }
+  @media (min-width: 640px) { [data-slot="dialog-header"] { text-align: start; } }
+  [data-slot="dialog-title"], [data-slot="alert-dialog-title"] { font-size: var(--ui-text-lg); font-weight: 600; line-height: 1; }
+  [data-slot="dialog-description"], [data-slot="alert-dialog-description"] { color: var(--muted-foreground); font-size: var(--ui-text-sm); }
+  [data-slot="dialog-footer"] { display: flex; flex-direction: column-reverse; gap: 0.5rem; }
+  @media (min-width: 640px) { [data-slot="dialog-footer"] { flex-direction: row; justify-content: flex-end; } }
+
+  [data-dialog-x] { position: absolute; top: 0.75rem; inset-inline-end: 0.75rem; opacity: 0.7; }
+  [data-dialog-x]:hover { opacity: 1; }
+}

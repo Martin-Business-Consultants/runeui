@@ -1,0 +1,5 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= button_to "From the server", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { hello: "world" }, form: { data: { turbo_stream: true } } %>
+  <button type="button" class="ui-button" data-variant="outline" data-size="default" onclick="import('runeui').then(({ toast }) => toast.success('Event created', { description: 'Friday at 10:00' }))">From JavaScript</button>
+</div>

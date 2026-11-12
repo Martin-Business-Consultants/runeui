@@ -1,0 +1,90 @@
+/* runeui: base. The page, and what every component shares. */
+
+@layer runeui.base {
+  *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: var(--ui-text-sm);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* hidden always hides, whatever display a component's parts are given (UI SDK leaves a
+     closing popup shown until its exit transition ends, then sets hidden). */
+  [hidden]:not([hidden="until-found"]) { display: none !important; }
+
+  :focus-visible { outline: none; }
+
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  .ui-icon { flex-shrink: 0; width: 1rem; height: 1rem; pointer-events: none; }
+
+  /* Before its module loads, a component is its own HTML: nothing jumps when it upgrades
+     because partials render each part's data-slot (and its hidden) on the server. */
+  :where(ui-select, ui-combobox, ui-menu, ui-popover, ui-dialog, ui-alert-dialog, ui-drawer, ui-tooltip, ui-hover-card,
+    ui-select-trigger, ui-menu-trigger, ui-popover-trigger, ui-dialog-trigger, ui-alert-dialog-trigger, ui-drawer-trigger,
+    ui-tooltip-trigger, ui-hover-card-trigger, ui-dialog-close, ui-alert-dialog-close, ui-drawer-close, ui-popover-close,
+    ui-tabs-tab, ui-collapsible-trigger, ui-accordion-trigger, ui-toggle, ui-field-control) { display: contents; }
+}
+
+@layer runeui.utilities {
+  .ui-sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+  }
+}
+
+@layer runeui.base {
+  /* Every floating surface (select lists, menus, popovers, hover cards, date pickers): class
+     ui-popup on the content part. UI SDK positions it in the top layer and gives it
+     --transform-origin, --anchor-width and --available-height. */
+  .ui-popup {
+    z-index: 50;
+    min-width: max(8rem, var(--anchor-width, 0px));
+    max-height: var(--available-height, 24rem);
+    overflow-y: auto;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-md);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: var(--ui-shadow-md);
+    transform-origin: var(--transform-origin, top);
+    transition: opacity var(--ui-duration) var(--ui-ease), scale var(--ui-duration) var(--ui-ease);
+  }
+
+  .ui-popup:is([data-starting-style], [data-ending-style]) { opacity: 0; scale: 0.96; }
+
+  /* An item in a list or menu: highlighted by keys or pointer, disabled, or chosen. */
+  .ui-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--ui-h-sm);
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--ui-radius-sm);
+    font-size: var(--ui-text-sm);
+    outline: none;
+    cursor: default;
+    user-select: none;
+  }
+
+  .ui-item:is([data-highlighted], :focus-visible) { background: var(--accent); color: var(--accent-foreground); }
+  .ui-item:is([data-disabled], [aria-disabled="true"]) { opacity: 0.5; pointer-events: none; }
+  .ui-item .ui-icon { color: var(--muted-foreground); }
+
+  /* A label beside its checkbox, radio or switch. */
+  [data-slot="choice"] { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--ui-text-sm); line-height: 1.25; cursor: pointer; }
+  [data-slot="choice"]:has([data-disabled]) { opacity: 0.5; cursor: not-allowed; }
+}
