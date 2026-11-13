@@ -25,7 +25,9 @@ module Runeui
       if component == "field"
         defaults[:errors] = object.respond_to?(:errors) ? object.errors.full_messages_for(method) : []
         defaults[:control_id] = field_id(method) if locals[:control]
-        defaults.delete(:id)
+        # Its own id, the same on every render, so a morph pairs each field with itself even when
+        # a refused save adds an error above it and the fields shift.
+        defaults[:id] = field_id(method, :field)
       elsif BOOLEAN.include?(component)
         defaults[:name] = field_name(method)
         defaults[:checked] = ActiveModel::Type::Boolean.new.cast(value_of(method)) || false
