@@ -17,3 +17,11 @@
     { value: "members", label: "Members", content: tag.p("Who's on the team.") },
     { value: "billing", label: "Billing", content: tag.p("Plans and invoices.") }
   ] %>
+<h2>Links</h2>
+  <% section = params[:section].presence_in(%w[profile team]) || "profile" %>
+  <%= ui :tabs, label: "Pages", value: section, tabs: [
+    { value: "profile", label: "Profile", href: runeui_doc_path("tabs", section: "profile") },
+    { value: "team", label: safe_join([ "Team", ui(:badge, content: "3", variant: :secondary) ], " "), href: runeui_doc_path("tabs", section: "team") }
+  ] do %>
+    <p id="tabs-link-panel">The <%= section %> page.</p>
+  <% end %>

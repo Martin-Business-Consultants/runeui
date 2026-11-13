@@ -12,10 +12,34 @@
       { value: "files", label: "Files", src: project_files_path(project) },
       { value: "history", label: "History", src: project_events_path(project), frame: "history" }
     ]
+
+  Tabs that carry href: are links instead, for tabs that are pages (a record's sections, each its
+  own address): a <nav> of links that look the same, the one for value: current
+  (aria-current="page"), and the block as the panel under them (the current tab's, which the
+  server renders). Each may carry data: (data-turbo-frame to load only a frame) and label: may be
+  markup (a count beside the name). Tab moves between them; Enter follows one.
+
+    ui :tabs, value: "notes", label: "Sections", tabs: [
+      { value: "tasks", label: "Tasks", href: client_path(client, tab: "tasks"), data: { turbo_frame: "record_tab" } },
+      { value: "notes", label: "Notes", href: client_path(client, tab: "notes"), data: { turbo_frame: "record_tab" } }
+    ] do
+      render "notes/section", subject: client
+    end
 %>
 <% list = Array(tabs) %>
 <% chosen = (value || list.reject { it[:disabled] }.first&.dig(:value)).to_s %>
 <% direction = (orientation || "horizontal").to_s %>
+<% if list.any? { it[:href] } %>
+<%= ui_tag(:div, { data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s, links: "" } }, attrs) do %>
+  <%= ui_tag(:nav, { data: { slot: "tabs-list", orientation: direction }, aria: { label: label } }) do %>
+    <% list.each do |tab| %>
+    <%# herb:key tab[:value] %>
+    <%= ui_tag(:a, { href: tab[:href], data: { slot: "tabs-tab", orientation: direction }, aria: { current: (tab[:value].to_s == chosen ? "page" : "false"), disabled: (tab[:disabled] ? "true" : nil) } }, { data: tab[:data] }.compact) do %><% if tab[:icon] %><%= ui_icon tab[:icon] %><% end %><%= tab[:label] %><% end %>
+    <% end %>
+  <% end %>
+  <% if content %><div data-slot="tabs-panel"><%= content %></div><% end %>
+<% end %>
+<% else %>
 <%= ui_tag(:ui_tabs, { "default-value": chosen.presence, orientation: (orientation ? direction : nil), activation: activation&.to_s, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s } }, attrs) do %>
   <% if content %>
   <%= content %>
@@ -37,4 +61,5 @@
   <% end %>
   <% end %>
   <% end %>
+<% end %>
 <% end %>

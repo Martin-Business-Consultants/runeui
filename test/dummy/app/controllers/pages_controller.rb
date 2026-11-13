@@ -44,6 +44,13 @@ class PagesController < ApplicationController
     render layout: false
   end
 
+  # The side panel as the page's own state (params:): ?item= opens it, and a request for its frame
+  # is answered with just the frame.
+  def here
+    @state = STATE
+    render partial: "pages/here_frame", locals: { item: params[:item] }, layout: false if turbo_frame_request_id == "side_panel"
+  end
+
   # runeui under rune_ui's tokens, through the bridge stylesheet.
   def bridge
     render layout: false

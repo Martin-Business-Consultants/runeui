@@ -1,14 +1,15 @@
 /* Side panel (ui :side_panel): the drawer's surface (drawer.css), holding a Turbo Frame. While
-   the frame fetches, Turbo marks it busy and the skeleton stands in for it. */
+   the frame fetches, Turbo marks it busy and the skeleton stands in for it, unless it's reloading
+   what already shows (data-refreshing, the controller's), which stays. */
 
 @layer runeui.components {
   [data-side-panel-content] { gap: 0; padding-block: 0; }
 
   [data-slot="side-panel-frame"] { display: block; flex: 1; min-height: 0; overflow-y: auto; padding: 1.25rem 1.25rem 1.5rem; }
-  [data-slot="side-panel-frame"]:is([busy], :empty) { display: none; }
+  [data-slot="side-panel-frame"]:is([busy]:not([data-refreshing]), :empty) { display: none; }
 
   [data-slot="side-panel-loading"] { display: none; flex-direction: column; gap: 0.75rem; padding: 3.25rem 1.25rem 1.5rem; }
-  [data-side-panel-content]:has([data-slot="side-panel-frame"]:is([busy], :empty)) [data-slot="side-panel-loading"] { display: flex; }
+  [data-side-panel-content]:has([data-slot="side-panel-frame"]:is([busy]:not([data-refreshing]), :empty)) [data-slot="side-panel-loading"] { display: flex; }
   [data-slot="side-panel-loading"] [data-width="half"] { width: 50%; height: 1.5rem; }
   [data-slot="side-panel-loading"] [data-width="most"] { width: 80%; }
 

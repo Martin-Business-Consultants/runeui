@@ -116,6 +116,102 @@ await check("a src that isn't a path on this site is ignored", async () => {
 await check("no errors", async () => assert(errors.length === 0, errors.join(" | ")))
 await browser.close()
 
+// The panel as the page's own state (params:): /here?sort=name&item=one, the frame loading the
+// page's own address.
+{
+  console.log("side_panel (params:)")
+  const { browser, page, errors } = await open("/?reset=1")
+  const frameLoads = []
+  page.on("request", (request) => { if (request.headers()["turbo-frame"] === "side_panel") frameLoads.push(request.url()) })
+  await page.goto(BASE + "/here?sort=name")
+  await page.waitForFunction(() => customElements.get("ui-drawer"))
+  const shown = () => page.locator("#runeui-side-panel [data-slot=drawer-content]").evaluate((el) => !el.hidden)
+  const address = () => page.evaluate(() => location.pathname + location.search)
+
+  await check("it starts closed, with no ✕ of its own (closable: false)", async () => {
+    assert(!(await shown()), "open on load")
+    assert(await page.locator("#runeui-side-panel [data-drawer-x]").count() === 0, "✕ rendered")
+  })
+
+  await check("a link to the page with the param opens it, and that is the address", async () => {
+    const before = await page.evaluate(() => history.length)
+    await page.click("#item-one")
+    await page.waitForSelector("#item-title", { timeout: 3000 })
+    assert(await shown(), "not shown")
+    await page.waitForFunction(() => new URLSearchParams(location.search).get("item") === "one" && new URLSearchParams(location.search).get("sort") === "name", null, { timeout: 2000 })
+    assert(await page.evaluate(() => history.length) === before + 1, "no entry pushed")
+  })
+
+  await check("initial_focus: \"none\" leaves focus on the page", async () => {
+    assert(await page.evaluate(() => !document.activeElement?.closest("#runeui-side-panel")), "focus moved into the panel")
+  })
+
+  await check("moving on inside replaces the address", async () => {
+    const before = await page.evaluate(() => history.length)
+    await page.click("#item-next")
+    await page.waitForFunction(() => document.querySelector("#item-title")?.textContent === "Item two", null, { timeout: 3000 })
+    await page.waitForFunction(() => new URLSearchParams(location.search).get("item") === "two", null, { timeout: 2000 })
+    assert(await page.evaluate(() => history.length) === before, "history grew")
+  })
+
+  await check("a morph refresh reloads it, what shows staying on screen meanwhile", async () => {
+    await page.evaluate(() => {
+      window.hiddenWhileReloading = false
+      const frame = document.querySelector("#side_panel")
+      new MutationObserver(() => { if (frame.hasAttribute("busy") && frame.checkVisibility && !frame.checkVisibility()) window.hiddenWhileReloading = true }).observe(frame, { attributes: true })
+    })
+    await page.evaluate(async () => {
+      const token = document.querySelector("meta[name=csrf-token]").content
+      await fetch("/", { method: "PATCH", headers: { "X-CSRF-Token": token, "Content-Type": "application/x-www-form-urlencoded" }, body: "note=y", redirect: "manual" })
+      const finished = new Promise((resolve) => document.addEventListener("turbo:load", resolve, { once: true }))
+      Turbo.session.refresh(location.href)
+      await finished
+    })
+    await page.waitForFunction(() => document.querySelector("#item-saves")?.textContent === document.querySelector("#saves").textContent, null, { timeout: 3000 })
+    assert(await shown(), "the morph closed it")
+    assert(!(await page.evaluate(() => window.hiddenWhileReloading)), "hidden while it reloaded")
+  })
+
+  await check("a close button inside closes it, Back to the page as it was", async () => {
+    await page.click("#item-close")
+    await page.waitForFunction(() => document.querySelector("#runeui-side-panel [data-slot=drawer-content]").hidden, null, { timeout: 3000 })
+    await page.waitForFunction(() => location.search === "?sort=name", null, { timeout: 2000 })
+    assert(await page.locator("#item-title").count() === 0, "frame not emptied")
+  })
+
+  await check("a full load with the param draws it open without fetching the frame", async () => {
+    frameLoads.length = 0
+    await page.goto(BASE + "/here?item=three")
+    await page.waitForFunction(() => customElements.get("ui-drawer"))
+    assert(await shown(), "not open")
+    assert((await page.locator("#item-title").innerText()) === "Item three", "wrong item")
+    await page.waitForTimeout(300)
+    assert(frameLoads.length === 0, `fetched ${frameLoads.join(", ")}`)
+  })
+
+  await check("…which a morph refresh updates in place, still open", async () => {
+    await page.evaluate(async () => {
+      const token = document.querySelector("meta[name=csrf-token]").content
+      await fetch("/", { method: "PATCH", headers: { "X-CSRF-Token": token, "Content-Type": "application/x-www-form-urlencoded" }, body: "note=z", redirect: "manual" })
+      const finished = new Promise((resolve) => document.addEventListener("turbo:load", resolve, { once: true }))
+      Turbo.session.refresh(location.href)
+      await finished
+    })
+    await page.waitForFunction(() => document.querySelector("#item-saves")?.textContent === document.querySelector("#saves").textContent, null, { timeout: 3000 })
+    assert(await shown(), "the morph closed it")
+  })
+
+  await check("Escape closes it in place, the param off and the rest kept", async () => {
+    await page.click("#item-title")
+    await page.keyboard.press("Escape")
+    await page.waitForFunction(() => !new URL(location.href).searchParams.has("item"), null, { timeout: 3000 })
+    assert(await address() === "/here", await address())
+  })
+
+  await check("no errors", async () => assert(errors.length === 0, errors.join(" | ")))
+  await browser.close()
+}
+
 // The gallery's example, light and dark.
 await component("side_panel", async (page) => {
   await check("the gallery's example opens a person beside the page", async () => {

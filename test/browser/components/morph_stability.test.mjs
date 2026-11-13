@@ -1,4 +1,4 @@
-// Every gallery page, morphed onto itself (a Turbo Stream replace with method="morph" of the
+// Every gallery page, morphed onto itself twice (a Turbo Stream replace with method="morph" of the
 // example, from a fresh fetch of the same page): nothing should change. The same elements
 // before and after (no part added twice, none dropped), no duplicate ids, every ui-* element
 // still upgraded, no errors. ONLY=name,other limits it.
@@ -27,13 +27,17 @@ for (const name of names) {
     await page.goto(`${BASE}/runeui/${name}`)
     await page.waitForTimeout(700)
     const before = await signature()
-    await page.evaluate(async () => {
-      const html = await (await fetch(location.href, { headers: { Accept: "text/html" } })).text()
-      const fresh = new DOMParser().parseFromString(html, "text/html").querySelector(".runeui-docs__example")
-      const stream = `<turbo-stream action="replace" method="morph" targets=".runeui-docs__example"><template>${fresh.outerHTML}</template></turbo-stream>`
-      Turbo.renderStreamMessage(stream)
-    })
-    await page.waitForTimeout(500)
+    // Twice: a component without an id of its own pairs up the first time by luck of position and
+    // could be duplicated the second (its parts then carry ids the server's copy lacks).
+    for (let time = 0; time < 2; time++) {
+      await page.evaluate(async () => {
+        const html = await (await fetch(location.href, { headers: { Accept: "text/html" } })).text()
+        const fresh = new DOMParser().parseFromString(html, "text/html").querySelector(".runeui-docs__example")
+        const stream = `<turbo-stream action="replace" method="morph" targets=".runeui-docs__example"><template>${fresh.outerHTML}</template></turbo-stream>`
+        Turbo.renderStreamMessage(stream)
+      })
+      await page.waitForTimeout(500)
+    }
     const after = await signature()
     const changed = Object.keys({ ...before.counts, ...after.counts }).filter((tag) => before.counts[tag] !== after.counts[tag]).map((tag) => `${tag} ${before.counts[tag] ?? 0}→${after.counts[tag] ?? 0}`)
     assert(changed.length === 0, `elements changed: ${changed.join(", ")}`)

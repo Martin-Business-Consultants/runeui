@@ -11,22 +11,39 @@ import { Controller } from "@hotwired/stimulus"
 // not Turbo's, which makes Back from the panel a plain popstate: Turbo adopts the entry without
 // visiting, and sync() closes the panel. No page is fetched to close a panel.
 //
+// Or the panel is a state of the page itself (params: ["task", "peek"]): the frame loads this
+// page's own address with one of those params, and that address is what the page's shows. Moving
+// to another record replaces it; closing takes the params off (Back, when it was opened here).
+//
+// A reload of what's showing (a morph refresh reloads the frame) keeps it on screen meanwhile
+// (data-refreshing); anything new shows the skeleton until it arrives.
+//
 // Events, on the panel: runeui--side-panel:open (detail.src) each time something loads,
 // runeui--side-panel:close when it has closed.
 export default class extends Controller {
   static targets = [ "frame" ]
-  static values = { param: { type: String, default: "panel" } }
+  static values = { param: { type: String, default: "panel" }, params: { type: Array, default: [] } }
 
   connect() {
     this.pushed = false
     this.expecting = false
+    // What the frame shows: what it loaded, or what the server drew in it (no src: the address's).
+    this.showing = this.frameTarget.childElementCount ? (this.pathOf(this.frameTarget.src) || this.current) : null
     // A page Turbo restored from its cache comes back with the panel closed (popups close
     // before a snapshot): if the address says one was open, open it again.
     if (this.current && !this.shown) this.sync()
   }
 
+  // What the address says is open: the path the panel param holds, or (a page's own state) this
+  // address itself while it has one of the params.
   get current() {
-    return this.safe(new URL(location.href).searchParams.get(this.paramValue))
+    const url = new URL(location.href)
+    if (!this.ownState) return this.safe(url.searchParams.get(this.paramValue))
+    return this.paramsValue.some((name) => url.searchParams.get(name)) ? this.safe(url.pathname + url.search) : null
+  }
+
+  get ownState() {
+    return this.paramsValue.length > 0
   }
 
   get shown() {
@@ -36,6 +53,8 @@ export default class extends Controller {
   // turbo:before-fetch-request, from the frame: something is on its way, so show the panel.
   loading(event) {
     if (event.target !== this.frameTarget) return
+    const url = event.detail?.url
+    this.frameTarget.toggleAttribute("data-refreshing", Boolean(url && this.showing && this.pathOf(url.toString()) === this.showing && this.frameTarget.childElementCount))
     this.expecting = true
     this.closing = false
     this.leaving = false
@@ -54,8 +73,10 @@ export default class extends Controller {
     if (event.target !== this.frameTarget) return
     // Something that was still on its way when the panel closed: not wanted any more.
     if (this.closing || (!this.expecting && !this.shown)) return this.empty()
+    this.frameTarget.removeAttribute("data-refreshing")
     const src = this.pathOf(this.frameTarget.src)
     if (!src) return
+    this.showing = src
     this.open()
     this.remember(src)
     this.dispatch("open", { detail: { src } })
@@ -78,7 +99,7 @@ export default class extends Controller {
     this.leaving = false
     const src = this.current
     if (src) {
-      if (this.pathOf(this.frameTarget.src) !== src) this.frameTarget.src = src
+      if ((this.pathOf(this.frameTarget.src) || this.showing) !== src) this.frameTarget.src = src
       this.expecting = true
       this.open()
     } else {
@@ -103,7 +124,7 @@ export default class extends Controller {
   // turbo:before-cache: the snapshot Turbo keeps should come back as the panel is now.
   snapshot() {
     this.leaving = true
-    this.element.toggleAttribute("default-open", this.shown && Boolean(this.frameTarget.getAttribute("src")))
+    this.element.toggleAttribute("default-open", this.shown && Boolean(this.frameTarget.getAttribute("src") || this.showing))
   }
 
   open() {
@@ -119,6 +140,8 @@ export default class extends Controller {
   }
 
   empty() {
+    this.showing = null
+    this.frameTarget.removeAttribute("data-refreshing")
     this.frameTarget.removeAttribute("src")
     this.frameTarget.removeAttribute("complete")
     this.frameTarget.replaceChildren()
@@ -127,10 +150,9 @@ export default class extends Controller {
   // Puts ?panel=src in the address: a new entry the first time on this page, the same entry
   // after that (moving from one record to the next doesn't pile up history).
   remember(src) {
-    const url = new URL(location.href)
-    const had = url.searchParams.has(this.paramValue)
-    if (url.searchParams.get(this.paramValue) === src) return
-    url.searchParams.set(this.paramValue, src)
+    const url = this.addressFor(src)
+    if (!url || url.href === location.href) return
+    const had = Boolean(this.current)
     if (had || this.pushed) return this.write("replace", url)
     // The entry under the panel's stops being Turbo's, so Back to it is a popstate, not a visit.
     history.replaceState({ runeuiSidePanelBase: true }, "", location.href)
@@ -138,16 +160,32 @@ export default class extends Controller {
     this.pushed = true
   }
 
+  // The address for what the frame shows: this one with ?panel=src, or (the page's own state) src
+  // itself, as long as it is this page (something else loaded inside leaves the address alone).
+  addressFor(src) {
+    const url = new URL(location.href)
+    if (!this.ownState) {
+      url.searchParams.set(this.paramValue, src)
+      return url
+    }
+    const own = new URL(src, location.href)
+    return own.pathname === url.pathname ? own : null
+  }
+
   // Takes the param off: Back when this page pushed it, else in place.
   forget() {
     const url = new URL(location.href)
-    if (!url.searchParams.has(this.paramValue)) return
+    const names = this.ownState ? this.paramsValue : [ this.paramValue ]
+    if (!names.some((name) => url.searchParams.has(name))) {
+      this.pushed = false
+      return
+    }
     if (this.pushed) {
       this.pushed = false
       history.back()
       return
     }
-    url.searchParams.delete(this.paramValue)
+    names.forEach((name) => url.searchParams.delete(name))
     this.write("replace", url)
   }
 

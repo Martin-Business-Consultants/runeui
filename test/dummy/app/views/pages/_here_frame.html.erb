@@ -1,0 +1,6 @@
+<%# locals: (item: nil) %>
+<turbo-frame id="side_panel">
+  <% if item.present? %>
+  <%= render "pages/here_item", item: item %>
+  <% end %>
+</turbo-frame>

@@ -1,0 +1,5 @@
+<%# locals: (item:) %>
+<h2 id="item-title">Item <%= item %></h2>
+<p>Saves when loaded: <span id="item-saves"><%= PagesController::STATE["saves"] %></span></p>
+<%= link_to "Next", here_path(sort: "name", item: (item == "one" ? "two" : "three")), id: "item-next" %>
+<button type="button" id="item-close" data-action="runeui--side-panel#close">Close</button>

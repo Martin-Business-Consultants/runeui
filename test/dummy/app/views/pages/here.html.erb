@@ -1,0 +1,15 @@
+<main id="page">
+  <h1>Saves: <span id="saves"><%= @state["saves"] %></span></h1>
+  <ul>
+    <% %w[one two three].each do |id| %>
+    <%# herb:key id %>
+    <li><%= link_to "Item #{id}", here_path(sort: "name", item: id), id: "item-#{id}", data: { turbo_frame: "side_panel" } %></li>
+    <% end %>
+  </ul>
+  <%= link_to "Elsewhere", root_path, id: "elsewhere" %>
+</main>
+<%= ui :side_panel, params: %w[item], src: (request.fullpath if params[:item].present?), closable: false, initial_focus: "none" do %>
+  <% if params[:item].present? %>
+  <%= render "pages/here_item", item: params[:item] %>
+  <% end %>
+<% end %>

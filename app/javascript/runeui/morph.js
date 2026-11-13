@@ -148,34 +148,78 @@ export function guardMorphs() {
 
 // Gives the incoming copy of each ui-* root (matched by id) the ids its live parts were given
 // after upgrade, walking both trees by position, so idiomorph pairs each part with itself.
-function alignIds(fragment) {
+// Gives the incoming copy of each ui-* component the ids its live parts were given after
+// upgrade, walking both trees by position, so idiomorph pairs each part with itself rather than
+// adding the server's beside the live one. A component is found by its own id, or, without one,
+// by its place: the nth of its tag under the nearest ancestor that has an id (the page's body for
+// a page, the frame for a frame).
+function alignIds(fragment, liveRoot = null) {
   for (const incoming of fragment.querySelectorAll?.("[id]") ?? []) {
     if (!incoming.localName.startsWith("ui-")) continue
     const live = document.getElementById(incoming.id)
     if (!live || live.localName !== incoming.localName || live === incoming) continue
     copyIds(live, incoming)
   }
+
+  for (const incoming of fragment.querySelectorAll?.("*") ?? []) {
+    const tag = incoming.localName
+    if (!tag.startsWith("ui-") || incoming.id || !outermost(incoming, fragment)) continue
+    const anchor = anchorOf(incoming, fragment)
+    const liveAnchor = anchor ? document.getElementById(anchor.id) : liveRoot
+    if (!liveAnchor) continue
+    const index = components(anchor || fragment, tag, anchor || fragment).indexOf(incoming)
+    const live = components(liveAnchor, tag, liveAnchor)[index]
+    if (live && live !== incoming && !live.id) copyIds(live, incoming)
+  }
 }
 
+// Not inside another ui-* component: its parts are paired with it.
+function outermost(element, root) {
+  for (let node = element.parentElement; node && node !== root; node = node.parentElement) {
+    if (node.localName.startsWith("ui-")) return false
+  }
+  return true
+}
+
+function anchorOf(element, root) {
+  for (let node = element.parentElement; node && node !== root; node = node.parentElement) {
+    if (node.id) return node
+  }
+  return null
+}
+
+function components(scope, tag, root) {
+  return [ ...scope.querySelectorAll(tag) ].filter((element) => !element.id && outermost(element, root))
+}
+
+// Pairs the two trees' children in order by tag, passing over children only the live tree has
+// (chips a combobox added, a viewport a drawer wrapped its content in), and copies each live
+// child's id onto its incoming twin.
 function copyIds(live, incoming) {
-  const a = live.children
-  const b = incoming.children
-  for (let index = 0; index < Math.min(a.length, b.length); index++) {
-    if (a[index].localName !== b[index].localName) break
-    if (a[index].id && !b[index].id) b[index].id = a[index].id
-    copyIds(a[index], b[index])
+  const a = [ ...live.children ]
+  let next = 0
+  for (const child of incoming.children) {
+    let index = next
+    while (index < a.length && a[index].localName !== child.localName) index++
+    if (index === a.length) continue
+    if (a[index].id && !child.id) child.id = a[index].id
+    copyIds(a[index], child)
+    next = index + 1
   }
 }
 
 export function alignIdsBeforeMorphs() {
   document.addEventListener("turbo:before-render", (event) => {
-    if (event.detail.renderMethod === "morph") alignIds(event.detail.newBody)
+    if (event.detail.renderMethod === "morph") alignIds(event.detail.newBody, document.body)
   })
   document.addEventListener("turbo:before-stream-render", (event) => {
     const stream = event.detail.newStream ?? event.target
-    if (stream.getAttribute?.("method") === "morph" && stream.templateElement) alignIds(stream.templateElement.content)
+    if (stream.getAttribute?.("method") !== "morph" || !stream.templateElement) return
+    // One target: id-less components are paired by their place within it.
+    const targets = stream.targetElements ?? []
+    alignIds(stream.templateElement.content, targets.length === 1 ? targets[0] : null)
   })
   document.addEventListener("turbo:before-frame-render", (event) => {
-    if (event.detail.renderMethod === "morph" || event.target.getAttribute("refresh") === "morph") alignIds(event.detail.newFrame)
+    if (event.detail.renderMethod === "morph" || event.target.getAttribute("refresh") === "morph") alignIds(event.detail.newFrame, event.target)
   })
 }

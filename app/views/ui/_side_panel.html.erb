@@ -1,4 +1,4 @@
-<%# locals: (src: nil, param: nil, modal: nil, size: nil, label: nil, **attrs) %>
+<%# locals: (src: nil, param: nil, params: nil, modal: nil, size: nil, label: nil, closable: nil, initial_focus: nil, content: nil, **attrs) %>
 <%#
   Side panel: a record opened over the page you're working from (a "peek"), once in the layout.
   A drawer on the right whose body is <turbo-frame id="side_panel">: any link with
@@ -15,29 +15,51 @@
   usable; modal: true dims and blocks it, and a press outside then closes the panel. param:
   names the query param ("panel"), size: sm, lg or full, label: what screen readers call it.
 
+  Or the panel is a state of the page itself: params: names the query params that open it
+  (params: %w[task peek]), and the frame loads this page's own address with one of them
+  (/tasks?status=open&task=42), which the server answers with just the panel's frame (a request
+  whose Turbo-Frame header is side_panel). The address is then the frame's: following another
+  record replaces it, closing takes those params off. Links point at the page with the param:
+
+    ui :side_panel, params: %w[task], src: (request.fullpath if params[:task]) do
+      render "tasks/panel", task: @task if @task                      (drawn from the first paint)
+    end
+    link_to task.title, url_for(request.query_parameters.merge(task: task.id)), data: { turbo_frame: "side_panel" }
+
+  A block is what the frame holds from the first paint, so a full load needs no second request
+  (the frame then has no src, which Turbo would fetch again as it upgrades; a morph refresh
+  morphs it in place).
+  closable: false leaves out the ✕, for content that draws its own close: any element inside
+  with data-action="runeui--side-panel#close". initial_focus: where focus goes as it opens (UI
+  SDK's initial-focus: a selector, "content", or "none" to leave it on the page, for a panel that
+  follows what's picked there with the keys).
+
   src: must be a path on this site ("/tasks/42"): anything else is ignored. The behaviour is the
   runeui--side-panel Stimulus controller, which dispatches runeui--side-panel:open (detail.src)
   and runeui--side-panel:close on the panel, for an app to add next and previous or anything else.
 %>
 <% name = (param || "panel").to_s %>
+<% names = Array(params).map(&:to_s) %>
 <% path = src.to_s %>
 <% path = nil unless path.match?(%r{\A/(?![/\\])[^\s\\]*\z}) %>
 <%= ui_tag "ui-drawer", { id: "runeui-side-panel", side: "right", modal: (modal ? nil : "false"), "default-open": (path ? "" : nil),
-  data: { slot: "drawer", side_panel: "", controller: "runeui--side-panel", runeui__side_panel_param_value: name,
+  data: { slot: "drawer", side_panel: "", controller: "runeui--side-panel", runeui__side_panel_param_value: name, runeui__side_panel_params_value: (names.to_json if names.any?),
     action: "openchange->runeui--side-panel#changing openchangecomplete->runeui--side-panel#settled popstate@window->runeui--side-panel#sync turbo:before-cache@document->runeui--side-panel#snapshot turbo:before-fetch-request->runeui--side-panel#loading turbo:frame-load->runeui--side-panel#loaded" } }, attrs do %>
   <% if modal %><ui-drawer-backdrop data-slot="drawer-backdrop" hidden></ui-drawer-backdrop><% end %>
   <%# The viewport UI SDK would otherwise add around the content: rendered here so a morph finds the same tree. %>
   <%= ui_tag "ui-drawer-viewport", { data: { slot: "drawer-viewport" }, hidden: (path ? nil : true) } do %>
-  <%= ui_tag "ui-drawer-content", { data: { slot: "drawer-content", side: "right", size: (size || "lg").to_s, side_panel_content: "" }, hidden: (path ? nil : true) } do %>
+  <%= ui_tag "ui-drawer-content", { "initial-focus": initial_focus, data: { slot: "drawer-content", side: "right", size: (size || "lg").to_s, side_panel_content: "" }, hidden: (path ? nil : true) } do %>
     <ui-drawer-title data-slot="drawer-title" class="ui-sr-only"><%= label || "Details" %></ui-drawer-title>
+    <% unless closable == false %>
     <ui-drawer-close><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-drawer-x data-slot="drawer-close" aria-label="Close"><%= ui_icon :x %></button></ui-drawer-close>
+    <% end %>
     <div data-slot="side-panel-loading" aria-hidden="true">
       <%= ui :skeleton, shape: :text, data: { width: "half" } %>
       <%= ui :skeleton, shape: :text %>
       <%= ui :skeleton, shape: :text %>
       <%= ui :skeleton, shape: :text, data: { width: "most" } %>
     </div>
-    <%= ui_tag "turbo-frame", { id: "side_panel", src: path, refresh: "morph", data: { slot: "side-panel-frame", runeui__side_panel_target: "frame" } } %>
+    <%= ui_tag "turbo-frame", { id: "side_panel", src: (path unless content.present?), refresh: "morph", data: { slot: "side-panel-frame", runeui__side_panel_target: "frame" } }, {}, (content if path) %>
   <% end %>
   <% end %>
 <% end %>

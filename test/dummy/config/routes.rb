@@ -9,5 +9,6 @@ Rails.application.routes.draw do
   patch "reactive_server", to: "pages#reactive_update"
   get "panel", to: "pages#panel"
   get "peek/:id", to: "pages#peek", as: :peek
+  get "here", to: "pages#here"
   get "bridge", to: "pages#bridge"
 end
