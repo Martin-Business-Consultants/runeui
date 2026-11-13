@@ -116,10 +116,13 @@ Beyond single components, the parts an app is made of:
 
 Paste a shadcn theme's `:root { … }` and `.dark { … }` into your own stylesheet: it's unlayered,
 so it wins over runeui's defaults. `--radius` sets every corner. Dark mode is `.dark` on
-`<html>`, set before the first paint from the person's choice or the system's; a button with
-`data-runeui-theme="toggle"` (or `light`, `dark`, `system`) changes it.
+`<html>`, set before the first paint from the person's choice, else the page's default
+(`data-default-theme` on `<html>`), else the system's; a button or a menu item with
+`data-runeui-theme="toggle"` (or `light`, `dark`, `system`) changes it. From JavaScript,
+`setTheme(choice)` sets and remembers one, and `refreshTheme()` applies the choice again after the
+page changes its default (`import { setTheme, refreshTheme } from "runeui"`).
 
-Already themed with rune_ui (as Runwell is)? Link `runeui/bridges/rune_ui` after
+Already themed with rune_ui (as Runwell was, until it moved over)? Link `runeui/bridges/rune_ui` after
 `runeui_tags tokens: false, page: false, theme: false`: nothing of runeui's then lands on the
 page or its root, and runeui's tokens are defined, on its own parts, from rune's (`--page`, `--text`,
 `--accent`, `--radius-scale`…), so an app's existing appearance settings reach every runeui

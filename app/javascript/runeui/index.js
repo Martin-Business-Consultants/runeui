@@ -32,4 +32,4 @@ start({ ...pageOptions(), ...(window.runeui || {}) })
 
 export { load, defined } from "runeui/autoload"
 export { toast, confirm } from "runeui/feedback"
-export { setTheme } from "runeui/theme"
+export { setTheme, refreshTheme } from "runeui/theme"

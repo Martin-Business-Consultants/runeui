@@ -44,9 +44,9 @@
   <button type="button" class="ui-button" data-variant="outline" data-size="sm" id="row-b-actions" data-runeui-open="row-menu" aria-haspopup="menu">Row B</button>
   <%= ui :menu, id: "row-menu", label: "Row actions", items: [ { label: "Rename", value: "rename" }, { label: "Archive", value: "archive" } ] %>
 </div>
-<h2>An item that opens a dialog</h2>
-<p class="runeui-docs__note">An item carrying <code>data-runeui-open</code> opens that element when it's chosen, with the pointer or the keys.</p>
+<h2>An item that opens a dialog, or switches light and dark</h2>
+<p class="runeui-docs__note">An item carrying <code>data-runeui-open</code> opens that element when it's chosen, with the pointer or the keys; one carrying <code>data-runeui-theme</code> sets the theme as a button with it does.</p>
 <div class="runeui-docs__row">
-  <%= ui :menu, id: "help-menu", trigger: "Help", items: [ { label: "Keyboard shortcuts", value: "shortcuts", data: { runeui_open: "menu-shortcuts" } }, { label: "About", value: "about" } ] %>
+  <%= ui :menu, id: "help-menu", trigger: "Help", items: [ { label: "Keyboard shortcuts", value: "shortcuts", data: { runeui_open: "menu-shortcuts" } }, { label: "Light or dark", value: "theme", data: { runeui_theme: "toggle" } }, { label: "About", value: "about" } ] %>
   <%= ui :dialog, id: "menu-shortcuts", title: "Keyboard shortcuts", description: "Press ? anywhere to see these." %>
 </div>
