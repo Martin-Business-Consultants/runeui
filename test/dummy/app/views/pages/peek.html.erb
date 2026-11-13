@@ -1,0 +1,5 @@
+<turbo-frame id="side_panel">
+  <h2 id="peek-title">Record <%= params[:id] %></h2>
+  <p>Saves when loaded: <span id="peek-saves"><%= PagesController::STATE["saves"] %></span></p>
+  <%= link_to "Next", peek_path(params[:id] == "one" ? "two" : "three"), id: "peek-next" %>
+</turbo-frame>

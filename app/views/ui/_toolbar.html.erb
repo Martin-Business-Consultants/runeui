@@ -10,7 +10,7 @@
       { label: "Share", href: share_path }
     ]
 %>
-<%= tag.ui_toolbar(**ui_attrs({ orientation: orientation&.to_s, aria: { label: label }, data: { slot: "toolbar", orientation: (orientation || "horizontal").to_s } }, attrs)) do %>
+<%= ui_tag(:ui_toolbar, { orientation: orientation&.to_s, aria: { label: label }, data: { slot: "toolbar", orientation: (orientation || "horizontal").to_s } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>
@@ -19,9 +19,9 @@
   <% if item[:separator] %>
   <ui-toolbar-separator data-slot="toolbar-separator"></ui-toolbar-separator>
   <% elsif item[:href] %>
-  <ui-toolbar-link><%= link_to item[:href], class: "ui-button", data: { variant: "ghost", size: (item[:label] ? "sm" : "icon-sm") }.merge(item[:data] || {}), aria: { label: item[:aria_label] } do %><% if item[:icon] %><%= ui_icon item[:icon] %><% end %><%= item[:label] %><% end %></ui-toolbar-link>
+  <ui-toolbar-link><%= ui_tag(:a, { href: item[:href], class: "ui-button", data: { variant: "ghost", size: (item[:label] ? "sm" : "icon-sm") }.merge(item[:data] || {}), aria: { label: item[:aria_label] } }) do %><% if item[:icon] %><%= ui_icon item[:icon] %><% end %><%= item[:label] %><% end %></ui-toolbar-link>
   <% else %>
-  <ui-toolbar-button><%= tag.button type: "button", class: "ui-button", disabled: item[:disabled], data: { variant: "ghost", size: (item[:label] ? "sm" : "icon-sm") }.merge(item[:data] || {}), aria: { label: item[:aria_label] } do %><% if item[:icon] %><%= ui_icon item[:icon] %><% end %><%= item[:label] %><% end %></ui-toolbar-button>
+  <ui-toolbar-button><%= ui_tag(:button, { type: "button", class: "ui-button", disabled: item[:disabled], data: { variant: "ghost", size: (item[:label] ? "sm" : "icon-sm") }.merge(item[:data] || {}), aria: { label: item[:aria_label] } }) do %><% if item[:icon] %><%= ui_icon item[:icon] %><% end %><%= item[:label] %><% end %></ui-toolbar-button>
   <% end %>
   <% end %>
   <% end %>

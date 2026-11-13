@@ -1,0 +1,19 @@
+<%# locals: () %>
+<% tasks = { "planned" => [ [ 1, "Photograph the spring range", "Bloom Florists", "Oct 22" ], [ 2, "Book the venue", "Hartley wedding", "Oct 30" ], [ 3, "Draft the menu", "Hartley wedding", "Nov 2" ] ],
+  "doing" => [ [ 4, "Write the launch email", "Bloom Florists", "Oct 20" ], [ 5, "Landing page copy", "Bloom Florists", "Oct 18" ] ],
+  "review" => [ [ 6, "Logo options", "Kiln & Co", "Oct 17" ] ],
+  "done" => [] } %>
+<% columns = [ [ "planned", "Planned", nil ], [ "doing", "In progress", :info ], [ "review", "In review", :warning ], [ "done", "Done", :success ] ] %>
+<%= ui :board, url: runeui_echo_path("board"), method: :post, label: "Tasks by status", class: "runeui-docs__full" do %>
+  <% columns.each do |key, title, tone| %>
+  <%# herb:key key %>
+  <%= ui :board_column, id: key, title: title, tone: tone, count: tasks[key].size, empty: "Drop a task here",
+    action: ui(:button, variant: :ghost, size: "icon-xs", icon: :plus, aria: { label: "Add a task to #{title}" }) do %>
+    <% tasks[key].each do |id, name, client, due| %>
+    <%# herb:key id %>
+    <%= ui :board_card, id: id, title: name, href: "#task-#{id}", meta: client, footer: ui(:badge, variant: :outline, icon: :calendar, content: due) %>
+    <% end %>
+  <% end %>
+  <% end %>
+<% end %>
+<p>Drag a card, or focus one and use the arrows; Shift with an arrow moves it. Each move posts <code>card</code>, <code>column</code> and <code>before</code>.</p>

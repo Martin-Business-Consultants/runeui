@@ -8,7 +8,7 @@
 %>
 <% tone = (variant || "default").to_s %>
 <% glyph = icon.nil? ? { "destructive" => "circle-alert", "success" => "circle-check", "warning" => "triangle-alert", "info" => "info" }[tone] : icon %>
-<%= tag.div(**ui_attrs({ role: "alert", data: { slot: "alert", variant: tone } }, attrs)) do %>
+<%= ui_tag(:div, { role: "alert", data: { slot: "alert", variant: tone } }, attrs) do %>
   <% if glyph %><%= ui_icon glyph %><% end %>
   <% if title %><div data-slot="alert-title"><%= title %></div><% end %>
   <% if description || content %><div data-slot="alert-description"><%= description %><%= content %></div><% end %>

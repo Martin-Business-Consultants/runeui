@@ -4,8 +4,11 @@
 //
 // Maintainers run this when moving to a new UI SDK release:
 //
-//   script/vendor-ui-sdk            # the version in UI_SDK_VERSION below
-//   script/vendor-ui-sdk 0.2.0      # another one
+//   script/vendor-ui-sdk            # the version vendored now, again
+//   script/vendor-ui-sdk 0.2.0      # another one (or a dist-tag: latest, beta)
+//
+// script/check-ui-sdk --try <version> does this and runs the tests, restoring the old files if
+// they fail (docs/upgrading-ui-sdk.md).
 //
 // It bundles one module per component entry (esbuild, code splitting, minified, the production
 // conditions so `#dev` resolves to its stub), then rewrites each relative import to a bare
@@ -18,19 +21,50 @@ const fs = require("node:fs")
 const os = require("node:os")
 const path = require("node:path")
 
-const UI_SDK_VERSION = process.argv[2] || "0.1.0-beta.1"
+const ESBUILD_VERSION = "0.25.12" // exact: the same input must give the same chunk names
 const root = path.resolve(__dirname, "..")
 const out = path.join(root, "app/javascript/runeui/sdk")
-const work = fs.mkdtempSync(path.join(os.tmpdir(), "runeui-vendor-"))
+
+// With no argument: the version vendored now (sdk/entries.js), so a re-run never moves it.
+function vendored() {
+  try { return fs.readFileSync(path.join(out, "entries.js"), "utf8").match(/VERSION = "([^"]+)"/)[1] } catch { return null }
+}
+const REQUESTED = process.argv[2] || vendored() || "0.1.0-beta.1"
+
+// What runeui's own modules import by name: without these the vendoring is useless, so stop
+// before touching the files that are there.
+const REQUIRED = ["select", "dialog", "alert-dialog", "toast", "checkbox", "agent", "core-toast", "core-overlays"]
+// The same directory every time, and paths relative to it below: esbuild's chunk names hash the
+// paths it's given, so a random temp directory would rename every chunk on every run.
+const work = path.join(os.tmpdir(), "runeui-vendor")
+fs.rmSync(work, { recursive: true, force: true })
+fs.mkdirSync(work, { recursive: true })
 
 const sh = (cmd, cwd = work) => execSync(cmd, { cwd, stdio: ["ignore", "pipe", "inherit"] }).toString()
 
-console.log(`UI SDK ${UI_SDK_VERSION} → ${path.relative(root, out)}`)
+function fail(message) {
+  console.error(`script/vendor-ui-sdk: ${message}\nNothing was changed.`)
+  fs.rmSync(work, { recursive: true, force: true })
+  process.exit(1)
+}
+
 sh("npm init -y")
-sh(`npm install --no-audit --no-fund @ui-sdk/web@${UI_SDK_VERSION} @ui-sdk/core@${UI_SDK_VERSION} esbuild@0.25`)
+try {
+  sh(`npm install --no-audit --no-fund --loglevel=error @ui-sdk/web@${REQUESTED} esbuild@${ESBUILD_VERSION}`)
+} catch {
+  fail(`couldn't install @ui-sdk/web@${REQUESTED}`)
+}
 
 const web = path.join(work, "node_modules/@ui-sdk/web")
 const pkg = JSON.parse(fs.readFileSync(path.join(web, "package.json")))
+// The version installed (the argument may have been a dist-tag), and the core it's built on.
+const UI_SDK_VERSION = pkg.version
+try {
+  sh(`npm install --no-audit --no-fund --loglevel=error @ui-sdk/core@${UI_SDK_VERSION}`)
+} catch {
+  fail(`couldn't install @ui-sdk/core@${UI_SDK_VERSION} (web and core are vendored at one version)`)
+}
+console.log(`UI SDK ${UI_SDK_VERSION} → ${path.relative(root, out)}`)
 
 // Every subpath export is an entry: "./select" → select. "." is the index (createParts and the
 // rest of the authoring API), kept as "index".
@@ -48,15 +82,24 @@ const core = path.join(work, "node_modules/@ui-sdk/core")
 const corePkg = JSON.parse(fs.readFileSync(path.join(core, "package.json")))
 for (const name of ["toast", "overlays"]) {
   const value = corePkg.exports[`./${name}`]
+  if (!value) continue
   entries[`core-${name}`] = path.join(core, typeof value === "string" ? value : value.default || value.import)
 }
 
-fs.rmSync(out, { recursive: true, force: true })
-fs.mkdirSync(out, { recursive: true })
+const missing = REQUIRED.filter((name) => !entries[name] || !fs.existsSync(entries[name]))
+if (missing.length) fail(`@ui-sdk ${UI_SDK_VERSION} has no entry for ${missing.join(", ")} (renamed or removed?). runeui imports these by name: see docs/upgrading-ui-sdk.md`)
+
+// Built beside the real directory and swapped in at the end, so a failed build leaves the old
+// files as they were.
+const live = out
+const staged = path.join(work, "sdk")
+fs.mkdirSync(staged, { recursive: true })
 
 const esbuild = require(path.join(work, "node_modules/esbuild"))
-esbuild.buildSync({
-  entryPoints: entries,
+try {
+  esbuild.buildSync({
+  absWorkingDir: work,
+  entryPoints: Object.fromEntries(Object.entries(entries).map(([name, file]) => [name, path.relative(work, file)])),
   bundle: true,
   splitting: true,
   format: "esm",
@@ -64,27 +107,36 @@ esbuild.buildSync({
   target: "es2022",
   conditions: ["production", "browser", "import", "default"],
   define: { "process.env.NODE_ENV": '"production"' },
-  outdir: out,
+  outdir: "sdk",
   chunkNames: "chunk-[hash]",
   legalComments: "eof",
   logLevel: "warning"
-})
+  })
+} catch (error) {
+  fail(`esbuild couldn't bundle @ui-sdk ${UI_SDK_VERSION}: ${error.message.split("\n")[0]}`)
+}
 
 // ./chunk-X.js → runeui/sdk/chunk-X, in static and dynamic imports alike.
 const pins = []
-for (const file of fs.readdirSync(out).sort()) {
+for (const file of fs.readdirSync(staged).sort()) {
   if (!file.endsWith(".js")) continue
-  const full = path.join(out, file)
+  const full = path.join(staged, file)
   const source = fs.readFileSync(full, "utf8").replace(/(["'])\.\/([\w.-]+)\.js\1/g, (_m, q, name) => `${q}runeui/sdk/${name}${q}`)
   fs.writeFileSync(full, source)
   pins.push(file.replace(/\.js$/, ""))
 }
 
 const names = Object.keys(entries).filter((name) => !["index", "agent", "autoload", "events", "history", "observe"].includes(name) && !name.startsWith("core-")).sort()
-fs.writeFileSync(path.join(out, "entries.js"),
+fs.writeFileSync(path.join(staged, "entries.js"),
   `// Generated by script/vendor-ui-sdk from @ui-sdk/web ${UI_SDK_VERSION}. The component entries the autoloader\n` +
   `// matches custom element tags to (ui-select-trigger → select).\nexport const VERSION = ${JSON.stringify(UI_SDK_VERSION)}\nexport const ENTRIES = ${JSON.stringify(names)}\n`)
 pins.push("entries")
+
+const leftover = pins.filter((name) => /from\s*["']\.\.?\//.test(fs.readFileSync(path.join(staged, `${name}.js`), "utf8")))
+if (leftover.length) fail(`relative imports left in ${leftover.slice(0, 5).join(", ")}: Propshaft would miss them in production`)
+
+fs.rmSync(live, { recursive: true, force: true })
+fs.cpSync(staged, live, { recursive: true })
 
 fs.writeFileSync(path.join(root, "config/sdk_pins.rb"),
   `# Generated by script/vendor-ui-sdk from @ui-sdk/web ${UI_SDK_VERSION}: one pin per vendored module.\n` +
@@ -93,9 +145,9 @@ fs.writeFileSync(path.join(root, "config/sdk_pins.rb"),
 
 for (const license of ["LICENSE", "LICENSE.md"]) {
   const src = path.join(web, license)
-  if (fs.existsSync(src)) fs.copyFileSync(src, path.join(out, "LICENSE"))
+  if (fs.existsSync(src)) fs.copyFileSync(src, path.join(live, "LICENSE"))
 }
 
-const bytes = pins.reduce((sum, name) => sum + fs.statSync(path.join(out, `${name}.js`)).size, 0)
+const bytes = pins.reduce((sum, name) => sum + fs.statSync(path.join(live, `${name}.js`)).size, 0)
 console.log(`${names.length} components, ${pins.length} modules, ${(bytes / 1024).toFixed(0)} KB minified`)
 fs.rmSync(work, { recursive: true, force: true })

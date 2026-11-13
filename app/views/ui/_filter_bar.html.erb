@@ -1,0 +1,21 @@
+<%# locals: (content: nil, params: nil, clear: nil, url: nil, frame: nil, label: nil, **attrs) %>
+<%#
+  Filter bar: a row of ui :filter's above a list, with a link that clears them all while any
+  is set. params: names the query params they set, which is how it knows.
+
+    ui :filter_bar, params: %i[status owner_id] do
+      ui :filter, param: :status, label: "Status", options: statuses
+      ui :filter, param: :owner_id, label: "Owner", options: owners
+    end
+
+  clear: is the link's words ("Clear"; false for no link). url: and frame: as ui :filter's.
+%>
+<% names = Array(params).map(&:to_s) %>
+<% set = names.any? { request.query_parameters[it].present? } %>
+<% rest = request.query_parameters.except(*names, "page") %>
+<%= ui_tag(:div, { role: "group", aria: { label: (label || "Filters") }, data: { slot: "filter-bar" } }, attrs) do %>
+  <%= content %>
+  <% if set && clear != false %>
+  <%= ui_tag(:a, { href: "#{url || request.path}#{"?#{rest.to_query}" if rest.any?}", class: "ui-button", data: { variant: "ghost", size: "sm", slot: "filter-clear", turbo_frame: frame } }, {}, (clear || "Clear")) %>
+  <% end %>
+<% end %>

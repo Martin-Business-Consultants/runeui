@@ -14,6 +14,8 @@ module Runeui
   # when the attribute has errors, plus errors: for a field; anything given wins.
   module FormBuilder
     BOOLEAN = %w[checkbox switch toggle].freeze
+    # A file field has no value to show again.
+    VALUELESS = %w[file_input].freeze
 
     def ui(component, method = nil, **locals, &block)
       return @template.ui(component, **locals, &block) unless method
@@ -29,7 +31,7 @@ module Runeui
         defaults[:unchecked_value] = "0"
       else
         defaults[:name] = field_name(method, multiple: locals[:multiple].present?)
-        defaults[:value] = value_of(method)
+        defaults[:value] = value_of(method) unless VALUELESS.include?(component)
       end
       @template.ui(component, **defaults.compact, **locals, &block)
     end

@@ -125,6 +125,19 @@
     --ui-focus-ring: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
     --ui-invalid-ring: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 
+    /* Surfaces that differ between light and dark beyond the colour tokens. Components have no
+       .dark rules: they read these, which follow color-scheme (light-dark()), so a theme that
+       switches by color-scheme works as one that switches by the .dark class does. A pasted
+       theme must leave color-scheme as tokens.css sets it. */
+    --ui-field-bg: light-dark(transparent, color-mix(in oklab, var(--input) 30%, transparent));
+    --ui-field-bg-hover: light-dark(transparent, color-mix(in oklab, var(--input) 50%, transparent));
+    --ui-surface-bg: light-dark(var(--background), color-mix(in oklab, var(--input) 30%, transparent));
+    --ui-surface-bg-hover: light-dark(var(--accent), color-mix(in oklab, var(--input) 50%, transparent));
+    --ui-ghost-hover: light-dark(var(--accent), color-mix(in oklab, var(--accent) 50%, transparent));
+    --ui-switch-track: light-dark(var(--input), color-mix(in oklab, var(--input) 80%, transparent));
+    --ui-switch-thumb: light-dark(var(--background), var(--foreground));
+    --ui-switch-thumb-on: light-dark(var(--background), var(--primary-foreground));
+
     --ui-duration: 150ms;
     --ui-duration-slow: 200ms;
     --ui-ease: cubic-bezier(0.16, 1, 0.3, 1);

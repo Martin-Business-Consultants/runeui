@@ -14,12 +14,12 @@
     height: var(--ui-h);
     margin-inline-start: -1px;
     border: 1px solid var(--input);
+    background: var(--ui-field-bg, light-dark(transparent, color-mix(in oklab, var(--input) 30%, transparent)));
     font-size: var(--ui-text-sm);
     box-shadow: var(--ui-shadow-xs);
     transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
   }
 
-  .dark [data-slot="otp-input-slot"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
   [data-slot="otp-input-slot"]:first-child { margin-inline-start: 0; border-start-start-radius: var(--ui-radius-md); border-end-start-radius: var(--ui-radius-md); }
   [data-slot="otp-input-slot"]:last-child { border-start-end-radius: var(--ui-radius-md); border-end-end-radius: var(--ui-radius-md); }
   [data-slot="otp-input"][data-focused] [data-slot="otp-input-slot"][data-active] { z-index: 1; border-color: var(--ring); box-shadow: var(--ui-focus-ring); }

@@ -15,7 +15,7 @@
   data-runeui-open="that-id" or turbo_stream.ui_open(id).
 %>
 <% dialog_id = ui_id("alert-dialog", id, name: (title || trigger).to_s.truncate(40, omission: "")) %>
-<%= tag.ui_alert_dialog(**ui_attrs({ id: dialog_id, "default-open": (open ? "" : nil), data: { slot: "alert-dialog" } }, attrs)) do %>
+<%= ui_tag(:ui_alert_dialog, { id: dialog_id, "default-open": (open ? "" : nil), data: { slot: "alert-dialog" } }, attrs) do %>
   <% if trigger %>
   <ui-alert-dialog-trigger>
     <% if trigger.html_safe? %>

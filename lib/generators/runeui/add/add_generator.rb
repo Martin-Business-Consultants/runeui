@@ -16,7 +16,9 @@ module Runeui
         names = components == [ "all" ] ? Runeui.components : components
         names.each do |name|
           partial = "app/views/ui/_#{name}.html.erb"
-          sheet = [ name, name.dasherize ].map { "app/assets/stylesheets/runeui/components/#{it}.css" }.find { File.exist?(Runeui::Engine.root.join(it)) }
+          # A part's styles live in its parent's sheet: board_card → board.css.
+          parent = name.sub(/_(column|card|bar|item|group|cell|header)\z/, "")
+          sheet = [ name, name.dasherize, parent, parent.dasherize ].map { "app/assets/stylesheets/runeui/components/#{it}.css" }.find { File.exist?(Runeui::Engine.root.join(it)) }
           unless File.exist?(Runeui::Engine.root.join(partial))
             say_status :missing, "no runeui component #{name} (#{Runeui.components.join(", ")})", :red
             next

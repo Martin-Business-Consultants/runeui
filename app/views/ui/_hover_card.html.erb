@@ -10,7 +10,7 @@
 
   trigger: a string with href: makes a link; markup (a link of your own) is used as it is.
 %>
-<%= tag.ui_hover_card(**ui_attrs({ data: { slot: "hover-card" } }, attrs)) do %>
+<%= ui_tag(:ui_hover_card, { data: { slot: "hover-card" } }, attrs) do %>
   <ui-hover-card-trigger>
     <% if trigger.respond_to?(:html_safe?) && trigger.html_safe? %>
     <%= trigger %>
@@ -18,7 +18,7 @@
     <a href="<%= href || "#" %>" class="ui-hover-card-link" data-slot="hover-card-trigger"><%= trigger %></a>
     <% end %>
   </ui-hover-card-trigger>
-  <%= tag.ui_hover_card_content(class: "ui-popup", side: side&.to_s, align: (align || "center").to_s, "side-offset": 4, hidden: true, data: { slot: "hover-card-content" }) do %>
+  <%= ui_tag(:ui_hover_card_content, { class: "ui-popup", side: side&.to_s, align: (align || "center").to_s, "side-offset": 4, hidden: true, data: { slot: "hover-card-content" } }) do %>
     <% if arrow %><ui-hover-card-arrow data-slot="hover-card-arrow"></ui-hover-card-arrow><% end %>
     <%= content %>
   <% end %>

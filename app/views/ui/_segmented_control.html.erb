@@ -6,7 +6,7 @@
     ui :segmented_control, name: "view", options: [["List", "list"], ["Board", "board"]], value: "list", aria: { label: "View" }
 %>
 <% choices = ui_options(options || []) %>
-<%= tag.ui_segmented_control(**ui_attrs({ id: ui_id("segmented-control", id, name: name), name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "segmented-control", size: (size || "default").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_segmented_control, { id: ui_id("segmented-control", id, name: name), name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "segmented-control", size: (size || "default").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <ui-segmented-control-indicator data-slot="segmented-control-indicator"></ui-segmented-control-indicator>
   <% if content %>
   <%= content %>

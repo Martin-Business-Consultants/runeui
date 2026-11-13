@@ -7,7 +7,7 @@
     form.ui :input, :email, type: :email, autocomplete: "email"
     ui :input, name: "q", clearable: true     (a button that empties it)
 %>
-<% input = tag.input(**ui_attrs({ class: "ui-input", type: (type || "text").to_s, name: name, value: value, id: id, placeholder: placeholder, data: { slot: "field-control", size: size&.to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) %>
+<% input = ui_tag(:input, { class: "ui-input", type: (type || "text").to_s, name: name, value: value, id: id, placeholder: placeholder, data: { slot: "input", size: size&.to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) %>
 <% if clearable %>
 <ui-input-group data-slot="input-group">
   <ui-input data-slot="input"><%= input %></ui-input>

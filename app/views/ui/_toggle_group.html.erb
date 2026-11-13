@@ -11,7 +11,7 @@
 <% values = Array(value).map(&:to_s) %>
 <% raw = (options || []).map { |item| item.is_a?(Array) && item[2].is_a?(Hash) ? item[2] : {} } %>
 <% choices = ui_options((options || []).map { |item| item.is_a?(Array) ? item.first(2) : item }) %>
-<%= tag.ui_toggle_group(**ui_attrs({ id: ui_id("toggle-group", id, name: name), "default-value": values.join(","), multiple: (multiple ? "" : nil), orientation: orientation&.to_s, disabled: (disabled ? "" : nil), data: { slot: "toggle-group", variant: (variant || "default").to_s, size: (size || "default").to_s, name: name }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_toggle_group, { id: ui_id("toggle-group", id, name: name), "default-value": values.join(","), multiple: (multiple ? "" : nil), orientation: orientation&.to_s, disabled: (disabled ? "" : nil), data: { slot: "toggle-group", variant: (variant || "default").to_s, size: (size || "default").to_s, name: name }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>

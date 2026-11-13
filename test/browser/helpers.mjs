@@ -11,7 +11,8 @@ export async function open(path = "/", { colorScheme = "light" } = {}) {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined })
   const page = await browser.newPage({ colorScheme, viewport: { width: 1100, height: 800 } })
   const errors = []
-  page.on("pageerror", (error) => errors.push(error.message))
+  // Turbo cancels a frame request a newer one replaces; the browser reports the abort.
+  page.on("pageerror", (error) => /signal is aborted/.test(error.message) || errors.push(error.message))
   page.on("console", (message) => message.type() === "error" && errors.push(message.text()))
   await page.goto(BASE + path)
   await page.waitForFunction(() => customElements.get("ui-select") || !document.querySelector("ui-select"))

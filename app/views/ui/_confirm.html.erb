@@ -9,7 +9,7 @@
       data: { turbo_confirm: "Delete this project?", turbo_confirm_description: "Its tasks go too.",
               turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" }
 %>
-<%= tag.ui_alert_dialog(**ui_attrs({ id: "runeui-confirm", data: { turbo_permanent: "" } }, attrs)) do %>
+<%= ui_tag(:ui_alert_dialog, { id: "runeui-confirm", data: { turbo_permanent: "" } }, attrs) do %>
   <ui-alert-dialog-backdrop data-slot="alert-dialog-backdrop" hidden></ui-alert-dialog-backdrop>
   <ui-alert-dialog-content data-slot="alert-dialog-content" data-size="sm" hidden>
     <div data-slot="dialog-header">

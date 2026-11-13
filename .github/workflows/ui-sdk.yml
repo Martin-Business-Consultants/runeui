@@ -1,0 +1,138 @@
+name: UI SDK
+
+# Once a week (and on demand): is there a newer UI SDK? If so, try it. A version that passes
+# everything the current one passes becomes a pull request; one that doesn't becomes an issue
+# saying what broke. Nothing is pushed to main, and nothing is force-pushed.
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to try (default: the newest on npm)"
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: ui-sdk
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Is there a newer version?
+        id: check
+        env:
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          report="$(script/check-ui-sdk --json)"
+          echo "$report"
+          current="$(echo "$report" | jq -r .current)"
+          target="${REQUESTED:-$(echo "$report" | jq -r '.newest // empty')}"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          if [ -z "$target" ] || [ "$target" = "$current" ]; then echo "UI SDK $current is the newest."; fi
+
+      # One pull request or issue per version: don't try again while one is open.
+      - name: Already handled?
+        id: handled
+        if: steps.check.outputs.target != '' && steps.check.outputs.target != steps.check.outputs.current
+        env:
+          TARGET: ${{ steps.check.outputs.target }}
+        run: |
+          branch="ui-sdk-$TARGET"
+          prs="$(gh pr list --head "$branch" --state open --json number --jq length)"
+          issues="$(gh issue list --state open --search "\"UI SDK $TARGET\" in:title" --json number --jq length)"
+          if [ "$prs" != "0" ] || [ "$issues" != "0" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; echo "UI SDK $TARGET already has an open pull request or issue."; fi
+
+      - uses: ruby/setup-ruby@v1
+        if: steps.check.outputs.target != '' && steps.check.outputs.target != steps.check.outputs.current && steps.handled.outputs.skip != 'true'
+        with:
+          bundler-cache: true
+
+      - name: Install Playwright
+        if: steps.check.outputs.target != '' && steps.check.outputs.target != steps.check.outputs.current && steps.handled.outputs.skip != 'true'
+        run: |
+          npm install --prefix test/browser
+          npx --prefix test/browser playwright-core install chromium --with-deps
+
+      - name: Try it
+        id: try
+        if: steps.check.outputs.target != '' && steps.check.outputs.target != steps.check.outputs.current && steps.handled.outputs.skip != 'true'
+        env:
+          TARGET: ${{ steps.check.outputs.target }}
+        run: |
+          script/check-ui-sdk --diff "$TARGET" > diff.txt 2>&1 || true
+          set +e
+          script/check-ui-sdk --try "$TARGET" -- --jobs 2 > try.txt 2>&1
+          status=$?
+          set -e
+          tail -60 try.txt
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: "It passes: open a pull request"
+        if: steps.try.outputs.status == '0'
+        env:
+          TARGET: ${{ steps.check.outputs.target }}
+          CURRENT: ${{ steps.check.outputs.current }}
+        run: |
+          branch="ui-sdk-$TARGET"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add app/javascript/runeui/sdk config/sdk_pins.rb
+          git commit -m "UI SDK $TARGET"
+          git push origin "$branch"
+          {
+            echo "UI SDK $CURRENT → $TARGET, vendored by \`script/vendor-ui-sdk\`. Every test that passed on $CURRENT passes on $TARGET."
+            echo
+            echo "Before merging: read what changed below, look over the gallery (/runeui) by eye, and see docs/upgrading-ui-sdk.md."
+            echo
+            echo '```'
+            head -c 20000 diff.txt
+            echo '```'
+          } > body.md
+          gh pr create --head "$branch" --title "UI SDK $TARGET" --body-file body.md
+
+      - name: "It breaks something: open an issue"
+        if: steps.try.outputs.status == '1'
+        env:
+          TARGET: ${{ steps.check.outputs.target }}
+          CURRENT: ${{ steps.check.outputs.current }}
+        run: |
+          {
+            echo "\`script/check-ui-sdk --try $TARGET\` failed: tests that pass on $CURRENT fail on $TARGET. Nothing was changed."
+            echo
+            echo "To work on it: \`script/vendor-ui-sdk $TARGET\`, then \`script/test contract\` first (docs/upgrading-ui-sdk.md)."
+            echo
+            echo "### What failed"
+            echo '```'
+            sed -n '/breaks/,$p' try.txt | head -c 20000
+            echo '```'
+            echo "### What changed in UI SDK"
+            echo '```'
+            head -c 20000 diff.txt
+            echo '```'
+          } > body.md
+          gh issue create --title "UI SDK $TARGET breaks runeui" --body-file body.md
+
+      - name: The tests couldn't run
+        if: steps.try.outputs.status != '' && steps.try.outputs.status != '0' && steps.try.outputs.status != '1'
+        run: |
+          cat try.txt
+          exit 1

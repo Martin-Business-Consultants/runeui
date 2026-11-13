@@ -18,7 +18,7 @@
 <% default = dates.filter_map { iso.(it) }.join(",").presence %>
 <% count = (months || 1).to_i %>
 <% cid = ui_id("calendar", id) %>
-<%= tag.ui_calendar(**ui_attrs({ id: cid, mode: mode&.to_s, "default-value": default, "default-month": (month.is_a?(String) ? month : month&.strftime("%Y-%m")), min: iso.(min), max: iso.(max), months: (count > 1 ? count : nil), "week-starts-on": week_starts_on, "fixed-weeks": (fixed_weeks ? "" : nil), "show-outside-days": (show_outside_days == false ? "false" : nil), disabled: (disabled ? "" : nil), "read-only": (read_only ? "" : nil), deselectable: (deselectable ? "" : nil), data: { slot: "calendar", months: count } }, attrs)) do %>
+<%= ui_tag(:ui_calendar, { id: cid, mode: mode&.to_s, "default-value": default, "default-month": (month.is_a?(String) ? month : month&.strftime("%Y-%m")), min: iso.(min), max: iso.(max), months: (count > 1 ? count : nil), "week-starts-on": week_starts_on, "fixed-weeks": (fixed_weeks ? "" : nil), "show-outside-days": (show_outside_days == false ? "false" : nil), disabled: (disabled ? "" : nil), "read-only": (read_only ? "" : nil), deselectable: (deselectable ? "" : nil), data: { slot: "calendar", months: count } }, attrs) do %>
   <div data-slot="calendar-nav">
     <ui-calendar-previous><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Previous month"><%= ui_icon "chevron-left" %></button></ui-calendar-previous>
     <ui-calendar-heading data-slot="calendar-heading" id="<%= cid %>-heading" data-morph="keep"></ui-calendar-heading>

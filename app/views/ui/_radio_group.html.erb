@@ -11,7 +11,7 @@
 %>
 <% choices = ui_options(options || []) %>
 <% group_id = ui_id("radio-group", id, name: name) %>
-<%= tag.ui_radio_group(**ui_attrs({ id: group_id, name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "radio-group", orientation: (orientation || "vertical").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_radio_group, { id: group_id, name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "radio-group", orientation: (orientation || "vertical").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>

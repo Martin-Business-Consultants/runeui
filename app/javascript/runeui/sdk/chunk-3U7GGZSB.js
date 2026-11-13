@@ -1,1 +1,0 @@
-import{o as r,p as s}from"runeui/sdk/chunk-OTGP2DW6";function a(e,t={}){let{within:n,live:o}=t;return n?r((i,c)=>{let f=typeof n=="function"?n():n;f&&c.some(m=>f.contains(m.el))&&e(i)},o):r(i=>e(i),o)}function v(e){let t=s(e);return t.find(n=>!t.some(o=>o!==n&&o.contains(n)))??t[0]}export{a,v as b};

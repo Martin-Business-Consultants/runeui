@@ -7,6 +7,14 @@
 
 const DELAY = 250
 const state = new WeakMap()
+// Searches waiting or in flight, so a Turbo visit can drop them (WeakMaps can't be walked).
+const pending = new Set()
+
+function settle(entry) {
+  clearTimeout(entry.timer)
+  entry.controller.abort()
+  pending.delete(entry)
+}
 
 function remote(event) {
   const element = event.target
@@ -16,10 +24,11 @@ function remote(event) {
 function search(element, query) {
   const current = state.get(element) || {}
   if (current.query === query && current.items) return
-  clearTimeout(current.timer)
-  current.controller?.abort()
+  if (current.entry) settle(current.entry)
   const controller = new AbortController()
-  const timer = setTimeout(async () => {
+  const entry = { controller, element }
+  entry.timer = setTimeout(async () => {
+    if (!element.isConnected) return pending.delete(entry)
     element.setAttribute("status", "loading")
     try {
       const url = new URL(element.dataset.src, location.href)
@@ -27,15 +36,30 @@ function search(element, query) {
       const response = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal, credentials: "same-origin" })
       if (!response.ok) throw new Error(`${response.status}`)
       const items = await response.json()
+      if (!Array.isArray(items)) throw new Error("expected a JSON array")
       element.items = items
       state.set(element, { query, items })
       element.setAttribute("status", "idle")
     } catch (error) {
-      if (error.name !== "AbortError") element.setAttribute("status", "error")
+      if (error.name !== "AbortError") {
+        element.setAttribute("status", "error")
+        console.error(`runeui: search at ${element.dataset.src} failed`, error)
+      }
+    } finally {
+      pending.delete(entry)
     }
   }, current.items === undefined && query === "" ? 0 : DELAY)
-  state.set(element, { ...current, timer, controller })
+  pending.add(entry)
+  state.set(element, { ...current, entry })
 }
+
+// Leaving the page: nothing should answer into a snapshot, or show as loading in it.
+document.addEventListener("turbo:before-cache", () => {
+  for (const entry of [ ...pending ]) {
+    settle(entry)
+    if (entry.element.getAttribute("status") === "loading") entry.element.setAttribute("status", "idle")
+  }
+})
 
 // A combobox's text is its query; an autocomplete's text is its value.
 document.addEventListener("querychange", (event) => {

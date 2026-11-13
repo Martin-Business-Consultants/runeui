@@ -1,0 +1,25 @@
+<%# locals: (content: nil, id: nil, title: nil, href: nil, meta: nil, footer: nil, url: nil, **attrs) %>
+<%#
+  A card on a ui :board. id: is what a move sends as card. title: is its heading, a link with
+  href: (Enter on the card follows it); meta: a muted line under it; the block its body;
+  footer: its last row (badges, avatars, a date). url: is where its moves are sent, when not
+  the column's or the board's.
+
+    ui :board_card, id: task.id, title: task.title, href: task_path(task), meta: task.client.name,
+       footer: ui(:badge, variant: :secondary, content: "Due Friday")
+
+  Its element has the id board-card-<id>, for turbo_stream.remove and replace. Buttons, fields
+  and anything marked data-board-no-drag inside a card don't start a drag.
+%>
+<%= ui_tag(:li, { id: "board-card-#{id}", tabindex: 0, aria: { roledescription: "Card, movable", keyshortcuts: "Shift+ArrowUp Shift+ArrowDown Shift+ArrowLeft Shift+ArrowRight" }, data: { slot: "board-card", card: id.to_s, title: title, url: url, runeui__board_target: "card", action: "pointerdown->runeui--board#press keydown->runeui--board#key" } }, attrs) do %>
+  <% if title %>
+  <% if href %>
+  <a data-slot="board-card-title" href="<%= href %>" draggable="false" tabindex="-1"><%= title %></a>
+  <% else %>
+  <div data-slot="board-card-title"><%= title %></div>
+  <% end %>
+  <% end %>
+  <% if meta %><div data-slot="board-card-meta"><%= meta %></div><% end %>
+  <% if content %><div data-slot="board-card-body"><%= content %></div><% end %>
+  <% if footer %><div data-slot="board-card-footer"><%= footer %></div><% end %>
+<% end %>

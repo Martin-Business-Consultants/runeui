@@ -14,7 +14,7 @@
 <% choices = ui_options(options || []) %>
 <% values = Array(value).map(&:to_s).compact_blank %>
 <% check = ui_icon(:check) %>
-<%= tag.ui_listbox(**ui_attrs({ id: id, name: name, "default-value": (values.any? ? (multiple ? values.join(", ") : values.first) : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, orientation: orientation&.to_s, activation: activation&.to_s, deselectable: (deselectable ? "" : nil), loop: "", data: { slot: "listbox" }, aria: { label: label, invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_listbox, { id: id, name: name, "default-value": (values.any? ? (multiple ? values.join(", ") : values.first) : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, orientation: orientation&.to_s, activation: activation&.to_s, deselectable: (deselectable ? "" : nil), loop: "", data: { slot: "listbox" }, aria: { label: label, invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>

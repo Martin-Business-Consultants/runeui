@@ -14,7 +14,7 @@
 %>
 <% tid = ui_id("timeline", attrs[:id]) %>
 <% stamp = ->(at) { at.is_a?(Date) && !at.is_a?(DateTime) ? at.strftime("%b %-d, %Y") : at.strftime("%b %-d, %Y, %-l:%M %p") } %>
-<%= tag.ui_timeline(**ui_attrs({ id: tid, orientation: orientation&.to_s, feed: (feed ? "" : nil), data: { slot: "timeline", orientation: (orientation || "vertical").to_s }, aria: { label: label } }, attrs)) do %>
+<%= ui_tag(:ui_timeline, { id: tid, orientation: orientation&.to_s, feed: (feed ? "" : nil), data: { slot: "timeline", orientation: (orientation || "vertical").to_s }, aria: { label: label } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>

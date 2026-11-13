@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<%# runeui under rune_ui's tokens (RUNE_UI=<a rune_ui checkout>): ?theme=dark, ?scale=0.25 or 1.6, ?accent=<a colour>. %>
+<%= tag.html(lang: "en", data: { theme: params[:theme].presence_in(%w[light dark]), scale: params[:scale].presence_in(%w[0.25 1.6]), accent: params[:accent].presence_in(%w[green]) }) do %>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <% if ENV["RUNE_UI"] %><%= stylesheet_link_tag "rune_ui/tokens", "rune_ui/base", "rune_ui/buttons", "rune_ui/forms" %><% end %>
+    <%= runeui_tags theme: false %>
+    <%= stylesheet_link_tag "runeui/bridges/rune_ui", "bridge" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <main class="bridge">
+      <h1>rune_ui tokens, runeui components</h1>
+      <% unless ENV["RUNE_UI"] %><p>Start the dummy app with RUNE_UI=&lt;a rune_ui checkout&gt; to see this themed.</p><% end %>
+      <div class="bridge__row">
+        <button type="button" class="btn btn--accent" id="rune-accent">rune_ui accent</button>
+        <button type="button" class="btn btn--secondary">rune_ui secondary</button>
+        <input class="input" id="rune-input" placeholder="rune_ui input">
+      </div>
+      <div class="bridge__row">
+        <%= ui :button, content: "Default", id: "ui-default" %>
+        <%= ui :button, variant: :secondary, content: "Secondary" %>
+        <%= ui :button, variant: :outline, content: "Outline" %>
+        <%= ui :button, variant: :ghost, content: "Ghost", id: "ui-ghost" %>
+        <%= ui :button, variant: :destructive, content: "Delete" %>
+        <%= ui :badge, content: "Badge" %>
+        <%= ui :badge, variant: :success, content: "Paid" %>
+      </div>
+      <div class="bridge__row">
+        <%= ui :input, name: "name", id: "ui-input", placeholder: "runeui input" %>
+        <%= ui :select, name: "status", id: "ui-select", value: "live", options: %w[draft live archived] %>
+        <%= ui :switch, name: "on", checked: true, label: "Switch" %>
+        <%= ui :checkbox, name: "ok", checked: true, label: "Checkbox" %>
+      </div>
+      <%= ui :card, title: "A card", description: "On rune_ui's panel", footer: ui(:button, content: "Save", size: :sm), id: "ui-card" do %>
+        <div class="bridge__row">
+          <%= ui :alert, variant: :warning, title: "Trial ends soon" %>
+          <span class="rune"><button type="button" class="btn btn--accent" id="rune-inside">rune_ui inside runeui</button></span>
+        </div>
+      <% end %>
+      <%= ui :dialog, id: "dlg", trigger: "Open dialog", title: "A dialog", description: "On rune_ui's panel" do %>
+        <p>Inside.</p>
+      <% end %>
+    </main>
+    <%= ui :toaster %>
+  </body>
+<% end %>

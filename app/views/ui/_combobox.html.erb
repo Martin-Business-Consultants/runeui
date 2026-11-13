@@ -27,8 +27,8 @@
 <% default = multiple ? values.join(", ") : values.first %>
 <% check = ui_icon(:check) %>
 <% combobox_id = ui_id("combobox", id, name: name) %>
-<% input = tag.input(type: "text", placeholder: placeholder, value: (multiple ? nil : shown), autocomplete: "off", aria: { invalid: (invalid ? "true" : nil) }) %>
-<%= tag.ui_combobox(**ui_attrs({ id: combobox_id, name: name, "default-value": (values.any? ? default : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, filter: (src ? "false" : nil), "auto-highlight": "", "allow-custom-value": (creatable ? "" : nil), data: { slot: "combobox", size: size&.to_s, src: src }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<% input = ui_tag(:input, { type: "text", placeholder: placeholder, value: (multiple ? nil : shown), autocomplete: "off", aria: { invalid: (invalid ? "true" : nil) } }) %>
+<%= ui_tag(:ui_combobox, { id: combobox_id, name: name, "default-value": (values.any? ? default : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, filter: (src ? "false" : nil), "auto-highlight": "", "allow-custom-value": (creatable ? "" : nil), data: { slot: "combobox", size: size&.to_s, src: src }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <div data-slot="combobox-control"<% if invalid %> aria-invalid="true"<% end %>>
     <% if multiple %>
     <ui-combobox-chips data-slot="combobox-chips">

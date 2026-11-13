@@ -15,7 +15,7 @@
 <% rows = flatten.(spans, 1) %>
 <% open = expanded ? Array(expanded).map(&:to_s) : rows.select { |s, _| Array(s[:children]).any? }.map { |s, _| s[:value].to_s } %>
 <% data = ->(list) { Array(list).map { |s| { value: s[:value].to_s, label: s[:label].to_s, start: s[:start], duration: s[:duration], children: (s[:children] ? data.(s[:children]) : nil) }.compact } } %>
-<%= tag.ui_waterfall(**ui_attrs({ "default-expanded": (open.any? ? open.join(",") : nil), aria: { label: label }, data: { slot: "waterfall", props: { items: data.(spans) }.to_json } }, attrs)) do %>
+<%= ui_tag(:ui_waterfall, { "default-expanded": (open.any? ? open.join(",") : nil), aria: { label: label }, data: { slot: "waterfall", props: { items: data.(spans) }.to_json } }, attrs) do %>
   <% if axis != false %>
   <ui-waterfall-header-row data-slot="waterfall-header-row">
     <ui-waterfall-column-header data-slot="waterfall-column-header">Name</ui-waterfall-column-header>

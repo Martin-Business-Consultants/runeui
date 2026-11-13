@@ -1,0 +1,1 @@
+import{E as e,F as o,G as r,H as l,I as a,J as t}from"runeui/sdk/chunk-G545YEG2";var y={payload:t,behavior:"tooltip",role:"tooltip",side:"top",delay:600,closeDelay:0,focusDelay:0,placement:e,hover:o,focus:r,group:l,resetStyles:a},i={payload:t,behavior:"hoverCard",delay:600,closeDelay:300,placement:e,hover:o,focus:r,resetStyles:a};export{y as a,i as b};

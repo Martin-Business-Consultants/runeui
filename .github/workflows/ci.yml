@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true   # Ruby from .ruby-version; gems from Gemfile (and Gemfile.lock once committed)
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The tests' own tooling: apps that use runeui need no Node.
+      - name: Install Playwright
+        run: |
+          npm install --prefix test/browser
+          npx --prefix test/browser playwright-core install chromium --with-deps
+
+      - name: Lint and browser tests
+        run: script/test --jobs 2
+
+      # The same files a production deploy serves: every importmap pin resolves to a digested file.
+      - name: Production precompile resolves every pin
+        working-directory: test/dummy
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE: ci
+        run: |
+          bundle exec rails assets:precompile
+          bundle exec rails runner '
+            pins = JSON.parse(Rails.application.importmap.to_json(resolver: ActionController::Base.helpers))["imports"].select { |name, _| name.start_with?("runeui") }
+            missing = pins.reject { |_, file| File.exist?(File.join("public", file)) }
+            abort "#{missing.size} runeui pins have no compiled file: #{missing.keys.first(5).join(", ")}" if missing.any?
+            puts "#{pins.size} runeui pins resolve"
+          '

@@ -10,7 +10,7 @@
 <% low = (min || 0).to_f %>
 <% high = (max || 100).to_f %>
 <% percent = value.nil? || high <= low ? nil : (((value.to_f - low) / (high - low)) * 100).clamp(0, 100).round %>
-<%= tag.ui_progress(**ui_attrs({ value: value, max: max, min: min, data: { slot: "progress", size: size&.to_s, indeterminate: (value.nil? ? "" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_progress, { value: value, max: max, min: min, data: { slot: "progress", size: size&.to_s, indeterminate: (value.nil? ? "" : nil) } }, attrs) do %>
   <% if label || show_value %>
   <div data-slot="progress-header">
     <% if label %><ui-progress-label data-slot="progress-label"><%= label %></ui-progress-label><% end %>

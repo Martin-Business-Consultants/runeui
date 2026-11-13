@@ -10,7 +10,7 @@
     end
     ui :table, selectable: true, noun: "project", bulk: bar do … end
 %>
-<%= tag.div(**ui_attrs({ data: { slot: "bulk-bar", runeui__selection_target: "bar" }, role: "toolbar", aria: { label: "Selected rows" }, hidden: true }, attrs)) do %>
+<%= ui_tag(:div, { data: { slot: "bulk-bar", runeui__selection_target: "bar" }, role: "toolbar", aria: { label: "Selected rows" }, hidden: true }, attrs) do %>
   <span data-slot="bulk-count" data-runeui--selection-target="count" aria-live="polite"></span>
   <button type="button" class="ui-button" data-variant="ghost" data-size="sm" data-action="runeui--selection#clear">Clear</button>
   <span data-slot="bulk-actions"><%= content %></span>

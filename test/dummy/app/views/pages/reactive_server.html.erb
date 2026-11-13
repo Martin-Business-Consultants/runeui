@@ -1,0 +1,18 @@
+<%# herb:slots client %>
+<%# herb:state (shown: false) %>
+<main id="page">
+  <h1>Saves: <span id="saves"><%= @state["saves"] %></span></h1>
+  <button type="button" id="toggle" data-herb-toggle="shown">Details</button>
+  <p id="marker" class="<%= "is-shown" if shown %>">A class picked by state asks the server.</p>
+  <div id="details" hidden="<%= !shown %>">
+    <%= form_with url: reactive_server_path, method: :patch, id: "inside-form" do |form| %>
+      <%= form.ui :select, :status, id: "status", name: "status", value: @state["status"], options: [ [ "Draft", "draft" ], [ "Live", "live" ], [ "Archived", "archived" ] ] %>
+      <%= ui :switch, name: "public", id: "public", checked: @state["public"] == "1", unchecked_value: "0", label: "Public" %>
+      <%= ui :field, label: "Note" do %>
+        <%= ui :input, name: "note", id: "note", value: @state["note"] %>
+      <% end %>
+      <%= ui :button, content: "Save", type: :submit, id: "save" %>
+    <% end %>
+  </div>
+  <%= ui :select, name: "outside", id: "outside", options: %w[one two three], placeholder: "Outside the state" %>
+</main>

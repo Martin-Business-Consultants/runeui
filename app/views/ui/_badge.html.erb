@@ -7,7 +7,7 @@
 <% options = ui_attrs({ data: { slot: "badge", variant: (variant || "default").to_s } }, attrs) %>
 <% inner = capture do %><% if icon %><%= ui_icon icon %><% end %><%= content %><% end %>
 <% if href %>
-<%= link_to inner, href, **options %>
+<%= ui_tag :a, { href: href }, options, inner %>
 <% else %>
-<%= tag.span inner, **options %>
+<%= ui_tag :span, {}, options, inner %>
 <% end %>

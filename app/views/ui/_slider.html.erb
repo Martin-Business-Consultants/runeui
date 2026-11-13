@@ -13,7 +13,7 @@
 <% high = (max || 100).to_f %>
 <% percent = ->(v) { (((v - low) / (high - low)) * 100).clamp(0, 100).round(2) } %>
 <% labels = Array(thumb_labels) %>
-<%= tag.ui_slider(**ui_attrs({ id: ui_id("slider", id, name: name), name: name, "default-value": values.join("/"), min: min, max: max, step: step, disabled: (disabled ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "slider", orientation: (orientation || "horizontal").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_slider, { id: ui_id("slider", id, name: name), name: name, "default-value": values.join("/"), min: min, max: max, step: step, disabled: (disabled ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "slider", orientation: (orientation || "horizontal").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <% if show_value %><ui-slider-value data-slot="slider-value" data-label="<%= values.join(" – ") %>"></ui-slider-value><% end %>
   <ui-slider-control data-slot="slider-control">
     <ui-slider-track data-slot="slider-track">

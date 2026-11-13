@@ -1,5 +1,4 @@
 /.bundle/
-/Gemfile.lock
 /test/dummy/log/
 /test/dummy/tmp/
 /node_modules/

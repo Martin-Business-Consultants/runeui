@@ -12,7 +12,7 @@
 
   The block is the trigger (a button or a link); a plain string makes a ghost button.
 %>
-<%= tag.ui_tooltip(**ui_attrs({ shortcut: shortcut, data: { slot: "tooltip" } }, attrs)) do %>
+<%= ui_tag(:ui_tooltip, { shortcut: shortcut, data: { slot: "tooltip" } }, attrs) do %>
   <ui-tooltip-trigger>
     <% if content.respond_to?(:html_safe?) && content.html_safe? %>
     <%= content %>
@@ -20,7 +20,7 @@
     <button type="button" class="ui-button" data-variant="ghost" data-size="default"><%= content %></button>
     <% end %>
   </ui-tooltip-trigger>
-  <%= tag.ui_tooltip_content(side: side&.to_s, align: align&.to_s, "side-offset": 4, type: type&.to_s, hidden: true, data: { slot: "tooltip-content" }) do %>
+  <%= ui_tag(:ui_tooltip_content, { side: side&.to_s, align: align&.to_s, "side-offset": 4, type: type&.to_s, hidden: true, data: { slot: "tooltip-content" } }) do %>
     <% if arrow != false %><ui-tooltip-arrow data-slot="tooltip-arrow"></ui-tooltip-arrow><% end %>
     <%= text %>
     <% if shortcut %><ui-tooltip-shortcut data-slot="tooltip-shortcut"></ui-tooltip-shortcut><% end %>

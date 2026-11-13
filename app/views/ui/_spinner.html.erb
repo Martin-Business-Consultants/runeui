@@ -5,4 +5,4 @@
     ui :spinner
     ui :button, disabled: true do  ui(:spinner, size: :sm) + "Saving…"  end
 %>
-<%= tag.span(**ui_attrs({ role: "status", data: { slot: "spinner", size: size&.to_s }, aria: { label: (label || "Loading") } }, attrs)) do %><%= ui_icon :loader %><% end %>
+<%= ui_tag(:span, { role: "status", data: { slot: "spinner", size: size&.to_s }, aria: { label: (label || "Loading") } }, attrs) do %><%= ui_icon :loader %><% end %>

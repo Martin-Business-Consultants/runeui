@@ -1,4 +1,4 @@
-<%# locals: (name: nil, value: nil, multiple: nil, accept: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, dropzone: nil, prompt: nil, button: nil, **attrs) %>
+<%# locals: (name: nil, multiple: nil, accept: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, dropzone: nil, prompt: nil, button: nil, **attrs) %>
 <%#
   File input: a drop zone (drop or paste files on it) with a button that opens the file picker,
   and the chosen files listed, each removable. Submits the files with its form (the form needs
@@ -9,8 +9,7 @@
     ui :file_input, name: "avatar", accept: "image/*", prompt: "Drop an image here"
     form.ui :file_input, :documents, multiple: true
 %>
-<%# value: is ignored: a file field never shows its file back (form.ui passes the attribute). %>
-<%= tag.ui_file_input(**ui_attrs({ id: ui_id("file-input", id, name: name), name: name, multiple: (multiple ? "" : nil), accept: accept, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "file-input" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_file_input, { id: ui_id("file-input", id, name: name), name: name, multiple: (multiple ? "" : nil), accept: accept, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "file-input" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <% if dropzone == false %>
   <ui-file-input-trigger><button type="button" class="ui-button" data-slot="file-input-trigger" data-variant="outline" data-size="default"><%= ui_icon :upload %><%= button || (multiple ? "Choose files" : "Choose a file") %></button></ui-file-input-trigger>
   <% else %>

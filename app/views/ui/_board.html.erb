@@ -1,0 +1,30 @@
+<%# locals: (content: nil, url: nil, method: nil, label: nil, **attrs) %>
+<%#
+  Board: columns of cards, dragged between columns and up and down one (the runeui--board
+  Stimulus controller). The block is its ui :board_column's, each holding ui :board_card's.
+
+    ui :board, url: move_tasks_path, label: "Tasks by status" do
+      ui :board_column, id: "planned", title: "Planned" do
+        ui :board_card, id: task.id, title: task.title, href: task_path(task), meta: "Due Friday"
+      end
+    end
+
+  A move shows at once and sends one request: PATCH (method:) to the card's url:, else its
+  column's, else the board's, with card (the card's id), column (the column's id) and before
+  (the id of the card it now sits before, blank at the end). Answer with Turbo Streams, or
+  nothing (head :no_content); answer with an error and the card goes back, with a toast.
+
+    def move
+      task = Task.find(params[:card])
+      task.move!(status: params[:column], before: params[:before].presence)
+      head :no_content
+    end
+
+  Keys: the arrows go from card to card, Shift with an arrow moves the card you're on (each
+  move is read out), Enter opens it. On a touch screen, press and hold a card to pick it up.
+  Cards a stream adds (turbo_stream.append "board-list-planned") or a morph brings just work.
+%>
+<%= ui_tag(:div, { role: "group", aria: { label: (label || "Board") }, data: { slot: "board", controller: "runeui--board", runeui__board_url_value: url, runeui__board_method_value: method&.to_s } }, attrs) do %>
+  <%= content %>
+  <div class="ui-sr-only" aria-live="assertive" data-runeui--board-target="status"></div>
+<% end %>

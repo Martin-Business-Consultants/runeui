@@ -42,7 +42,7 @@
   </ui-color-picker-swatches>
   <% end %>
 <% end %>
-<%= tag.ui_color_picker(**ui_attrs({ id: picker_id, name: name, "default-value": color, format: (format || "hex").to_s, space: space&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "color-picker", popover: (popover ? "" : nil) }, aria: { label: label || "Colour" } }, attrs)) do %>
+<%= ui_tag(:ui_color_picker, { id: picker_id, name: name, "default-value": color, format: (format || "hex").to_s, space: space&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "color-picker", popover: (popover ? "" : nil) }, aria: { label: label || "Colour" } }, attrs) do %>
   <% if popover %>
   <div data-slot="color-picker-field">
     <ui-popover>

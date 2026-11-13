@@ -5,7 +5,7 @@
     ui :empty, icon: :folder, title: "No projects yet", description: "Projects you create show here.",
        action: ui(:button, content: "Create a project", href: new_project_path)
 %>
-<%= tag.div(**ui_attrs({ data: { slot: "empty" } }, attrs)) do %>
+<%= ui_tag(:div, { data: { slot: "empty" } }, attrs) do %>
   <% if icon %><div data-slot="empty-media"><%= ui_icon icon, size: 24 %></div><% end %>
   <% if title %><div data-slot="empty-title"><%= title %></div><% end %>
   <% if description %><div data-slot="empty-description"><%= description %></div><% end %>

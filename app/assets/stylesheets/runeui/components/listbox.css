@@ -12,12 +12,11 @@
     padding: 0.25rem;
     border: 1px solid var(--border);
     border-radius: var(--ui-radius-md);
-    background: var(--background);
+    background: var(--ui-surface-bg, light-dark(var(--background), color-mix(in oklab, var(--input) 30%, transparent)));
     box-shadow: var(--ui-shadow-xs);
     outline: none;
   }
 
-  .dark [data-slot="listbox"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
   [data-slot="listbox"]:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="listbox"][aria-invalid="true"] { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
   [data-slot="listbox"][data-disabled] { opacity: 0.5; }

@@ -6,4 +6,4 @@
     ui :separator
     ui :separator, orientation: :vertical, decorative: true
 %>
-<%= tag.ui_separator(**ui_attrs({ orientation: (orientation || "horizontal").to_s, decorative: (decorative ? "" : nil), data: { slot: "separator", orientation: (orientation || "horizontal").to_s } }, attrs)) %>
+<%= ui_tag(:ui_separator, { orientation: (orientation || "horizontal").to_s, decorative: (decorative ? "" : nil), data: { slot: "separator", orientation: (orientation || "horizontal").to_s } }, attrs) %>

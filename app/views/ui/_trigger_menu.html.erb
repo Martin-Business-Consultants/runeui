@@ -21,12 +21,12 @@
      trigger.merge(items: ui_options(trigger[:items] || []).map { { value: it[:value], label: it[:label], disabled: it[:disabled] || nil }.compact })
    end %>
 <% field = { id: id, name: name, placeholder: placeholder, class: "ui-input ui-trigger-menu-field", rows: (input.to_s == "input" ? nil : (rows || 3)), data: { slot: "trigger-menu-input" }, aria: { invalid: (invalid ? "true" : nil) } } %>
-<%= tag.ui_trigger_menu(**ui_attrs({ id: menu_id, data: { slot: "trigger-menu", triggers: definitions.to_json } }, attrs)) do %>
+<%= ui_tag(:ui_trigger_menu, { id: menu_id, data: { slot: "trigger-menu", triggers: definitions.to_json } }, attrs) do %>
   <ui-trigger-menu-input>
     <% if input.to_s == "input" %>
-    <%= tag.input(**field, value: value, type: "text") %>
+    <%= ui_tag(:input, { value: value, type: "text" }, field) %>
     <% else %>
-    <%= tag.textarea(value, **field) %>
+    <%= ui_tag(:textarea, {}, field, value) %>
     <% end %>
   </ui-trigger-menu-input>
   <ui-trigger-menu-content class="ui-popup" data-slot="trigger-menu-content" hidden>

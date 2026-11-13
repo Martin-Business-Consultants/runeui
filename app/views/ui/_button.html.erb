@@ -9,10 +9,10 @@
     ui :button, href: projects_path, variant: :link, content: "All projects"
     ui :button, variant: :ghost, size: :icon, icon: :x, aria: { label: "Close" }
 %>
-<% options = ui_attrs({ class: "ui-button", data: { variant: (variant || "default").to_s, size: (size || "default").to_s } }, attrs) %>
+<% options = ui_attrs({ class: "ui-button", data: { variant: (variant || "default").to_s, size: (size || "default").to_s.dasherize } }, attrs) %>
 <% inner = capture do %><% if icon %><%= ui_icon icon %><% end %><%= content %><% if icon_end %><%= ui_icon icon_end %><% end %><% end %>
 <% if href %>
-<%= link_to inner, href, **options %>
+<%= ui_tag :a, { href: href }, options, inner %>
 <% else %>
-<%= tag.button inner, **options %>
+<%= ui_tag :button, {}, options, inner %>
 <% end %>

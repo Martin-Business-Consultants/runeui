@@ -1,0 +1,71 @@
+<%# locals: () %>
+<%#
+  Not a component: the plain UI SDK markup test/browser/contract.test.mjs checks UI SDK's
+  surface against (the APIs, events and attribute formats runeui's own JavaScript relies on).
+  Written by hand, not through the partials, so a failure here is UI SDK's change, not ours.
+%>
+<form id="contract-form">
+  <ui-select id="c-select" name="one" default-value="b" placeholder="Pick">
+    <ui-select-trigger><button type="button"><ui-select-value></ui-select-value></button></ui-select-trigger>
+    <ui-select-content hidden>
+      <ui-select-item value="a">Alpha</ui-select-item>
+      <ui-select-item value="b">Beta</ui-select-item>
+      <ui-select-item value="c">Gamma</ui-select-item>
+    </ui-select-content>
+  </ui-select>
+
+  <ui-select id="c-multi" name="many[]" multiple default-value="a,c">
+    <ui-select-trigger><button type="button"><ui-select-value></ui-select-value></button></ui-select-trigger>
+    <ui-select-content hidden>
+      <ui-select-item value="a">Alpha</ui-select-item>
+      <ui-select-item value="b">Beta</ui-select-item>
+      <ui-select-item value="c">Gamma</ui-select-item>
+    </ui-select-content>
+  </ui-select>
+
+  <ui-select id="c-custom" default-value="a">
+    <ui-select-trigger><button type="button"><ui-select-value>Mine</ui-select-value></button></ui-select-trigger>
+    <ui-select-content hidden><ui-select-item value="a">Alpha</ui-select-item></ui-select-content>
+  </ui-select>
+
+  <ui-select>
+    <ui-select-trigger><button type="button" data-contract="anonymous-trigger"><ui-select-value></ui-select-value></button></ui-select-trigger>
+    <ui-select-content hidden><ui-select-item value="a">Alpha</ui-select-item></ui-select-content>
+  </ui-select>
+
+  <ui-checkbox id="c-checkbox" name="box" value="yes" aria-label="Box"><ui-checkbox-indicator>x</ui-checkbox-indicator></ui-checkbox>
+  <ui-switch id="c-switch" name="switch" value="on" default-checked aria-label="Switch"><ui-switch-thumb></ui-switch-thumb></ui-switch>
+
+  <ui-toggle id="c-toggle"><button type="button">Bold</button></ui-toggle>
+  <ui-toggle-group id="c-toggle-group" multiple default-value="b,i">
+    <ui-toggle value="b"><button type="button">B</button></ui-toggle>
+    <ui-toggle value="i"><button type="button">I</button></ui-toggle>
+    <ui-toggle value="u"><button type="button">U</button></ui-toggle>
+  </ui-toggle-group>
+
+  <ui-slider id="c-slider" name="range" default-value="20/80" min="0" max="100">
+    <ui-slider-control><ui-slider-track><ui-slider-indicator></ui-slider-indicator><ui-slider-thumb aria-label="From"></ui-slider-thumb><ui-slider-thumb aria-label="To"></ui-slider-thumb></ui-slider-track></ui-slider-control>
+  </ui-slider>
+
+  <ui-combobox id="c-combobox" name="combo" default-value="b">
+    <ui-combobox-input><input type="text" aria-label="Combo"></ui-combobox-input>
+    <ui-combobox-content hidden>
+      <ui-combobox-item value="a">Alpha</ui-combobox-item>
+      <ui-combobox-item value="b">Beta</ui-combobox-item>
+    </ui-combobox-content>
+  </ui-combobox>
+</form>
+
+<ui-dialog id="c-dialog">
+  <ui-dialog-trigger><button type="button">Open</button></ui-dialog-trigger>
+  <ui-dialog-backdrop hidden></ui-dialog-backdrop>
+  <ui-dialog-content hidden>
+    <ui-dialog-title>Title</ui-dialog-title>
+    <ui-dialog-close><button type="button">Close</button></ui-dialog-close>
+  </ui-dialog-content>
+</ui-dialog>
+
+<ui-popover id="c-popover">
+  <ui-popover-trigger><button type="button">Popover</button></ui-popover-trigger>
+  <ui-popover-content hidden>Inside</ui-popover-content>
+</ui-popover>

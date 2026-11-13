@@ -2,7 +2,7 @@
 // app can take only some: import { guardMorphs } from "runeui/morph".
 import { guardMorphs } from "runeui/morph"
 import { bridgeFormEvents } from "runeui/forms"
-import { wireFeedback } from "runeui/feedback"
+import { wireFeedback, showToast } from "runeui/feedback"
 import { wireTheme } from "runeui/theme"
 import { registerControllers } from "runeui/controllers"
 import { wireProps } from "runeui/props"
@@ -18,7 +18,8 @@ function closePopupsBeforeCache() {
   document.addEventListener("turbo:before-cache", () => {
     for (const element of document.querySelectorAll("[data-open]")) {
       const host = element.closest("ui-select, ui-combobox, ui-menu, ui-popover, ui-dialog, ui-drawer, ui-alert-dialog, ui-hover-card, ui-tooltip, ui-date-picker, ui-autocomplete, ui-trigger-menu, ui-navigation-menu, ui-menubar")
-      if (host && "open" in host && host.open) host.open = false
+      // The side panel's state is the address: a restored page comes back with it open.
+      if (host && !host.hasAttribute("data-side-panel") && "open" in host && host.open) host.open = false
     }
   })
 }
@@ -35,7 +36,13 @@ export function hotwire(options = {}) {
 
 // A button anywhere opening or closing a dialog, sheet, popover or menu by its id:
 // <button data-runeui-open="settings">Settings</button>, data-runeui-close="settings".
+// And one that shows a toast: data-runeui-toast='{"title": "Copied", "type": "success"}'.
 document.addEventListener("click", (event) => {
+  const toaster = event.target.closest?.("[data-runeui-toast]")
+  if (toaster) {
+    const { title, ...options } = JSON.parse(toaster.dataset.runeuiToast)
+    showToast(title, options)
+  }
   const opener = event.target.closest?.("[data-runeui-open], [data-runeui-close]")
   if (!opener) return
   const opening = opener.hasAttribute("data-runeui-open")

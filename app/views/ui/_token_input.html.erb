@@ -15,7 +15,7 @@
   form from the keyboard. The block, when given, goes under the editor (a toolbar, a Send button).
   For tags (free words, no menu), use a combobox with multiple: and creatable: instead.
 %>
-<%= tag.ui_token_input(**ui_attrs({ id: id, name: name, value: value.presence, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, "submit-shortcut": submit_shortcut&.to_s, "token-deletion": "select", data: { slot: "token-input" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_token_input, { id: id, name: name, value: value.presence, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, "submit-shortcut": submit_shortcut&.to_s, "token-deletion": "select", data: { slot: "token-input" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <div data-slot="token-input-box"<% if invalid %> aria-invalid="true"<% end %>>
     <ui-token-input-editor data-slot="token-input-editor" placeholder="<%= placeholder %>" aria-label="<%= label || placeholder || "Message" %>"></ui-token-input-editor>
     <% if content %><div data-slot="token-input-footer"><%= content %></div><% end %>

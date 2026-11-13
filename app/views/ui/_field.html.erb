@@ -8,7 +8,7 @@
     end
 %>
 <% messages = Array(errors).compact_blank %>
-<%= tag.ui_field(**ui_attrs({ data: { slot: "field", orientation: orientation&.to_s }, invalid: ((invalid || messages.any?) ? "" : nil) }, attrs)) do %>
+<%= ui_tag(:ui_field, { data: { slot: "field", orientation: orientation&.to_s }, invalid: ((invalid || messages.any?) ? "" : nil) }, attrs) do %>
   <% if label %><ui-field-label data-slot="field-label"><%= label %></ui-field-label><% end %>
   <%= content %>
   <% if description %><ui-field-description data-slot="field-description"><%= description %></ui-field-description><% end %>

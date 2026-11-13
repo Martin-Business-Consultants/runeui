@@ -6,7 +6,12 @@
     ui :kbd, keys: %w[⌘ K]
 %>
 <% if keys %>
-<%= tag.span(**ui_attrs({ data: { slot: "kbd-group" } }, attrs)) do %><% Array(keys).each do |key| %><kbd data-slot="kbd"><%= key %></kbd><% end %><% end %>
+<%= ui_tag(:span, { data: { slot: "kbd-group" } }, attrs) do %>
+  <% Array(keys).each do |key| %>
+  <%# herb:key key %>
+  <kbd data-slot="kbd"><%= key %></kbd>
+  <% end %>
+<% end %>
 <% else %>
-<%= tag.kbd(content, **ui_attrs({ data: { slot: "kbd" } }, attrs)) %>
+<%= ui_tag(:kbd, { data: { slot: "kbd" } }, attrs, content) %>
 <% end %>

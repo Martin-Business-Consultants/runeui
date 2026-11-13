@@ -7,7 +7,7 @@
 %>
 <% switch_id = ui_id("switch", id, name: name) %>
 <% if unchecked_value && name %><input type="hidden" name="<%= name %>" value="<%= unchecked_value %>" autocomplete="off"><% end %>
-<% control = tag.ui_switch(**ui_attrs({ id: switch_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), data: { slot: "switch", size: size&.to_s } }, attrs)) { tag.ui_switch_thumb(data: { slot: "switch-thumb" }) } %>
+<% control = ui_tag(:ui_switch, { id: switch_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), data: { slot: "switch", size: size&.to_s } }, attrs) { ui_tag(:ui_switch_thumb, { data: { slot: "switch-thumb" } }) } %>
 <% if label %>
 <label data-slot="choice" for="<%= switch_id %>"><%= control %><span data-slot="choice-label"><%= label %></span></label>
 <% else %>

@@ -1,0 +1,19 @@
+# Herb: lint and the engine ReActionView compiles templates with.
+version: 0.11.1
+framework: actionview
+
+linter:
+  rules:
+    # runeui's partials write <a href="<%= … %>"> and <img> as HTML, or build them with ui_tag:
+    # Herb's engine rewrites link_to and image_tag calls when it compiles a template and loses
+    # computed attributes (AGENTS.md, "The partial").
+    actionview-prefer-link-to-helper:
+      enabled: false
+    erb-prefer-image-tag-helper:
+      enabled: false
+    # The gallery renders each component's example by name.
+    actionview-no-dynamic-partial-path:
+      enabled: false
+    # label: is what every component calls its label.
+    actionview-no-helper-shadowing:
+      enabled: false

@@ -1,0 +1,28 @@
+<%# locals: (content: nil, id: nil, title: nil, count: nil, action: nil, url: nil, empty: nil, footer: nil, tone: nil, **attrs) %>
+<%#
+  One column of a ui :board. id: is what a move sends as column (a status, a stage); the block
+  is its ui :board_card's. count: is the number in its header until the board counts the cards
+  itself; action: sits at the header's end (an add button); empty: is what it says with no
+  cards; footer: sits under the list (a quick add); url: is where moves into it are sent, when
+  not the board's. tone: (success, warning, info, destructive) colours the dot by its title.
+
+    ui :board_column, id: "doing", title: "In progress", action: ui(:button, variant: :ghost, size: :icon_xs, icon: :plus, aria: { label: "Add a task" }) do
+      cards
+    end
+
+  Its list has the id board-list-<id>, for turbo_stream.append and prepend.
+%>
+<% key = id.to_s %>
+<%= ui_tag(:section, { id: "board-column-#{key.parameterize}", aria: { labelledby: "board-column-#{key.parameterize}-title" }, data: { slot: "board-column", column: key, title: title, url: url, tone: tone&.to_s, runeui__board_target: "column" } }, attrs) do %>
+  <header data-slot="board-column-header">
+    <% if tone %><span data-slot="board-column-dot" aria-hidden="true"></span><% end %>
+    <h3 data-slot="board-column-title" id="board-column-<%= key.parameterize %>-title"><%= title || key.humanize %></h3>
+    <span data-slot="board-column-count"><%= count %></span>
+    <% if action %><span data-slot="board-column-action"><%= action %></span><% end %>
+  </header>
+  <ol data-slot="board-list" id="board-list-<%= key.parameterize %>">
+    <%= content %>
+  </ol>
+  <p data-slot="board-empty"><%= empty || "Nothing here" %></p>
+  <% if footer %><div data-slot="board-column-footer"><%= footer %></div><% end %>
+<% end %>

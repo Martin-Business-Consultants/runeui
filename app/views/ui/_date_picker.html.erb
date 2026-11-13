@@ -17,7 +17,7 @@
 <% shown = dates.filter_map { |d| Date.iso8601(d).strftime("%m/%d/%Y") rescue d } %>
 <% count = (months || 1).to_i %>
 <% picker_id = ui_id("date-picker", id, name: name || start_name) %>
-<%= tag.ui_date_picker(**ui_attrs({ id: picker_id, name: name, "start-name": start_name, "end-name": end_name, mode: (range ? "range" : nil), "default-value": dates.join(",").presence, min: iso.(min), max: iso.(max), months: (count > 1 ? count : nil), "week-starts-on": week_starts_on, "close-on-select": (close_on_select == false ? "false" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), "read-only": (read_only ? "" : nil), form: form, data: { slot: "date-picker" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_date_picker, { id: picker_id, name: name, "start-name": start_name, "end-name": end_name, mode: (range ? "range" : nil), "default-value": dates.join(",").presence, min: iso.(min), max: iso.(max), months: (count > 1 ? count : nil), "week-starts-on": week_starts_on, "close-on-select": (close_on_select == false ? "false" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), "read-only": (read_only ? "" : nil), form: form, data: { slot: "date-picker" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <div data-slot="date-picker-control" data-size="<%= size || "default" %>"<% if invalid %> data-invalid<% end %>>
     <ui-date-picker-input data-morph="keep"><input type="text" class="ui-date-picker__input" id="<%= picker_id %>-input" placeholder="<%= placeholder || "MM/DD/YYYY" %>" value="<%= shown[0] %>" autocomplete="off"<% if invalid %> aria-invalid="true"<% end %>></ui-date-picker-input>
     <% if range %>

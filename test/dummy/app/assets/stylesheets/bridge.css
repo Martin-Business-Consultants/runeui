@@ -1,0 +1,8 @@
+/* The dummy app's /bridge page only. */
+.bridge { display: flex; flex-direction: column; gap: 1rem; max-width: 56rem; margin: 1.5rem auto; padding: 1.5rem; border-radius: var(--radius-panel); background: var(--panel); }
+.bridge__row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.bridge__row .ui-input { width: 14rem; }
+.bridge__row ui-input { width: auto; }
+html[data-scale="0.25"] { --radius-scale: 0.25; --radius-pill: 0.4em; --radius-control: 0.2em; }
+html[data-scale="1.6"] { --radius-scale: 1.6; --radius-control: 99rem; }
+html[data-accent="green"] { --accent: light-dark(#1f8a57, #4cc38a); --font-sans: Georgia, serif; }

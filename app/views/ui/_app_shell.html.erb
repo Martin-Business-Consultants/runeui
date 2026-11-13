@@ -6,7 +6,7 @@
   the page in a rounded panel on the sidebar's colour.
 
     ui :app_shell, variant: :inset, sidebar: render("layouts/sidebar"), header: ui(:breadcrumb, items: crumbs) do
-      yield
+      (the page: the layout's own yield goes here)
     end
 
   The sidebar's own pieces: ui :sidebar_group and ui :sidebar_item (see them). Its behaviour is
@@ -14,7 +14,7 @@
   data-action="runeui--sidebar#toggle" toggles it.
 %>
 <% collapsed = cookies[:runeui_sidebar] == "collapsed" %>
-<%= tag.div(**ui_attrs({ data: { slot: "app-shell", variant: (variant || "sidebar").to_s, sidebar: (collapsed ? "collapsed" : "expanded"), controller: "runeui--sidebar", action: "keydown@window->runeui--sidebar#key turbo:before-cache@document->runeui--sidebar#close" } }, attrs)) do %>
+<%= ui_tag(:div, { data: { slot: "app-shell", variant: (variant || "sidebar").to_s, sidebar: (collapsed ? "collapsed" : "expanded"), controller: "runeui--sidebar", action: "keydown@window->runeui--sidebar#key turbo:before-cache@document->runeui--sidebar#close" } }, attrs) do %>
   <aside data-slot="sidebar" aria-label="Main" data-action="click->runeui--sidebar#closeOnLink">
     <%= sidebar %>
   </aside>

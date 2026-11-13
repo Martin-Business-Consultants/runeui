@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# Runs runeui's checks: Herb lint over the views, then every browser test against the dummy app
+# (test/dummy), which it boots on a free port and stops again.
+#
+#   script/test                    everything: lint, contract, hotwire, every component
+#   script/test select dialog      only those (names of files in test/browser: select, hotwire, contract…)
+#   script/test --shots tmp/shots  save each component's light and dark screenshots there
+#   script/test --jobs 1           one test file at a time (default 4)
+#   script/test --no-lint          skip Herb
+#   script/test --port 3320        use this port (default: a free one)
+#
+# Needs Node, playwright-core and a Chromium. Once:
+#
+#   npm install --prefix test/browser
+#   npx --prefix test/browser playwright-core install chromium
+#
+# or point PLAYWRIGHT at a playwright-core directory and CHROMIUM at a browser binary.
+# Exits 0 only if everything passed. A test file that can't run counts as a failure.
+
+set -u
+cd "$(dirname "$0")/.." || exit 2
+ROOT="$PWD"
+
+SHOTS=""; JOBS=4; LINT=1; PORT=""; FILTERS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --shots) SHOTS="$2"; shift 2 ;;
+    --jobs) JOBS="$2"; shift 2 ;;
+    --port) PORT="$2"; shift 2 ;;
+    --no-lint) LINT=0; shift ;;
+    -h|--help) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -*) echo "script/test: unknown option $1" >&2; exit 2 ;;
+    *) FILTERS+=("$1"); shift ;;
+  esac
+done
+
+command -v node >/dev/null || { echo "script/test: node isn't installed (only the tests need it; apps using runeui don't)" >&2; exit 2; }
+
+# Playwright: PLAYWRIGHT if set, else the one installed beside the tests.
+if [ -z "${PLAYWRIGHT:-}" ] && [ ! -d test/browser/node_modules/playwright-core ]; then
+  cat >&2 <<'MESSAGE'
+script/test: playwright-core isn't installed. Once:
+
+  npm install --prefix test/browser
+  npx --prefix test/browser playwright-core install chromium
+
+or set PLAYWRIGHT to a playwright-core directory and CHROMIUM to a browser binary.
+MESSAGE
+  exit 2
+fi
+if ! (cd test/browser && node -e '
+  const { chromium } = require(process.env.PLAYWRIGHT || "playwright-core")
+  chromium.launch({ executablePath: process.env.CHROMIUM || undefined }).then((b) => b.close()).catch((e) => { console.error(e.message.split("\n")[0]); process.exit(1) })
+'); then
+  echo "script/test: Chromium didn't start. Install it (npx --prefix test/browser playwright-core install chromium --with-deps) or set CHROMIUM to a browser binary." >&2
+  exit 2
+fi
+
+# The files to run: the contract first (if UI SDK moved, that's the news), then hotwire, then components.
+FILES=()
+for file in test/browser/contract.test.mjs test/browser/hotwire.test.mjs test/browser/morph_stability.test.mjs $(ls test/browser/components/*.test.mjs 2>/dev/null | sort); do
+  [ -f "$file" ] || continue
+  name="$(basename "$file" .test.mjs)"
+  if [ ${#FILTERS[@]} -gt 0 ]; then
+    wanted=0
+    for filter in "${FILTERS[@]}"; do [ "$filter" = "$name" ] && wanted=1; done
+    [ $wanted -eq 1 ] || continue
+  fi
+  FILES+=("$file")
+done
+# The ReActionView phase (the dummy app again, with REACTIONVIEW=1): on a full run, or by name.
+RV=0
+if [ ${#FILTERS[@]} -eq 0 ]; then RV=1; fi
+for filter in ${FILTERS[@]+"${FILTERS[@]}"}; do [ "$filter" = "reactionview" ] && RV=1; done
+if [ ${#FILES[@]} -eq 0 ] && [ $RV -eq 0 ]; then echo "script/test: no test named ${FILTERS[*]} in test/browser" >&2; exit 2; fi
+
+[ -n "$PORT" ] || PORT="$(node -e 'const s = require("net").createServer(); s.listen(0, () => { console.log(s.address().port); s.close() })')"
+OUT="$(mktemp -d)"
+PIDFILE="test/dummy/tmp/server-$PORT.pid"
+stop() {
+  [ -f "$PIDFILE" ] && kill "$(cat "$PIDFILE")" 2>/dev/null
+  [ -n "${RV_PIDFILE:-}" ] && [ -f "$RV_PIDFILE" ] && kill "$(cat "$RV_PIDFILE")" 2>/dev/null
+  rm -rf "$OUT"
+}
+trap stop EXIT
+trap 'exit 130' INT TERM
+
+FAILED=0
+
+if [ $LINT -eq 1 ]; then
+  if NO_COLOR=1 bundle exec herb lint app/views > "$OUT/lint" 2>&1; then
+    echo "✓ herb lint"
+  else
+    echo "✗ herb lint"
+    grep -E -A3 '^\[error\]' "$OUT/lint" | grep -E '^\[error\]|^app/' | sed 's/^/    /' | head -40
+    FAILED=$((FAILED + 1))
+  fi
+fi
+
+test/dummy/bin/restart "$PORT" > /dev/null
+if ! curl -s -o /dev/null -f "http://localhost:$PORT/runeui"; then
+  echo "✗ the dummy app didn't start on port $PORT (test/dummy/log/server-$PORT.log):"
+  tail -15 "test/dummy/log/server-$PORT.log" | sed 's/^/    /'
+  exit 1
+fi
+
+[ -n "$SHOTS" ] && { mkdir -p "$SHOTS"; SHOTS="$(cd "$SHOTS" && pwd)"; }
+export BASE_URL="http://localhost:$PORT"
+export SHOTS OUT ROOT
+
+# Each file writes its output to $OUT/<name>.out and its exit status to $OUT/<name>.status.
+run_one() {
+  file="$1"; name="$(basename "$file" .test.mjs)"
+  (cd "$ROOT/test/browser" && timeout 420 node "$ROOT/$file" > "$OUT/$name.out" 2>&1)
+  echo $? > "$OUT/$name.status"
+}
+export -f run_one
+
+# hotwire changes the dummy app's one saved state, so it runs by itself; the rest in parallel.
+SERIAL=(); PARALLEL=()
+for file in "${FILES[@]}"; do
+  case "$(basename "$file" .test.mjs)" in hotwire|contract|morph_stability) SERIAL+=("$file") ;; *) PARALLEL+=("$file") ;; esac
+done
+for file in ${SERIAL[@]+"${SERIAL[@]}"}; do run_one "$file"; done
+if [ ${#PARALLEL[@]} -gt 0 ]; then printf '%s\n' "${PARALLEL[@]}" | xargs -P "$JOBS" -I{} bash -c 'run_one "$1"' _ {}; fi
+
+PASSED=0
+for file in "${FILES[@]}"; do
+  name="$(basename "$file" .test.mjs)"
+  status="$(cat "$OUT/$name.status" 2>/dev/null || echo 1)"
+  checks="$(grep -c '^ *✓' "$OUT/$name.out" 2>/dev/null)"
+  if [ "$status" = "0" ]; then
+    PASSED=$((PASSED + 1))
+    echo "✓ $name ($checks checks)"
+    grep -A6 '^ *note:' "$OUT/$name.out" | grep -v '^ *[✓✗]' | grep -v '^--$' | sed 's/^ */    /' | cut -c1-600
+  else
+    FAILED=$((FAILED + 1))
+    if [ "$status" = "124" ]; then echo "✗ $name (timed out)"; else echo "✗ $name"; fi
+    # The failed checks with their messages; or, for a file that crashed, its last lines.
+    if grep -q '^ *✗' "$OUT/$name.out"; then
+      grep -A1 '^ *✗' "$OUT/$name.out" | grep -v '^--$' | sed 's/^ */    /' | cut -c1-1200
+    else
+      tail -6 "$OUT/$name.out" | sed 's/^/    /' | cut -c1-400
+    fi
+  fi
+done
+
+# ReActionView: every gallery page must render the same as under plain ERB, and components must
+# live through its state changes.
+if [ $RV -eq 1 ]; then
+  RV_PORT="$(node -e 'const s = require("net").createServer(); s.listen(0, () => { console.log(s.address().port); s.close() })')"
+  RV_PIDFILE="test/dummy/tmp/server-$RV_PORT.pid"
+  REACTIONVIEW=1 test/dummy/bin/restart "$RV_PORT" > /dev/null
+  export RV_URL="http://localhost:$RV_PORT"
+  for script in reactionview.parity.mjs reactionview.test.mjs; do
+    name="${script%.mjs}"
+    if (cd test/browser && timeout 420 node "$script" > "$OUT/$name.out" 2>&1); then
+      PASSED=$((PASSED + 1))
+      echo "✓ $name ($(grep -c '^ *✓' "$OUT/$name.out") checks)"
+    else
+      FAILED=$((FAILED + 1))
+      echo "✗ $name"
+      grep -A4 '^ *✗' "$OUT/$name.out" | grep -v '^--$' | sed 's/^ */    /' | cut -c1-600 | head -40
+    fi
+  done
+fi
+
+echo
+if [ $FAILED -eq 0 ]; then
+  echo "all passed: $PASSED test files$([ $LINT -eq 1 ] && echo ', lint clean')"
+  exit 0
+else
+  echo "$FAILED failed, $PASSED passed"
+  exit 1
+fi

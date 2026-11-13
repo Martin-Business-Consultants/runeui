@@ -12,7 +12,7 @@
 %>
 <% direction = (orientation || "horizontal").to_s %>
 <% list = Array(slides) %>
-<%= tag.ui_carousel(**ui_attrs({ orientation: (orientation ? direction : nil), loop: (loop ? "" : nil), "slides-per-page": per_page&.to_s, "default-playing": (autoplay ? "" : nil), interval: interval, align: align&.to_s, aria: { label: label }, data: { slot: "carousel", orientation: direction, per_page: per_page&.to_s } }, attrs)) do %>
+<%= ui_tag(:ui_carousel, { orientation: (orientation ? direction : nil), loop: (loop ? "" : nil), "slides-per-page": per_page&.to_s, "default-playing": (autoplay ? "" : nil), interval: interval, align: align&.to_s, aria: { label: label }, data: { slot: "carousel", orientation: direction, per_page: per_page&.to_s } }, attrs) do %>
   <div data-slot="carousel-frame">
     <ui-carousel-viewport data-slot="carousel-viewport" data-orientation="<%= direction %>">
       <ui-carousel-content data-slot="carousel-content" data-orientation="<%= direction %>">

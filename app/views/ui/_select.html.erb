@@ -16,7 +16,7 @@
 <% values = Array(value).map(&:to_s) %>
 <% shown = ui_selected_label(choices, values) %>
 <% default = multiple ? values.join(",") : values.first %>
-<%= tag.ui_select(**ui_attrs({ id: id, name: name, "default-value": (values.any? ? default : nil), placeholder: placeholder, multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "select" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_select, { id: id, name: name, "default-value": (values.any? ? default : nil), placeholder: placeholder, multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "select" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <ui-select-trigger>
     <button type="button" data-slot="select-trigger" data-size="<%= (size || "default") %>"<% if invalid %> aria-invalid="true"<% end %>>
       <ui-select-value data-slot="select-value" data-label="<%= shown || placeholder %>"<% if shown.nil? %> data-placeholder<% end %>></ui-select-value>
@@ -34,11 +34,11 @@
       <ui-select-group-label data-slot="select-group-label"><%= choice[:group] %></ui-select-group-label>
       <% choice[:options].each do |item| %>
       <%# herb:key item[:value] %>
-      <ui-select-item data-slot="select-item" class="ui-item" value="<%= item[:value] %>"<% if item[:disabled] %> disabled<% end %>><ui-select-item-text><%= item[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
+      <ui-select-item data-slot="select-item" class="ui-item" value="<%= item[:value] %>"<% if item[:disabled] %> disabled<% end %>><ui-select-item-text data-slot="select-item-text"><%= item[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
       <% end %>
     </ui-select-group>
     <% else %>
-    <ui-select-item data-slot="select-item" class="ui-item" value="<%= choice[:value] %>"<% if choice[:disabled] %> disabled<% end %>><ui-select-item-text><%= choice[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
+    <ui-select-item data-slot="select-item" class="ui-item" value="<%= choice[:value] %>"<% if choice[:disabled] %> disabled<% end %>><ui-select-item-text data-slot="select-item-text"><%= choice[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
     <% end %>
     <% end %>
     <% end %>

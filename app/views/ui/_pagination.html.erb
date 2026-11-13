@@ -17,7 +17,7 @@
 <% href = ->(n) { query = request.query_parameters.merge(key => n); n == 1 ? (query.except(key).any? ? "#{request.path}?#{query.except(key).to_query}" : request.path) : "#{request.path}?#{query.to_query}" } %>
 <% shown = ([ 1, count ] + ((current - near)..(current + near)).to_a).select { it.between?(1, count) }.uniq.sort %>
 <% range = shown.each_with_index.flat_map { |n, i| i.positive? && n - shown[i - 1] > 1 ? (n - shown[i - 1] == 2 ? [ n - 1, n ] : [ :gap, n ]) : [ n ] } %>
-<%= tag.nav(**ui_attrs({ aria: { label: label || "Pagination" }, data: { slot: "pagination", turbo_frame: frame } }, attrs)) do %>
+<%= ui_tag(:nav, { aria: { label: label || "Pagination" }, data: { slot: "pagination", turbo_frame: frame } }, attrs) do %>
   <ul data-slot="pagination-list">
     <li data-slot="pagination-item">
       <% if current > 1 %>

@@ -7,7 +7,7 @@
     ui :toaster
     ui :toaster, side: :top, align: :center
 %>
-<%= tag.ui_toast_region(**ui_attrs({ id: "runeui-toaster", side: (side || "bottom").to_s, align: (align || "end").to_s, data: { slot: "toast-region", turbo_permanent: "" } }, attrs)) do %>
+<%= ui_tag(:ui_toast_region, { id: "runeui-toaster", side: (side || "bottom").to_s, align: (align || "end").to_s, data: { slot: "toast-region", turbo_permanent: "" } }, attrs) do %>
   <template>
     <ui-toast data-slot="toast">
       <span data-slot="toast-icon" data-show="success"><%= ui_icon "circle-check" %></span>

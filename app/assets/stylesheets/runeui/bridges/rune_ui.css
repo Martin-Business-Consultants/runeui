@@ -1,0 +1,148 @@
+/* runeui in a rune_ui theme: for an app already themed with the rune_ui gem (Runwell, Botter),
+ * so runeui's components take the app's colours, corners, sizes and font with nothing set twice,
+ * and both kits can be on one page while it moves from one to the other.
+ *
+ * Optional. Link rune_ui, then runeui, then this, and leave the theme to the app (rune_ui
+ * switches light and dark by color-scheme and data-theme, not runeui's .dark class):
+ *
+ *   <%= rune_ui_stylesheet_tags %>
+ *   <%= runeui_tags theme: false %>
+ *   <%= stylesheet_link_tag "runeui/bridges/rune_ui" %>
+ *   <%= stylesheet_link_tag :app %>
+ *
+ * The order matters, because each kit's CSS is in cascade layers and a later layer wins:
+ *   - rune_ui first, so its styles for bare elements (input, button, table…) don't land on
+ *     runeui's components;
+ *   - this last of the three: it is one layer, runeui-bridge, over both kits' and under the
+ *     app's own unlayered CSS. So a theme the app sets on rune_ui's tokens (Runwell's
+ *     Settings > Appearance, a custom theme) still wins, and reaches runeui through here.
+ *
+ * rune_ui's colours are light-dark() pairs (or, in Runwell, set per theme), so each token below
+ * follows the theme by itself; runeui's own light and dark rules are light-dark() too, and
+ * follow the same color-scheme.
+ *
+ * The kits share five token names. Three mean the same (--font-sans, --font-mono, --radius) and
+ * two don't:
+ *   --accent   rune_ui: the brand colour.        shadcn: the quiet fill under a hovered item.
+ *   --ring     rune_ui: a focus box-shadow.      shadcn: the focus ring's colour.
+ * runeui's layer would otherwise set all five for the whole page, so they're put back to
+ * rune_ui's here (its defaults, copied from rune_ui's tokens.css: an app that sets its own
+ * unlayered still wins). Inside anything of runeui's (every part has a data-slot or a ui- class)
+ * --accent and --ring take shadcn's meaning. rune_ui markup put inside a runeui component (a
+ * rune button in a ui :dialog) gets rune_ui's back with class "rune" (or data-rune) on it or
+ * around it. */
+
+@layer runeui-bridge {
+  :root {
+    /* rune_ui's own, put back over runeui's defaults of the same names. */
+    color-scheme: light dark;
+    --accent: light-dark(#3b6cf6, #5b84ff);
+    --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+    --radius: calc(8px * var(--radius-scale));
+    --font-sans: "Inter", "InterVariable", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    /* …and kept under names of their own, for the scopes below. */
+    --rune-accent: var(--accent);
+    --rune-ring: var(--ring);
+
+    --background: var(--panel);
+    --foreground: var(--text);
+    --card: var(--panel);
+    --card-foreground: var(--text);
+    --popover: var(--panel);
+    --popover-foreground: var(--text);
+    --primary: var(--accent);
+    --primary-foreground: var(--accent-ink);
+    --secondary: var(--layer-2);
+    --secondary-foreground: var(--text);
+    --muted: var(--layer-1);
+    --muted-foreground: var(--text-muted);
+    --destructive: var(--danger);
+    --border: var(--line);
+    --input: var(--line-strong);
+    --success: var(--ok);
+    --warning: var(--attention);
+    --info: var(--accent);
+
+    --sidebar: var(--page);
+    --sidebar-foreground: var(--text);
+    --sidebar-primary: var(--accent);
+    --sidebar-primary-foreground: var(--accent-ink);
+    --sidebar-accent: var(--accent-soft);
+    --sidebar-accent-foreground: var(--text);
+    --sidebar-border: var(--line);
+    --sidebar-ring: var(--accent);
+
+    /* Corners: rune_ui's steps, so --radius-scale (and Runwell's Corners) reaches every one.
+       Controls share --radius-control where the app sets it. */
+    --ui-radius-sm: var(--radius-xs);
+    --ui-radius-md: var(--radius-control, var(--radius-sm));
+    --ui-radius-lg: var(--radius);
+    --ui-radius-xl: var(--radius-panel);
+    --ui-radius-full: var(--radius-pill);
+
+    /* Sizes: rune_ui's control heights and type steps (rem, so --text-scale scales them). */
+    --ui-h-sm: var(--control-h-sm);
+    --ui-h: var(--control-h);
+    --ui-h-lg: calc(var(--control-h) + 0.25rem);
+    --ui-text-xs: var(--text-meta);
+    --ui-text-sm: var(--text-ui);
+    --ui-text: var(--text-read);
+
+    --ui-shadow-md: var(--shadow-popover);
+    --ui-shadow-lg: var(--shadow-popover);
+    --ui-focus-ring: var(--ring);
+    --ui-duration: var(--motion-fast);
+    --ui-duration-slow: var(--motion);
+    --ui-ease: var(--ease);
+
+    /* Surfaces runeui derives from --accent at the root, where it is the brand here. */
+    --ui-field-bg: var(--panel);
+    --ui-field-bg-hover: var(--panel);
+    --ui-surface-bg: var(--panel);
+    --ui-surface-bg-hover: var(--layer-2);
+    --ui-ghost-hover: var(--hover);
+  }
+
+  :root[data-theme="light"] { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+
+  /* Inside runeui's own markup, the two shared names mean what shadcn means. */
+  :where([data-slot], [class^="ui-"], [class*=" ui-"]) {
+    --accent: var(--layer-2);
+    --accent-foreground: var(--text);
+    --ring: var(--rune-accent);
+  }
+
+  /* …and rune_ui's again for rune_ui markup inside it. */
+  :where(.rune, [data-rune]) {
+    --accent: var(--rune-accent);
+    --ring: var(--rune-ring);
+  }
+
+  /* The page is rune_ui's: its colour behind the panel, its line height and weight. */
+  body { background: var(--page); line-height: var(--leading); font-weight: var(--weight); letter-spacing: -0.005em; }
+
+  /* Boxes stay boxes when controls go round (Runwell's Corners > Round makes --radius-control a
+     pill): a list of choices and a multi-line field take the box radius. */
+  .ui-popup, .ui-textarea { border-radius: var(--radius-lg); }
+}
+
+/* Lexxy's skin (runeui/lexxy.css) is unlayered and sets its variables on the root, where
+   --accent and --ring are rune_ui's: the ones that read them take rune_ui's tokens here,
+   unlayered too. */
+html:root:root {
+  --lexxy-color-accent-medium: var(--accent);
+  --lexxy-color-accent-lightest: var(--layer-2);
+  --lexxy-color-selected: var(--layer-2);
+  --lexxy-color-selected-dark: var(--accent);
+  --lexxy-color-selected-50: color-mix(in oklab, var(--accent) 50%, transparent);
+  --lexxy-color-table-cell-selected: var(--layer-2);
+  --lexxy-color-table-cell-selected-border: var(--accent);
+  --lexxy-color-table-cell-selected-bg: var(--layer-2);
+  --lexxy-color-table-cell-toggle: var(--layer-2);
+  --lexxy-focus-ring-color: var(--accent);
+}
+
+lexxy-editor { border-radius: var(--radius-lg); }

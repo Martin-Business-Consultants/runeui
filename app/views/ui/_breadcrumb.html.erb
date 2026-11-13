@@ -6,7 +6,7 @@
     ui :breadcrumb, items: [ [ "Projects", projects_path ], [ @project.client.name, client_path(@project.client) ], @project.name ]
 %>
 <% crumbs = Array(items) %>
-<%= tag.nav(**ui_attrs({ aria: { label: "Breadcrumb" }, data: { slot: "breadcrumb" } }, attrs)) do %>
+<%= ui_tag(:nav, { aria: { label: "Breadcrumb" }, data: { slot: "breadcrumb" } }, attrs) do %>
   <ol data-slot="breadcrumb-list">
     <% crumbs.each_with_index do |crumb, index| %>
     <%# herb:key index %>

@@ -39,10 +39,10 @@
   [data-slot="carousel-number"] { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; font-size: 2.25rem; font-weight: 600; }
 
   [data-slot="carousel-previous"], [data-slot="carousel-next"] { position: absolute; top: 50%; translate: 0 -50%; border-radius: var(--ui-radius-full); }
-  [data-slot="carousel-previous"] { left: -3rem; }
-  [data-slot="carousel-next"] { right: -3rem; }
-  [data-slot="carousel"][data-orientation="vertical"] [data-slot="carousel-previous"] { top: -3rem; left: 50%; translate: -50% 0; }
-  [data-slot="carousel"][data-orientation="vertical"] [data-slot="carousel-next"] { top: auto; bottom: -3rem; right: auto; left: 50%; translate: -50% 0; }
+  [data-slot="carousel-previous"] { inset-inline-start: -3rem; }
+  [data-slot="carousel-next"] { inset-inline-end: -3rem; }
+  [data-slot="carousel"][data-orientation="vertical"] [data-slot="carousel-previous"] { top: -3rem; inset-inline-start: 50%; translate: -50% 0; }
+  [data-slot="carousel"][data-orientation="vertical"] [data-slot="carousel-next"] { top: auto; bottom: -3rem; inset-inline: 50% auto; translate: -50% 0; }
   :is([data-slot="carousel-previous"], [data-slot="carousel-next"]):is([data-disabled], [aria-disabled="true"]) { opacity: 0.5; cursor: default; }
 
   [data-slot="carousel-indicator-group"] { display: flex; justify-content: center; gap: 0.5rem; }

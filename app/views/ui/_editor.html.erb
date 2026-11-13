@@ -1,0 +1,27 @@
+<%# locals: (name: nil, value: nil, id: nil, placeholder: nil, rows: nil, attachments: nil, invalid: nil, required: nil, form: nil, content: nil, **attrs) %>
+<%#
+  Editor: rich text, written by Lexxy (https://github.com/basecamp/lexxy) into a plain field as
+  HTML, in runeui's skin. Lexxy isn't part of runeui: add gem "lexxy" to the app, pin and import
+  it ("lexxy"), and link its stylesheet followed by the skin:
+
+    stylesheet_link_tag "lexxy", "runeui/lexxy"
+
+    ui :editor, name: "note[body]", value: @note.body, placeholder: "Write a note"
+    form.ui :editor, :body, rows: 6
+
+  Text only unless attachments: true, which hands the field to Lexxy's own
+  lexxy_rich_textarea_tag (direct uploads through Active Storage). The block goes inside the
+  editor, for a lexxy-prompt (mentions). Show what it wrote with class "lexxy-content".
+%>
+<% problem = if attachments && !respond_to?(:lexxy_rich_textarea_tag)
+  "ui :editor, attachments: true needs the lexxy gem loaded (its lexxy_rich_textarea_tag): add gem \"lexxy\" to the Gemfile"
+elsif Rails.application.respond_to?(:importmap) && !Rails.application.importmap.packages.key?("lexxy")
+  "ui :editor needs Lexxy's JavaScript: add gem \"lexxy\" to the Gemfile, then pin \"lexxy\" in config/importmap.rb and import it"
+end %>
+<% _checked = problem && raise(ArgumentError, problem) %>
+<% options = ui_attrs({ id: ui_id("editor", id, name: name), name: name, placeholder: placeholder, rows: rows, required: (required ? "" : nil), form: form, class: "lexxy-content", data: { slot: "editor" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) %>
+<% if attachments %>
+<%= lexxy_rich_textarea_tag(name, value, options) { content } %>
+<% else %>
+<%= ui_tag "lexxy-editor", options.merge(value: value.to_s, attachments: "false"), {}, content %>
+<% end %>

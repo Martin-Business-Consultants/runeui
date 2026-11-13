@@ -113,14 +113,22 @@ function flashToasts(root = document) {
   }
 }
 
-// <turbo-stream action="ui_toast" title="Saved" type="success"> and friends.
+// <turbo-stream action="ui_toast" title="Saved" options='{"type":"success"}'> and friends, as
+// Turbo's own custom actions are written: functions on Turbo.StreamActions, called with the
+// stream element as this.
 const STREAM_ACTIONS = {
-  ui_toast(stream) {
-    const options = JSON.parse(stream.getAttribute("options") || "{}")
-    showToast(stream.getAttribute("title"), options)
+  ui_toast() {
+    showToast(this.getAttribute("title"), JSON.parse(this.getAttribute("options") || "{}"))
   },
-  ui_open(stream) { for (const element of stream.targetElements) element.open = true },
-  ui_close(stream) { for (const element of stream.targetElements) element.open = false }
+  ui_open() { for (const element of this.targetElements) element.open = true },
+  ui_close() { for (const element of this.targetElements) element.open = false }
+}
+
+function registerStreamActions() {
+  const actions = window.Turbo?.StreamActions
+  if (!actions) return false
+  Object.assign(actions, STREAM_ACTIONS)
+  return true
 }
 
 export function wireFeedback({ confirm: replaceConfirm = true, toasts = true } = {}) {
@@ -139,11 +147,7 @@ export function wireFeedback({ confirm: replaceConfirm = true, toasts = true } =
     flashToasts()
     document.addEventListener("turbo:load", () => flashToasts())
     document.addEventListener("turbo:frame-load", (event) => flashToasts(event.target))
-    document.addEventListener("turbo:before-stream-render", (event) => {
-      const stream = event.detail.newStream ?? event.target
-      const action = STREAM_ACTIONS[stream.getAttribute("action")]
-      if (action) event.detail.render = action
-    })
+    if (!registerStreamActions()) document.addEventListener("turbo:load", registerStreamActions, { once: true })
     // A stream that renders a flash template into the page shows it too.
     new MutationObserver(() => {
       if (document.querySelector("template[data-runeui-toasts]")) flashToasts()

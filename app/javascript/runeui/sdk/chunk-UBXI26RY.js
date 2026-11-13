@@ -1,0 +1,1 @@
+import{b as t}from"runeui/sdk/chunk-45QRANCT";import{c as u}from"runeui/sdk/chunk-6HRB4U4V";var n=e=>!!e.props.disabled?.(),c=e=>e.props.focusable?.()??!0;function f(e){let r=!1;return()=>{r||(r=!0,queueMicrotask(()=>{r=!1,e()}))}}var a={stop:!0};function b(e,r,o){let p=[u(e,a,o),t(e,"stop",r,o),t(e,"stop",null,o)];return()=>p.forEach(s=>s())}export{n as a,c as b,f as c,b as d};

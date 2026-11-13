@@ -13,10 +13,10 @@
 %>
 <% direction = (orientation || "horizontal").to_s %>
 <% list = Array(panels) %>
-<%= tag.ui_resizable(**ui_attrs({ orientation: (orientation ? direction : nil), "auto-save-id": save, data: { slot: "resizable", orientation: direction } }, attrs)) do %>
+<%= ui_tag(:ui_resizable, { orientation: (orientation ? direction : nil), "auto-save-id": save, data: { slot: "resizable", orientation: direction } }, attrs) do %>
   <% list.each_with_index do |panel, index| %>
   <%# herb:key panel[:id] || index %>
-  <%= tag.ui_resizable_panel(panel[:content], id: (panel[:id] || ui_id("panel")), "default-size": panel[:size], "min-size": panel[:min], "max-size": panel[:max], data: { slot: "resizable-panel", orientation: direction }) %>
+  <%= ui_tag(:ui_resizable_panel, { id: (panel[:id] || ui_id("panel")), "default-size": panel[:size], "min-size": panel[:min], "max-size": panel[:max], data: { slot: "resizable-panel", orientation: direction } }, {}, panel[:content]) %>
   <% if index < list.size - 1 %>
   <ui-resizable-handle data-slot="resizable-handle" data-orientation="<%= direction %>" aria-label="<%= panel[:label] || "Resize" %>"><% if with_handle %><span data-slot="resizable-grip"><%= ui_icon "grip-vertical" %></span><% end %></ui-resizable-handle>
   <% end %>

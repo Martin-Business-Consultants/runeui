@@ -37,8 +37,10 @@
   [data-slot="avatar"][data-size="sm"] [data-slot="avatar-fallback"] { font-size: 0.625rem; }
   [data-slot="avatar"][data-size="lg"] [data-slot="avatar-fallback"] { font-size: var(--ui-text-sm); }
 
-  [data-slot="avatar-group"] { display: inline-flex; align-items: center; }
-  [data-slot="avatar-group"] > * + * { margin-inline-start: -0.5rem; }
+  /* Overlap without a sibling margin: every item pulls back by the overlap, and the group's
+     padding gives the first one its place again. */
+  [data-slot="avatar-group"] { display: inline-flex; align-items: center; padding-inline-start: 0.5rem; }
+  [data-slot="avatar-group"] :is([data-slot="avatar"], [data-slot="avatar-group-count"]) { margin-inline-start: -0.5rem; }
   [data-slot="avatar-group"] [data-slot="avatar"] { box-shadow: 0 0 0 2px var(--background); }
 
   [data-slot="avatar-group-count"] {

@@ -1,17 +1,26 @@
 module Runeui
   module Helper
+    VOID_ELEMENTS = %w[area base br col embed hr img input link meta source track wbr].freeze
+
     # Everything the layout's <head> needs: the cascade layer order, the stylesheets, the CSP
     # nonce UI SDK uses for the little CSS it injects, and the theme script (light or dark before
     # the first paint, so nothing flashes). Put it before the app's own stylesheets.
     #
     #   <%= runeui_tags %>
     #   <%= runeui_tags components: %w[button select dialog] %>   # only these components' CSS
-    def runeui_tags(components: nil, theme: true, **options)
+    #   <%= runeui_tags lexxy: true %>                            # with the Lexxy editor's skin
+    #   <%= runeui_tags theme: false %>                           # the app sets light and dark
+    def runeui_tags(components: nil, theme: true, lexxy: false, **options)
       sheets = [ "runeui/tokens", "runeui/base" ]
       sheets += (components || Runeui.stylesheets).map { "runeui/components/#{it}" }
+      # Lexxy's own sheet, then runeui's skin over it (ui :editor).
+      sheets += [ "lexxy", "runeui/lexxy" ] if lexxy
       safe_join([
         nonce_meta_tag,
-        (theme ? runeui_theme_script : nil),
+        # theme: false leaves light and dark to the app (one themed another way, as through
+        # runeui/bridges/rune_ui.css): no script before paint, and runeui's JavaScript keeps off
+        # .dark and data-theme.
+        (theme ? runeui_theme_script : tag.meta(name: "runeui-theme", content: "off")),
         stylesheet_link_tag(*sheets, **options)
       ].compact, "\n")
     end
@@ -31,6 +40,22 @@ module Runeui
     # take ERB output where an attribute goes, so roots are built with tag.)
     def ui_attrs(base, extra = {})
       Runeui::Attributes.merge(base, extra || {})
+    end
+
+    # An element with a component's attributes merged with the caller's: what partials build
+    # their roots with.
+    #   <%= ui_tag "ui-select", { name: name, data: { slot: "select" } }, attrs do %> … <% end %>
+    #   ui_tag :span, { data: { slot: "badge" } }, attrs, content
+    # A helper of runeui's own, not tag.ui_select(**hash): Herb's engine (ReActionView) rewrites
+    # tag.* and content_tag calls into HTML when it compiles a template, and drops attributes
+    # that arrive as a splatted hash. Void elements (input, img…) take no content.
+    def ui_tag(name, base = {}, extra = {}, content = nil, &block)
+      options = Runeui::Attributes.merge(base, extra || {})
+      # true writes the bare attribute (hidden, disabled), false and nil leave it out, as tag does.
+      name = name.to_s.tr("_", "-")
+      return tag(name, options) if VOID_ELEMENTS.include?(name)
+      content = capture(&block) if block
+      content_tag(name, content, options)
     end
 
     # One of runeui's icons (Lucide's shapes, ISC), 16 by 16, stroked with currentColor.

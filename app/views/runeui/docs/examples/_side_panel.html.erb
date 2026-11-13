@@ -1,0 +1,25 @@
+<%# locals: () %>
+<% people = { "ada" => [ "Ada Lovelace", "Wrote the first program, for a machine that was never built." ], "grace" => [ "Grace Hopper", "Wrote the first compiler, and found the first bug." ], "alan" => [ "Alan Turing", "Asked whether machines can think." ] } %>
+<% if people.key?(params[:peek]) %>
+<%# What a link into the panel answers with: its content in the panel's frame. %>
+<turbo-frame id="side_panel">
+  <div class="runeui-docs__stack">
+    <%= ui :page_header, title: people[params[:peek]].first, description: people[params[:peek]].last %>
+    <div class="runeui-docs__row">
+      <% people.each do |key, (name, _)| %>
+      <%# herb:key key %>
+      <%= ui :button, variant: (key == params[:peek] ? :secondary : :outline), size: :sm, href: runeui_doc_path("side_panel", peek: key), content: name.split.first %>
+      <% end %>
+    </div>
+  </div>
+</turbo-frame>
+<% else %>
+<p>Open a person beside the page. The address keeps what's open: refresh, or press Back.</p>
+<div class="runeui-docs__row">
+  <% people.each do |key, (name, _)| %>
+  <%# herb:key key %>
+  <%= ui :button, variant: :outline, href: runeui_doc_path("side_panel", peek: key), content: name, data: { turbo_frame: "side_panel" } %>
+  <% end %>
+</div>
+<%= ui :side_panel, src: params[:panel], label: "Person" %>
+<% end %>

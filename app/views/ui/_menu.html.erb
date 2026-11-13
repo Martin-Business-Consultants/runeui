@@ -26,31 +26,31 @@
      safe_join(Array(list).map do |item|
        item = { label: item.to_s } if item.is_a?(String) && item != "-"
        if item == :separator || item == "-"
-         tag.ui_menu_separator(data: { slot: "menu-separator" })
+         ui_tag(:ui_menu_separator, { data: { slot: "menu-separator" } })
        elsif item[:heading]
-         tag.ui_menu_group_label(item[:heading], data: { slot: "menu-group-label" })
+         ui_tag(:ui_menu_group_label, { data: { slot: "menu-group-label" } }, {}, item[:heading])
        elsif item[:group]
-         tag.ui_menu_group(safe_join([ tag.ui_menu_group_label(item[:group], data: { slot: "menu-group-label" }), render_items.call(item[:items]) ]), data: { slot: "menu-group" })
+         ui_tag(:ui_menu_group, { data: { slot: "menu-group" } }, {}, safe_join([ ui_tag(:ui_menu_group_label, { data: { slot: "menu-group-label" } }, {}, item[:group]), render_items.call(item[:items]) ]))
        elsif item[:radio]
          radios = ui_options(item[:options] || []).map do |option|
-           tag.ui_menu_radio_item(safe_join([ tag.ui_menu_item_indicator(ui_icon(:dot), data: { slot: "menu-item-indicator" }), option[:label] ]), value: option[:value], disabled: (option[:disabled] ? "" : nil), class: "ui-item", data: { slot: "menu-radio-item" })
+           ui_tag(:ui_menu_radio_item, { value: option[:value], disabled: (option[:disabled] ? "" : nil), class: "ui-item", data: { slot: "menu-radio-item" } }, {}, safe_join([ ui_tag(:ui_menu_item_indicator, { data: { slot: "menu-item-indicator" } }, {}, ui_icon(:dot)), option[:label] ]))
          end
-         tag.ui_menu_radio_group(safe_join(radios), name: item[:radio], "default-value": item[:value]&.to_s, data: { slot: "menu-radio-group" })
+         ui_tag(:ui_menu_radio_group, { name: item[:radio], "default-value": item[:value]&.to_s, data: { slot: "menu-radio-group" } }, {}, safe_join(radios))
        elsif item[:checkbox]
-         tag.ui_menu_checkbox_item(safe_join([ tag.ui_menu_item_indicator(ui_icon(:check), "keep-mounted": "", data: { slot: "menu-item-indicator" }), item[:label] ]), value: (item[:value] || item[:label]).to_s, "default-checked": (item[:checked] ? "" : nil), disabled: (item[:disabled] ? "" : nil), class: "ui-item", data: { slot: "menu-checkbox-item" })
+         ui_tag(:ui_menu_checkbox_item, { value: (item[:value] || item[:label]).to_s, "default-checked": (item[:checked] ? "" : nil), disabled: (item[:disabled] ? "" : nil), class: "ui-item", data: { slot: "menu-checkbox-item" } }, {}, safe_join([ ui_tag(:ui_menu_item_indicator, { "keep-mounted": "", data: { slot: "menu-item-indicator" } }, {}, ui_icon(:check)), item[:label] ]))
        elsif item[:items]
-         tag.ui_menu_sub(safe_join([
-           tag.ui_menu_sub_trigger(safe_join([ (item[:icon] ? tag.ui_menu_item_icon(ui_icon(item[:icon]), data: { slot: "menu-item-icon" }) : nil), item[:label], ui_icon("chevron-right", class: "ui-menu-sub-arrow") ].compact), class: "ui-item", data: { slot: "menu-trigger" }),
-           tag.ui_menu_sub_content(render_items.call(item[:items]), class: "ui-popup", hidden: true, data: { slot: "menu-content" })
-         ]), data: { slot: "menu-sub" })
+         ui_tag(:ui_menu_sub, { data: { slot: "menu-sub" } }, {}, safe_join([
+           ui_tag(:ui_menu_sub_trigger, { class: "ui-item", data: { slot: "menu-trigger" } }, {}, safe_join([ (item[:icon] ? ui_tag(:ui_menu_item_icon, { data: { slot: "menu-item-icon" } }, {}, ui_icon(item[:icon])) : nil), item[:label], ui_icon("chevron-right", class: "ui-menu-sub-arrow") ].compact)),
+           ui_tag(:ui_menu_sub_content, { class: "ui-popup", hidden: true, data: { slot: "menu-content" } }, {}, render_items.call(item[:items]))
+         ]))
        else
-         inner = safe_join([ (item[:icon] ? tag.ui_menu_item_icon(ui_icon(item[:icon]), data: { slot: "menu-item-icon" }) : nil), item[:label] ].compact)
+         inner = safe_join([ (item[:icon] ? ui_tag(:ui_menu_item_icon, { data: { slot: "menu-item-icon" } }, {}, ui_icon(item[:icon])) : nil), item[:label] ].compact)
          common = { disabled: (item[:disabled] ? "" : nil), shortcut: item[:shortcut], class: "ui-item", data: { slot: "menu-item", variant: item[:variant]&.to_s } }
          if item[:href]
            link_data = (item[:data] || {}).merge(turbo_method: item[:method]&.to_s, turbo_confirm: item[:confirm]).compact
-           tag.ui_menu_item(link_to(inner, item[:href], data: link_data, target: item[:target]), "as-child": "", **common.merge(data: { slot: "menu-link-item", variant: item[:variant]&.to_s }))
+           ui_tag(:ui_menu_item, { "as-child": "" }, common.merge(data: { slot: "menu-link-item", variant: item[:variant]&.to_s }), link_to(inner, item[:href], data: link_data, target: item[:target]))
          else
-           tag.ui_menu_item(inner, value: (item[:value] || item[:label]).to_s, **ui_attrs(common, item[:data] ? { data: item[:data] } : {}))
+           ui_tag(:ui_menu_item, { value: (item[:value] || item[:label]).to_s }, ui_attrs(common, item[:data] ? { data: item[:data] } : {}), inner)
          end
        end
      end)
@@ -59,7 +59,7 @@
 <%= render_items.call(items) %>
 <% else %>
 <% list = capture do %><% if content && !context %><%= content %><% end %><%= render_items.call(items) %><% end %>
-<%= tag.ui_menu(**ui_attrs({ id: id, data: { slot: "menu" } }, attrs)) do %>
+<%= ui_tag(:ui_menu, { id: id, data: { slot: "menu" } }, attrs) do %>
   <% if context %>
   <ui-menu-context-trigger data-slot="menu-context-trigger" tabindex="0"><%= content %></ui-menu-context-trigger>
   <% elsif trigger %>
@@ -73,6 +73,6 @@
     <% end %>
   </ui-menu-trigger>
   <% end %>
-  <%= tag.ui_menu_content(list, class: "ui-popup", side: side&.to_s, align: (align || (bar ? "start" : nil))&.to_s, "aria-label": label, hidden: true, data: { slot: "menu-content" }) %>
+  <%= ui_tag(:ui_menu_content, { class: "ui-popup", side: side&.to_s, align: (align || (bar ? "start" : nil))&.to_s, "aria-label": label, hidden: true, data: { slot: "menu-content" } }, {}, list) %>
 <% end %>
 <% end %>

@@ -7,7 +7,7 @@
     ui :avatar, name: "Ada Lovelace", size: :lg          (initials only: AL)
 %>
 <% letters = initials || name.to_s.split.first(2).map { it[0] }.join.upcase.presence || "?" %>
-<%= tag.ui_avatar(**ui_attrs({ title: name, data: { slot: "avatar", size: (size || "default").to_s, shape: shape&.to_s } }, attrs)) do %>
+<%= ui_tag(:ui_avatar, { title: name, data: { slot: "avatar", size: (size || "default").to_s, shape: shape&.to_s } }, attrs) do %>
   <% if src.present? %><img data-slot="avatar-image" src="<%= src %>" alt="<%= alt || name %>"><% end %>
   <ui-avatar-fallback data-slot="avatar-fallback"<% if src.blank? %> aria-label="<%= name %>"<% end %>><%= letters %></ui-avatar-fallback>
 <% end %>

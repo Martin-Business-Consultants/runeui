@@ -13,7 +13,7 @@
 %>
 <% edge = (side || "right").to_s %>
 <% grip = handle.nil? ? %w[top bottom].include?(edge) : handle %>
-<%= tag.ui_drawer(**ui_attrs({ id: id, side: edge, "default-open": (open ? "" : nil), dismissible: (dismissible == false ? "false" : nil), data: { slot: "drawer" } }, attrs)) do %>
+<%= ui_tag(:ui_drawer, { id: id, side: edge, "default-open": (open ? "" : nil), dismissible: (dismissible == false ? "false" : nil), data: { slot: "drawer" } }, attrs) do %>
   <% if trigger %>
   <ui-drawer-trigger>
     <% if trigger.html_safe? %>
@@ -24,6 +24,8 @@
   </ui-drawer-trigger>
   <% end %>
   <ui-drawer-backdrop data-slot="drawer-backdrop" hidden></ui-drawer-backdrop>
+  <%# The viewport is rendered here: UI SDK adds one when the markup has none, and a morph would then add the server's content beside it. %>
+  <ui-drawer-viewport data-slot="drawer-viewport" hidden>
   <ui-drawer-content data-slot="drawer-content" data-side="<%= edge %>" data-size="<%= (size || "default") %>" hidden>
     <% if grip %><ui-drawer-handle data-slot="drawer-handle" aria-label="Resize"></ui-drawer-handle><% end %>
     <% if title || description %>
@@ -38,4 +40,5 @@
     <ui-drawer-close><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-drawer-x data-slot="drawer-close" aria-label="Close"><%= ui_icon :x %></button></ui-drawer-close>
     <% end %>
   </ui-drawer-content>
+  </ui-drawer-viewport>
 <% end %>

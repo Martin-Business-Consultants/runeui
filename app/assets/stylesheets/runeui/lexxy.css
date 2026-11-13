@@ -1,0 +1,119 @@
+/* runeui's skin for Lexxy (https://github.com/basecamp/lexxy): the editor reads as a runeui
+ * field and what it writes reads as the page, light and dark, in any theme.
+ *
+ * Optional. Link it after Lexxy's own stylesheet, which this doesn't include:
+ *
+ *   <%= runeui_tags %>
+ *   <%= stylesheet_link_tag "lexxy", "runeui/lexxy" %>
+ *
+ * Lexxy draws everything from --lexxy-* variables on :root and keeps its own rules at no
+ * specificity (:where), so the skin is those variables pointed at runeui's tokens, plus the few
+ * things a variable doesn't reach (the field's border and focus ring, the toolbar's hover).
+ * Unlayered, as Lexxy's variables are: on :root they'd tie, so they're set on html:root, which
+ * wins whichever stylesheet comes first. */
+
+html:root {
+  --lexxy-color-ink: var(--foreground);
+  --lexxy-color-ink-medium: var(--muted-foreground);
+  --lexxy-color-ink-light: var(--muted-foreground);
+  --lexxy-color-ink-lighter: var(--border);
+  --lexxy-color-ink-lightest: var(--muted);
+  --lexxy-color-ink-inverted: var(--background);
+
+  --lexxy-color-accent-dark: var(--primary);
+  --lexxy-color-accent-medium: var(--ring);
+  --lexxy-color-accent-light: color-mix(in oklab, var(--foreground) 14%, var(--background));
+  --lexxy-color-accent-lightest: var(--accent);
+
+  --lexxy-color-red: var(--destructive);
+  --lexxy-color-green: var(--success);
+  --lexxy-color-blue: var(--info);
+
+  /* The field's own background; what floats over it sets --popover itself, below. */
+  --lexxy-color-canvas: transparent;
+  --lexxy-color-text: var(--foreground);
+  --lexxy-color-text-subtle: var(--muted-foreground);
+  --lexxy-color-link: var(--primary);
+  --lexxy-color-selected: var(--accent);
+  --lexxy-color-selected-hover: color-mix(in oklab, var(--foreground) 14%, var(--background));
+  --lexxy-color-selected-dark: var(--ring);
+  --lexxy-color-selected-50: color-mix(in oklab, var(--ring) 50%, transparent);
+  --lexxy-color-code-bg: var(--muted);
+  --lexxy-color-floating-controls-separator: var(--border);
+
+  --lexxy-color-table-header-bg: var(--muted);
+  --lexxy-color-table-cell-border: var(--border);
+  --lexxy-color-table-cell-selected: var(--accent);
+  --lexxy-color-table-cell-selected-border: var(--ring);
+  --lexxy-color-table-cell-selected-bg: var(--accent);
+  --lexxy-color-table-cell-toggle: var(--accent);
+  --lexxy-color-table-cell-remove: color-mix(in oklab, var(--destructive) 12%, transparent);
+
+  --lexxy-color-code-token-punctuation: var(--foreground);
+  --lexxy-color-code-token-comment: var(--muted-foreground);
+
+  --lexxy-font-base: var(--font-sans);
+  --lexxy-font-mono: var(--font-mono);
+  --lexxy-text-small: var(--ui-text-sm);
+
+  --lexxy-focus-ring-color: var(--ring);
+  --lexxy-radius: var(--ui-radius-sm);
+  --lexxy-shadow: var(--ui-shadow-md);
+}
+
+/* Code and highlights that read on a dark surface as on a light one: light-dark() pairs (the
+   light halves are Lexxy's own), so they follow color-scheme however the app sets it. */
+html:root {
+  --lexxy-color-code-token-att: light-dark(#d73a49, oklch(0.74 0.15 20));
+  --lexxy-color-code-token-function: light-dark(#6f42c1, oklch(0.76 0.12 300));
+  --lexxy-color-code-token-operator: light-dark(#d73a49, oklch(0.74 0.15 20));
+  --lexxy-color-code-token-property: light-dark(#005cc5, oklch(0.78 0.11 250));
+  --lexxy-color-code-token-selector: light-dark(#22863a, oklch(0.82 0.14 150));
+  --lexxy-color-code-token-variable: light-dark(#e36209, oklch(0.8 0.13 65));
+  --highlight-1: light-dark(rgb(136, 118, 38), oklch(0.86 0.13 100));
+  --highlight-2: light-dark(rgb(185, 94, 6), oklch(0.8 0.14 65));
+  --highlight-3: light-dark(rgb(207, 0, 0), oklch(0.74 0.17 25));
+  --highlight-4: light-dark(rgb(216, 28, 170), oklch(0.78 0.16 340));
+  --highlight-5: light-dark(rgb(144, 19, 254), oklch(0.76 0.15 300));
+  --highlight-6: light-dark(rgb(5, 98, 185), oklch(0.78 0.12 250));
+  --highlight-7: light-dark(rgb(17, 138, 15), oklch(0.82 0.16 145));
+  --highlight-8: light-dark(rgb(148, 82, 22), oklch(0.76 0.09 65));
+  --highlight-9: light-dark(rgb(102, 102, 102), oklch(0.75 0 0));
+}
+
+/* The field: runeui's input, taller. */
+lexxy-editor {
+  border-color: var(--input);
+  background-color: var(--ui-field-bg, light-dark(transparent, color-mix(in oklab, var(--input) 30%, transparent)));
+  border-radius: var(--ui-radius-md);
+  color: var(--foreground);
+  font-size: var(--ui-text-sm);
+  box-shadow: var(--ui-shadow-xs);
+  transition: border-color var(--ui-duration), box-shadow var(--ui-duration), opacity var(--ui-duration);
+}
+
+lexxy-editor:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+lexxy-editor:is([aria-invalid="true"], [data-invalid]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
+lexxy-editor .lexxy-editor__content { padding: 0.5rem 0.75rem; }
+lexxy-editor.lexxy-editor--empty .lexxy-editor__content::before { color: var(--muted-foreground); opacity: 1; }
+
+/* The toolbar: ghost buttons. */
+lexxy-editor lexxy-toolbar { padding: 0.25rem; border-color: var(--border); color: var(--muted-foreground); }
+lexxy-editor :is(button, summary) { background: transparent; }
+lexxy-editor .lexxy-editor__toolbar-button { border-radius: var(--ui-radius-sm); transition: background-color var(--ui-duration), color var(--ui-duration); }
+lexxy-editor .lexxy-editor__toolbar-button:hover:not([aria-disabled="true"]) { background-color: var(--accent); color: var(--accent-foreground); }
+lexxy-editor .lexxy-editor__toolbar-button:is([aria-pressed="true"], [aria-expanded="true"]) { background-color: var(--accent); color: var(--accent-foreground); }
+lexxy-editor :is(input, button, summary):focus-visible { outline: none; box-shadow: var(--ui-focus-ring); }
+
+/* What floats over the editor (link and colour dropdowns, the prompt menu) is a popover. */
+lexxy-editor [data-dropdown-panel], .lexxy-prompt-menu, .lexxy-floating-controls {
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius-md);
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--ui-shadow-md);
+}
+
+/* What it wrote, shown on a page (class lexxy-content). */
+.lexxy-content { color: var(--foreground); }
+.lexxy-content a { text-decoration: underline; text-underline-offset: 3px; }

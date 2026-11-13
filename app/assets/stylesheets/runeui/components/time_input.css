@@ -11,7 +11,7 @@
     padding: 0 0.625rem;
     border: 1px solid var(--input);
     border-radius: var(--ui-radius-md);
-    background: transparent;
+    background: var(--ui-field-bg, light-dark(transparent, color-mix(in oklab, var(--input) 30%, transparent)));
     font-size: var(--ui-text-sm);
     font-variant-numeric: tabular-nums;
     box-shadow: var(--ui-shadow-xs);
@@ -19,7 +19,6 @@
     transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
   }
 
-  .dark [data-slot="time-input"] { background: color-mix(in oklab, var(--input) 30%, transparent); }
   [data-slot="time-input"]:focus-within { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="time-input"]:is([data-invalid], [aria-invalid="true"]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
   [data-slot="time-input"][data-disabled] { opacity: 0.5; cursor: not-allowed; }

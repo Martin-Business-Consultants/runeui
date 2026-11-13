@@ -1,0 +1,28 @@
+<%# locals: () %>
+<% tasks = [ [ "Write the launch email", "doing", "Priya" ], [ "Photograph the spring range", "planned", "Marcus" ], [ "Landing page copy", "review", "Sarah" ], [ "Book the venue", "done", "Priya" ], [ "Draft the menu", "planned", "Sarah" ] ] %>
+<% shown = tasks.select { |_, status, owner| (params[:status].blank? || params[:status] == status) && (params[:owner].blank? || params[:owner] == owner) } %>
+<%= ui :filter_bar, params: %i[status owner] do %>
+  <%= ui :filter, param: :status, label: "Status", options: [ [ "Planned", "planned" ], [ "In progress", "doing" ], [ "In review", "review" ], [ "Done", "done" ] ] %>
+  <%= ui :filter, param: :owner, label: "Owner", any: "Anyone", options: %w[Marcus Priya Sarah] %>
+<% end %>
+<%= ui :table, class: "runeui-docs__full" do %>
+  <thead><tr><th>Task</th><th>Status</th><th>Owner</th></tr></thead>
+  <tbody id="filtered">
+    <% shown.each do |title, status, owner| %>
+    <%# herb:key title %>
+    <tr><td><%= title %></td><td><%= ui :badge, variant: :secondary, content: status.humanize %></td><td><%= owner %></td></tr>
+    <% end %>
+  </tbody>
+<% end %>
+<h2>A search that submits as you type</h2>
+<form action="<%= request.path %>" method="get" data-controller="runeui--autosubmit" data-runeui--autosubmit-debounce-value="300" id="search-as-you-type">
+  <%= ui :input, name: "q", type: :search, value: params[:q], placeholder: "Search tasks", autocomplete: "off" %>
+</form>
+<h2>Inside a Turbo Frame</h2>
+<turbo-frame id="framed-list">
+  <% stages = %w[Lead Proposal Won Lost] %>
+  <%= ui :filter_bar, params: %i[stage], frame: "framed-list" do %>
+    <%= ui :filter, param: :stage, label: "Stage", options: stages, frame: "framed-list", data: { turbo_action: "advance" } %>
+  <% end %>
+  <p id="framed-result"><%= params[:stage].present? ? "Showing #{params[:stage]}" : "Showing every stage" %></p>
+</turbo-frame>

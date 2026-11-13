@@ -12,6 +12,6 @@
 <% following = current && now == "asc" ? "desc" : "asc" %>
 <% direction_param = name == "sort" ? "direction" : "#{name}_direction" %>
 <% href = url_for(request.query_parameters.merge(name => key.to_s, direction_param => following, "page" => nil).compact) %>
-<%= tag.th(**ui_attrs({ data: { align: align&.to_s }, aria: { sort: (current ? (now == "asc" ? "ascending" : "descending") : nil) } }, attrs)) do %>
+<%= ui_tag(:th, { data: { align: align&.to_s }, aria: { sort: (current ? (now == "asc" ? "ascending" : "descending") : nil) } }, attrs) do %>
   <a data-slot="table-sort" href="<%= href %>"><%= label %><%= ui_icon(current ? (now == "asc" ? "chevron-up" : "chevron-down") : "chevrons-up-down") %></a>
 <% end %>

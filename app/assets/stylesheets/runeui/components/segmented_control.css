@@ -25,12 +25,12 @@
     width: var(--segmented-control-indicator-width);
     height: var(--segmented-control-indicator-height);
     border-radius: var(--ui-radius-md);
-    background: var(--background);
+    border: 1px solid light-dark(transparent, var(--input));
+    background: var(--ui-surface-bg, light-dark(var(--background), color-mix(in oklab, var(--input) 30%, transparent)));
     box-shadow: var(--ui-shadow-sm);
     transition: left var(--ui-duration-slow) var(--ui-ease), top var(--ui-duration-slow) var(--ui-ease), width var(--ui-duration-slow) var(--ui-ease);
   }
 
-  .dark [data-slot="segmented-control-indicator"] { border: 1px solid var(--input); background: color-mix(in oklab, var(--input) 30%, transparent); }
   /* Until it upgrades, the server's chosen item carries the pill itself. */
   ui-segmented-control:not(:defined) [data-slot="segmented-control-indicator"] { display: none; }
   ui-segmented-control:not(:defined) [data-slot="segmented-control-item"][data-checked] { background: var(--background); color: var(--foreground); box-shadow: var(--ui-shadow-sm); }

@@ -6,6 +6,6 @@
   <%= ui :button, variant: :outline, content: "Send", type: :submit %>
 </form>
 <h2>Saves as it changes</h2>
-<form action="<%= runeui_echo_path("select") %>" method="post" data-turbo-stream data-autosave>
-  <%= ui :select, name: "status", value: "draft", options: [ [ "Draft", "draft" ], [ "Live", "live" ], [ "Archived", "archived" ] ], onchange: "this.form.requestSubmit()" %>
+<form action="<%= runeui_echo_path("select") %>" method="post" data-turbo-stream data-controller="runeui--autosubmit" data-action="change->runeui--autosubmit#submit">
+  <%= ui :select, name: "status", id: "autosave-status", value: "draft", options: [ [ "Draft", "draft" ], [ "Live", "live" ], [ "Archived", "archived" ] ] %>
 </form>

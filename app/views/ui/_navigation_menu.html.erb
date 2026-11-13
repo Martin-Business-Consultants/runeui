@@ -14,7 +14,7 @@
   A panel's links: label, href, description (optional), icon (optional), current. columns: 2
   on an item lays its links out in two. The block, when given, replaces items.
 %>
-<%= tag.ui_navigation_menu(**ui_attrs({ "aria-label": (label || "Main"), orientation: orientation&.to_s, data: { slot: "navigation-menu" } }, attrs)) do %>
+<%= ui_tag(:ui_navigation_menu, { "aria-label": (label || "Main"), orientation: orientation&.to_s, data: { slot: "navigation-menu" } }, attrs) do %>
   <ui-navigation-menu-list data-slot="navigation-menu-list">
     <% if content %>
     <%= content %>
@@ -29,13 +29,13 @@
           <% item[:links].each do |link| %>
           <%# herb:key link[:href] %>
           <li>
-            <ui-navigation-menu-link><%= link_to link[:href], class: "ui-navigation-menu-panel-link", data: { slot: "navigation-menu-link" }, aria: { current: (link[:current] ? "page" : nil) } do %><% if link[:icon] %><ui-navigation-menu-link-icon data-slot="navigation-menu-link-icon"><%= ui_icon link[:icon] %></ui-navigation-menu-link-icon><% end %><span class="ui-navigation-menu-link-title"><%= link[:label] %></span><% if link[:description] %><span class="ui-navigation-menu-link-description"><%= link[:description] %></span><% end %><% end %></ui-navigation-menu-link>
+            <ui-navigation-menu-link><%= ui_tag(:a, { href: link[:href], class: "ui-navigation-menu-panel-link", data: { slot: "navigation-menu-link" }, aria: { current: (link[:current] ? "page" : nil) } }) do %><% if link[:icon] %><ui-navigation-menu-link-icon data-slot="navigation-menu-link-icon"><%= ui_icon link[:icon] %></ui-navigation-menu-link-icon><% end %><span class="ui-navigation-menu-link-title"><%= link[:label] %></span><% if link[:description] %><span class="ui-navigation-menu-link-description"><%= link[:description] %></span><% end %><% end %></ui-navigation-menu-link>
           </li>
           <% end %>
         </ul>
       </ui-navigation-menu-content>
       <% else %>
-      <ui-navigation-menu-link><%= link_to item[:label], item[:href], data: { slot: "navigation-menu-link" }, class: "ui-navigation-menu-top-link", aria: { current: (item[:current] ? "page" : nil) } %></ui-navigation-menu-link>
+      <ui-navigation-menu-link><%= ui_tag(:a, { href: item[:href], data: { slot: "navigation-menu-link" }, class: "ui-navigation-menu-top-link", aria: { current: (item[:current] ? "page" : nil) } }, {}, item[:label]) %></ui-navigation-menu-link>
       <% end %>
     </ui-navigation-menu-item>
     <% end %>

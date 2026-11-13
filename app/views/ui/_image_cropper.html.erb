@@ -11,7 +11,7 @@
     form.ui :image_cropper, :avatar_crop, src: url_for(user.avatar), aspect_ratio: 1, shape: :circle, zoom: true
 %>
 <% fields = %w[x y width height rotation flip_x flip_y] %>
-<%= tag.ui_image_cropper(**ui_attrs({ src: src, "aspect-ratio": aspect_ratio, shape: shape&.to_s, mode: mode&.to_s, aria: { label: label || alt || "Crop the image" }, data: { slot: "image-cropper", shape: (shape || "rectangle").to_s, mode: (mode || "box").to_s, loading: "", crop_name: name } }, attrs)) do %>
+<%= ui_tag(:ui_image_cropper, { src: src, "aspect-ratio": aspect_ratio, shape: shape&.to_s, mode: mode&.to_s, aria: { label: label || alt || "Crop the image" }, data: { slot: "image-cropper", shape: (shape || "rectangle").to_s, mode: (mode || "box").to_s, loading: "", crop_name: name } }, attrs) do %>
   <ui-image-cropper-viewport data-slot="image-cropper-viewport">
     <ui-image-cropper-image data-slot="image-cropper-image"><img alt="<%= alt || "" %>"></ui-image-cropper-image>
     <ui-image-cropper-selection data-slot="image-cropper-selection">

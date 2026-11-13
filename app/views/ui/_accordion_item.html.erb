@@ -8,9 +8,9 @@
     end
 %>
 <% state = open ? { open: "" } : { closed: "" } %>
-<%= tag.ui_accordion_item(**ui_attrs({ value: value, disabled: (disabled ? "" : nil), data: { slot: "accordion-item" }.merge(state) }, attrs)) do %>
+<%= ui_tag(:ui_accordion_item, { value: value, disabled: (disabled ? "" : nil), data: { slot: "accordion-item" }.merge(state) }, attrs) do %>
   <ui-accordion-header data-slot="accordion-header">
-    <%= content_tag (heading || :h3), class: "ui-accordion-heading" do %>
+    <%= ui_tag((heading || :h3), { class: "ui-accordion-heading" }) do %>
       <ui-accordion-trigger><button type="button" data-slot="accordion-trigger"<% if open %> data-open<% end %>><span><%= title %></span><%= ui_icon "chevron-down", class: "ui-accordion-icon" %></button></ui-accordion-trigger>
     <% end %>
   </ui-accordion-header>

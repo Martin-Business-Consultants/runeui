@@ -10,7 +10,7 @@
   side: top, right, bottom (default), left; align: start, center (default), end. arrow: true
   points it at the trigger. trigger: a string makes an outline button; markup is used as it is.
 %>
-<%= tag.ui_popover(**ui_attrs({ id: id, "default-open": (open ? "" : nil), data: { slot: "popover" } }, attrs)) do %>
+<%= ui_tag(:ui_popover, { id: id, "default-open": (open ? "" : nil), data: { slot: "popover" } }, attrs) do %>
   <% if trigger %>
   <ui-popover-trigger>
     <% if trigger.html_safe? %>
@@ -20,7 +20,7 @@
     <% end %>
   </ui-popover-trigger>
   <% end %>
-  <%= tag.ui_popover_content(class: "ui-popup", side: side&.to_s, align: (align || "center").to_s, "side-offset": 4, hidden: true, data: { slot: "popover-content" }) do %>
+  <%= ui_tag(:ui_popover_content, { class: "ui-popup", side: side&.to_s, align: (align || "center").to_s, "side-offset": 4, hidden: true, data: { slot: "popover-content" } }) do %>
     <% if arrow %><ui-popover-arrow data-slot="popover-arrow"></ui-popover-arrow><% end %>
     <% if title || description %>
     <div data-slot="popover-header">

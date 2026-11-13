@@ -19,7 +19,12 @@ live with Turbo.
   changes; frames and streams upgrade what they bring; values submit with plain forms and fire
   `change`; `data-turbo-confirm` asks in an alert dialog; the flash and `turbo_stream.ui_toast`
   show toasts.
-- **Herb and ReActionView clean.** Every partial has strict locals and lints clean.
+- **Stimulus where Rails developers expect it.** The pieces runeui adds itself (sidebar, row
+  selection, board, side panel, forms that submit as they change) are Stimulus controllers
+  (`runeui--sidebar`…), wired by their partials, yours to extend.
+- **Herb and ReActionView clean.** Every partial has strict locals and lints clean, and every
+  component renders identically under ReActionView and keeps its state through `herb:state`
+  changes (tested on every gallery page).
 
 ## Install
 
@@ -87,8 +92,22 @@ merged: classes join, `data-action` and `data-controller` add to the component's
 | Frames and streams | Components in what they bring load and upgrade as they arrive. |
 | Forms | Form controls are form-associated: they submit, reset and validate with the form, and fire `change` so `data-action="change->form#requestSubmit"` works. |
 | `data-turbo-confirm` | Asks in `ui :confirm`. Add `data-turbo-confirm-description`, `-button`, `-cancel`, `-variant="destructive"`. |
-| Toasts | The flash (`ui_flash_toasts`), `turbo_stream.ui_toast("Saved", type: :success, description: "…")`, or `toast()` from `import { toast } from "runeui"`. |
+| Toasts | The flash (`ui_flash_toasts`), `turbo_stream.ui_toast("Saved", type: :success, description: "…")`, `data-runeui-toast='{"title": "Copied"}'` on a button, or `toast()` from `import { toast } from "runeui"`. |
 | Opening from elsewhere | `data-runeui-open="dialog-id"` on any button, `turbo_stream.ui_open(id)` / `ui_close(id)`, or `element.open = true`. |
+
+## App pieces
+
+Beyond single components, the parts an app is made of:
+
+| | |
+| --- | --- |
+| `ui :app_shell` with `ui :sidebar_group`, `ui :sidebar_item`, `ui :page_header` | The shell: a sidebar that collapses to icons (`[`), remembered by cookie so the server draws it right from the first paint; a sheet on phones. |
+| `ui :table, selectable: true` with `ui :select_cell`, `ui :sort_header`, `ui :bulk_bar` | A data table: sort links that keep the page's other params, select-all, shift-click ranges, a bulk bar that submits the picked ids. |
+| `ui :filter`, `ui :filter_bar` | Filter pills: each a GET form that swaps one query param, so filters are bookmarkable and Back works. |
+| `ui :board`, `ui :board_column`, `ui :board_card` | A kanban board: drag between and within columns (pointer, touch, and Shift+arrows on the keyboard), one request per move (`card`, `column`, `before`) answered by Turbo Streams, put back if it fails. |
+| `ui :side_panel` | A record opened over the page in a Turbo Frame: links with `data-turbo-frame="side_panel"`, the address keeps `?panel=`, so refresh, Back and sharing work. |
+| `ui :command, dialog: true` | A ⌘K palette whose commands visit pages through Turbo. |
+| `ui :editor` | The Lexxy editor, skinned (`runeui_tags lexxy: true`). |
 
 ## Theme
 
@@ -96,6 +115,11 @@ Paste a shadcn theme's `:root { … }` and `.dark { … }` into your own stylesh
 so it wins over runeui's defaults. `--radius` sets every corner. Dark mode is `.dark` on
 `<html>`, set before the first paint from the person's choice or the system's; a button with
 `data-runeui-theme="toggle"` (or `light`, `dark`, `system`) changes it.
+
+Already themed with rune_ui (as Runwell is)? Link `runeui/bridges/rune_ui` after
+`runeui_tags theme: false`: runeui's tokens are then defined from rune's (`--page`, `--text`,
+`--accent`, `--radius-scale`…), so an app's existing appearance settings reach every runeui
+component, and light and dark stay the app's to switch.
 
 All of runeui's CSS is in cascade layers (`ui-sdk`, `runeui.tokens`, `runeui.base`,
 `runeui.components`), so your own CSS always wins without `!important` or specificity games.
@@ -120,6 +144,17 @@ components, read their values and use them (pressing buttons asks first).
 
 [AGENTS.md](AGENTS.md) is the guide for contributors: the layout, how a component is written,
 the rules the Hotwire layer keeps, and how UI SDK is re-vendored (`script/vendor-ui-sdk`).
+
+**Tests.** `script/test` lints the views and runs every browser test against the dummy app,
+then again under ReActionView (`script/test select` for one). It needs Node and Playwright, once:
+`npm install --prefix test/browser && npx --prefix test/browser playwright-core install chromium`.
+Apps that use runeui need neither.
+
+**UI SDK is a beta.** `script/check-ui-sdk` says when a newer one is out, `--diff <version>` what
+it changes in the elements runeui uses, and `--try <version>` vendors it and runs the tests,
+putting the old files back if anything that passed now fails. A contract test states what
+runeui's own code assumes about UI SDK, so a breaking release fails there by name. See
+[docs/upgrading-ui-sdk.md](docs/upgrading-ui-sdk.md).
 
 ## Licence
 

@@ -8,12 +8,12 @@
     end
 %>
 <% if collapsible %>
-<%= tag.details(**ui_attrs({ data: { slot: "sidebar-group" }, open: (open == false ? nil : true) }, attrs)) do %>
+<%= ui_tag(:details, { data: { slot: "sidebar-group" }, open: (open == false ? nil : true) }, attrs) do %>
   <summary data-slot="sidebar-group-label"><span><%= label %></span><%= ui_icon "chevron-right", class: "ui-sidebar-chevron" %></summary>
   <ul data-slot="sidebar-menu"><%= content %></ul>
 <% end %>
 <% else %>
-<%= tag.section(**ui_attrs({ data: { slot: "sidebar-group" } }, attrs)) do %>
+<%= ui_tag(:section, { data: { slot: "sidebar-group" } }, attrs) do %>
   <% if label || action %>
   <div data-slot="sidebar-group-label"><% if label %><span><%= label %></span><% end %><% if action %><span data-slot="sidebar-group-action"><%= action %></span><% end %></div>
   <% end %>

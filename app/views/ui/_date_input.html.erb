@@ -14,4 +14,4 @@
      next d if d.is_a?(String)
      timed && d.respond_to?(:strftime) && !d.is_a?(Date) ? d.strftime(granularity.to_s == "second" ? "%Y-%m-%dT%H:%M:%S" : "%Y-%m-%dT%H:%M") : d.to_date.iso8601
    end %>
-<%= tag.ui_date_input(**ui_attrs({ id: ui_id("date-input", id, name: name), name: name, "default-value": iso.(value), min: iso.(min), max: iso.(max), granularity: granularity&.to_s, "hour-cycle": hour_cycle, locale: locale, disabled: (disabled ? "" : nil), required: (required ? "" : nil), "read-only": (read_only ? "" : nil), form: form, data: { slot: "date-input", size: size&.to_s, morph: "keep" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) %>
+<%= ui_tag(:ui_date_input, { id: ui_id("date-input", id, name: name), name: name, "default-value": iso.(value), min: iso.(min), max: iso.(max), granularity: granularity&.to_s, "hour-cycle": hour_cycle, locale: locale, disabled: (disabled ? "" : nil), required: (required ? "" : nil), "read-only": (read_only ? "" : nil), form: form, data: { slot: "date-input", size: size&.to_s, morph: "keep" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) %>

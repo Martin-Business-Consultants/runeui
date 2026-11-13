@@ -1,0 +1,61 @@
+<%# locals: (param: nil, options: nil, label: nil, value: nil, any: nil, url: nil, frame: nil, keep: nil, **attrs) %>
+<%#
+  Filter: a pill above a list that narrows it by one query param. It's a select in a GET form
+  of its own that swaps that param and keeps the page's others (not page: a new filter starts
+  at the first page), submitting as it changes (the runeui--autosubmit Stimulus controller). So
+  a filtered list has an address: it bookmarks, Back undoes it, and the controller just reads
+  params.
+
+    ui :filter, param: :status, label: "Status", options: Task::STATUSES.map { [ it.humanize, it ] }
+    ui :filter, param: :owner_id, label: "Owner", options: User.pluck(:name, :id), any: "Anyone"
+
+  options: are as select takes them. value: is the current choice (params[param] unless
+  given). any: names the choice that clears it ("Any"; false for none). url: is where it
+  submits (this page). frame: a Turbo Frame to load the answer into, when the list is in one.
+  keep: the other query params to carry (all of them, unless given).
+%>
+<% name = param.to_s %>
+<% current = (value.nil? ? request.query_parameters[name] : value).to_s %>
+<% choices = ui_options(options || []) %>
+<% flat = choices.flat_map { it[:group] ? it[:options] : [ it ] } %>
+<% chosen = flat.find { it[:value] == current } %>
+<% any_label = any == false ? nil : (any || "Any").to_s %>
+<% others = request.query_parameters.except(name, "page") %>
+<% others = others.slice(*Array(keep).map(&:to_s)) unless keep.nil? %>
+<% carried = others.to_query.split("&").reject(&:blank?).map { it.split("=", 2).map { |part| CGI.unescape(part.to_s) } } %>
+<% filter_id = ui_id("filter", attrs.delete(:id), name: name) %>
+<%= ui_tag(:form, { action: (url || request.path), method: "get", data: { slot: "filter", controller: "runeui--autosubmit", turbo_frame: frame, active: (chosen ? "" : nil) } }, attrs) do %>
+  <% carried.each do |key, carried_value| %>
+  <%# herb:key key %>
+  <input type="hidden" name="<%= key %>" value="<%= carried_value %>" autocomplete="off">
+  <% end %>
+  <%= ui_tag("ui-select", { id: filter_id, name: name, "default-value": (chosen ? current : nil), placeholder: any_label, data: { slot: "select" }, aria: { label: label } }) do %>
+    <ui-select-trigger>
+      <button type="button" data-slot="select-trigger" data-size="sm" data-filter>
+        <% if label %><span data-slot="filter-label"><%= label %></span><% end %>
+        <ui-select-value data-slot="select-value" data-label="<%= chosen ? chosen[:label] : any_label %>"<% unless chosen %> data-placeholder<% end %>></ui-select-value>
+        <%= ui_icon "chevron-down", class: "ui-select-icon" %>
+      </button>
+    </ui-select-trigger>
+    <ui-select-content data-slot="select-content" class="ui-popup" hidden>
+      <% if any_label %>
+      <ui-select-item data-slot="select-item" class="ui-item" value="" data-filter-any><ui-select-item-text data-slot="select-item-text"><%= any_label %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator></ui-select-item>
+      <div data-slot="select-separator" role="separator"></div>
+      <% end %>
+      <% choices.each do |choice| %>
+      <%# herb:key choice[:group] || choice[:value] %>
+      <% if choice[:group] %>
+      <ui-select-group data-slot="select-group">
+        <ui-select-group-label data-slot="select-group-label"><%= choice[:group] %></ui-select-group-label>
+        <% choice[:options].each do |item| %>
+        <%# herb:key item[:value] %>
+        <%= ui_tag("ui-select-item", { class: "ui-item", value: item[:value], disabled: (item[:disabled] ? "" : nil), data: { slot: "select-item" } }) do %><ui-select-item-text data-slot="select-item-text"><%= item[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator><% end %>
+        <% end %>
+      </ui-select-group>
+      <% else %>
+      <%= ui_tag("ui-select-item", { class: "ui-item", value: choice[:value], disabled: (choice[:disabled] ? "" : nil), data: { slot: "select-item" } }) do %><ui-select-item-text data-slot="select-item-text"><%= choice[:label] %></ui-select-item-text><ui-select-item-indicator data-slot="select-item-indicator"><%= ui_icon :check %></ui-select-item-indicator><% end %>
+      <% end %>
+      <% end %>
+    </ui-select-content>
+  <% end %>
+<% end %>

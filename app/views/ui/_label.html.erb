@@ -6,4 +6,4 @@
     ui :label, content: "Plan", for: "plan"
     ui(:label, for: "email") { "Email" }
 %>
-<%= tag.ui_label(content, **ui_attrs({ data: { slot: "label" } }, attrs)) %>
+<%= ui_tag(:ui_label, { data: { slot: "label" } }, attrs, content) %>

@@ -45,5 +45,5 @@
 
   [data-slot="scroll-area-thumb"] { position: relative; flex: 1; border-radius: var(--ui-radius-full); background: var(--border); }
   [data-slot="scroll-area-thumb"]:hover { background: color-mix(in oklab, var(--muted-foreground) 50%, transparent); }
-  [data-slot="scroll-area-corner"] { position: absolute; right: 0; bottom: 0; }
+  [data-slot="scroll-area-corner"] { position: absolute; inset-inline-end: 0; bottom: 0; }
 }

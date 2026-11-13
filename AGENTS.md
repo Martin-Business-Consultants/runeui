@@ -28,8 +28,11 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 | `app/assets/stylesheets/runeui/tokens.css` | shadcn's colour tokens by name, plus `--ui-*` sizes; the layer order |
 | `base.css` | page base, `.ui-popup` (every floating surface), `.ui-item` (every list/menu row), `[data-slot=choice]` |
 | `app/views/runeui/docs/examples/_<name>.html.erb` | the gallery's examples, at `/runeui/<name>` |
+| `script/test`, `script/check-ui-sdk` | the test runner (plain ERB, then ReActionView); the UI SDK version report, `--diff` and `--try` |
+| `test/browser/contract.test.mjs` | what runeui's own code assumes about UI SDK, checked directly |
+| `app/assets/stylesheets/runeui/lexxy.css`, `bridges/rune_ui.css` | optional: the Lexxy editor's skin; runeui's tokens from rune_ui's |
 | `test/dummy` | a Rails app for trying it (`test/dummy/bin/restart [port]`) |
-| `test/browser` | Playwright tests: `hotwire.test.mjs`, `components/<name>.test.mjs` |
+| `test/browser` | Playwright tests: `hotwire.test.mjs`, `components/<name>.test.mjs`, `reactionview.test.mjs` and `reactionview.parity.mjs` (the dummy app with `REACTIONVIEW=1`) |
 
 ## Writing a component
 
@@ -37,9 +40,17 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
    (which `ui-*` parts, which wrap a native element), its attributes and events, its data attributes.
 2. **The partial.** First line: strict locals, every one defaulting to `nil`, ending in `**attrs`
    (and `content: nil` when it takes a block). Then a `<%# … %>` comment saying what it is, with
-   examples as plain Ruby: never `%>` inside the comment, it ends it. Build the root with a tag
-   helper, `tag.ui_select(**ui_attrs(base, attrs)) do … end` (`tag.ui_x` writes `<ui-x>`): Herb
-   refuses ERB output where an attribute goes. Inner parts can be plain HTML.
+   examples as plain Ruby: never `%>` inside the comment, it ends it. Build every element that
+   has a computed attribute with `ui_tag`: `<%= ui_tag "ui-select", { name: name, data: { slot:
+   "select" } }, attrs do %> … <% end %>` (the base, the caller's attrs merged over it; `true`
+   writes a bare attribute, `nil` and `false` leave it out). **Never `tag.*`, `content_tag`,
+   `link_to` or `button_to` with anything computed**: Herb's engine (ReActionView) rewrites those
+   calls into HTML when it compiles a template and drops or mangles what it can't read statically
+   (a splatted hash vanishes, `nil` becomes `attr=""`, a merged `data:` hash becomes a string).
+   Herb also refuses ERB output where an attribute goes, and a bare `<% raise … %>` (assign it:
+   `<% _checked = problem && raise(…) %>`). Parts with only literal attributes are
+   plain HTML. `test/browser/reactionview.parity.mjs` compares every gallery page under ERB and
+   under ReActionView and fails on any difference.
 3. **Render each part's `data-slot` on the server, with the value UI SDK will give it**, so the
    first paint is styled and nothing jumps when it upgrades. Check in a browser: UI SDK renames
    some (an alert dialog's parts become `alert-dialog-*`; a trigger's button becomes
@@ -58,6 +69,9 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
    `[data-starting-style]`/`[data-ending-style]` for transitions). Colours only from the tokens
    (`--primary`, `--muted-foreground`, `--border`, `--ring`…), sizes from `--ui-*`; it must look
    right light and dark, and match shadcn/ui's look for the same component. No hex colours.
+   No `.dark` selectors: where light and dark differ
+   beyond the colour tokens, read a `--ui-*` token defined with `light-dark()` in tokens.css.
+   `data-size` and `data-variant` values are dasherized (`:icon_xs` → `icon-xs`).
    Tints are `color-mix(in oklab, …)`, never `in oklch`: the neutral tokens are `oklch(L 0 0)`,
    and mixing them in oklch drags a colour's hue to 0 (everything goes pink).
 8. **The example**, `app/views/runeui/docs/examples/_<name>.html.erb` (`<%# locals: () %>`): the
@@ -66,14 +80,18 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 9. **Lists and data.** UI SDK takes lists in attributes comma-separated (`default-value="a,b"`; a
    range slider's `"20/80"`), not JSON. What it takes only as a property (items, spans,
    triggers) goes in `data-props='{"items": …}'`, which `props.js` applies and a morph updates.
-10. **Ids.** Give every root an id (`ui_id(prefix, id, name: name)`) and render the ids of parts
-   UI SDK would otherwise generate (`<root-id>-heading`, a radio's label): its counters collide
-   across components (`ui-label` and a radio's label both make `ui-sdk-label-1`), and a morph
-   pairs parts by id.
+10. **Ids.** A morph pairs elements by id, and UI SDK derives part ids from the root's. Give a
+   root an id (`ui_id(prefix, id, name: name)`, the same on every render) wherever UI SDK would
+   otherwise number its parts from a counter, and render those part ids yourself
+   (`<root-id>-heading`, a radio's label): the counters collide across components (`ui-label`
+   and a radio's label both make `ui-sdk-label-1`). Render any wrapper UI SDK adds "when the
+   markup has none" (`ui-drawer-viewport`), or a morph duplicates what's inside it.
+   `test/browser/morph_stability.test.mjs` morphs every gallery page onto itself and must pass.
 11. **Verify**: `bundle exec herb lint app/views` clean; the component's page with no console
    errors in light and dark; `test/browser/components/<name>.test.mjs` (with `component()` from
    `test/browser/component.mjs`) opening it, using it with the keyboard and pointer, and for a form
-   control checking the value it submits. Look at the screenshots. Hover cards and tooltips open
+   control checking the value it submits. Look at the screenshots. `component()` fails on any
+   console error, so a test that causes a failed request on purpose uses `helpers.mjs` directly. Hover cards and tooltips open
    after a delay (wait about 900 ms after hovering); a tooltip opens on keyboard focus (Tab), not
    on `element.focus()`. UI SDK's events don't bubble: listen in the capture phase.
 
@@ -88,7 +106,7 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
   starts.
 - **Plain modules** are for page-wide plumbing only: autoloading, the morph guard, the forms
   bridge, toasts and confirm, and the `data-runeui-*` attributes (`data-runeui-open`,
-  `data-runeui-theme`), which are to runeui what `data-turbo-*` is to Turbo.
+  `data-runeui-theme`, `data-runeui-toast`), which are to runeui what `data-turbo-*` is to Turbo.
 - Never inline: no `onclick=`, no `<script>` in a partial, no `style=`. (The one inline script is
   the theme's, in `runeui_tags`, nonce'd, because it must run before the first paint.)
 
@@ -106,7 +124,21 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 - No inline styles, no build step, nothing from npm at runtime: the vendored modules are the only
   third-party JavaScript.
 
+## ReActionView
+
+runeui is written to work in an app that compiles its templates with ReActionView (Herb's
+engine, `herb:state`): partials have strict locals, keyed loops and valid markup, and build
+elements with `ui_tag` (above). Components hold their own state, so the pattern ReActionView apps
+use for an in-place form (always rendered, hidden by state: `hidden="<%= !open %>"`) leaves them
+untouched as state changes, and `form.ui` partials render inside `form_with`. Don't put
+`herb:state` in a runeui partial: a component's open or chosen state is UI SDK's, and a second
+owner would fight it. Check with `REACTIONVIEW=1 test/dummy/bin/restart 3316`, then
+`reactionview.parity.mjs` and `reactionview.test.mjs`.
+
 ## Updating UI SDK
 
-`script/vendor-ui-sdk <version>` re-vendors, rewrites imports to bare specifiers and regenerates
-`config/sdk_pins.rb` and `sdk/entries.js`. Then run every browser test.
+`script/check-ui-sdk --try <version>` re-vendors and runs every test, restoring the old files if
+something that passed now fails (docs/upgrading-ui-sdk.md). When runeui's JavaScript starts
+relying on something new in UI SDK (an `api` method, an event, an attribute format), add a check
+for it to `test/browser/contract.test.mjs` in the same commit, naming the file that depends on it.
+UI SDK's form controls fire native `change` and `input` themselves: never dispatch them again.

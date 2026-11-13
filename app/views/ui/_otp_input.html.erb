@@ -9,7 +9,7 @@
 %>
 <% size = (length || Array(groups).sum.nonzero? || 6).to_i %>
 <% runs = Array(groups).presence || [ size ] %>
-<%= tag.ui_otp_input(**ui_attrs({ id: ui_id("otp", id, name: name), name: name, "default-value": value, "max-length": size, pattern: (pattern || "digits").to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "otp-input", invalid: (invalid ? "" : nil) } }, attrs)) do %>
+<%= ui_tag(:ui_otp_input, { id: ui_id("otp", id, name: name), name: name, "default-value": value, "max-length": size, pattern: (pattern || "digits").to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "otp-input", invalid: (invalid ? "" : nil) } }, attrs) do %>
   <% runs.each_with_index do |run, index| %>
   <%# herb:key index %>
   <% if index.positive? %><ui-otp-input-separator data-slot="otp-input-separator"><%= ui_icon :minus %></ui-otp-input-separator><% end %>

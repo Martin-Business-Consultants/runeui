@@ -69,14 +69,26 @@ function watchMadeNodes() {
   })
 }
 
-// After the morph has written the new default, make it the value.
+// After the morph has written the new default, make it the value. Quietly: the element fires
+// change as it would for a person, and a form that saves as it changes mustn't submit because
+// someone else's save refreshed the page.
+const following = new WeakSet()
+
 function follow(element, name, mutationType) {
   const setter = element.api?.[DEFAULTS[name]]
   if (!setter) return
   queueMicrotask(() => {
+    following.add(element)
     if (name === "default-value") setter(parse(element, element.getAttribute(name)))
     else setter(mutationType !== "remove")
+    setTimeout(() => following.delete(element), 50)
   })
+}
+
+for (const type of [ "change", "input" ]) {
+  document.addEventListener(type, (event) => {
+    if (following.has(event.target)) event.stopImmediatePropagation()
+  }, true)
 }
 
 // Whether an element is a component or inside one (and not opted out with data-morph="replace").

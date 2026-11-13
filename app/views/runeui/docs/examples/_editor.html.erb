@@ -1,0 +1,17 @@
+<%# locals: () %>
+<% if Rails.application.importmap.packages.key?("lexxy") %>
+<form class="runeui-docs__stack runeui-docs__full" action="<%= runeui_echo_path("editor") %>" method="post" data-turbo-stream>
+  <%# In an app these two go in the layout: Lexxy's stylesheet then the skin, and import "lexxy" in application.js. %>
+  <%= stylesheet_link_tag "lexxy", "runeui/lexxy" %>
+  <%= javascript_import_module_tag "lexxy" %>
+  <%= ui :field, label: "Note", description: "Rich text, saved as HTML." do %>
+    <%= ui :editor, name: "body", rows: 5, placeholder: "Write a note", value: "<p>Hello, <strong>runeui</strong>. A <a href=\"/runeui\">link</a>, and some <code>code</code>.</p><pre data-language=\"ruby\">def greet(name)\n  puts \"Hello, \#{name}\" # a comment\nend</pre>" %>
+  <% end %>
+  <%= ui :editor, name: "bad", rows: 2, invalid: true, placeholder: "An invalid one" %>
+  <%= ui :button, content: "Send", type: :submit %>
+</form>
+<h2>What it wrote, on a page</h2>
+<div class="lexxy-content"><p>Some <strong>bold</strong> text, a <a href="<%= runeui_docs_path %>">link</a> and <code>code</code>.</p><blockquote>A quote.</blockquote></div>
+<% else %>
+<%= ui :alert, variant: :info, title: "Lexxy isn't loaded", description: "ui :editor wraps Lexxy. Add gem \"lexxy\" to the app and pin it to see it here." %>
+<% end %>

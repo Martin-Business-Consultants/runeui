@@ -8,7 +8,7 @@
       …
     end
 %>
-<%= tag.div(**ui_attrs({ data: { slot: "card", size: size&.to_s } }, attrs)) do %>
+<%= ui_tag(:div, { data: { slot: "card", size: size&.to_s } }, attrs) do %>
   <% if title || description || action %>
   <div data-slot="card-header">
     <% if title %><div data-slot="card-title"><%= title %></div><% end %>

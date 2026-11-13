@@ -9,7 +9,7 @@
 <% low = (min || 0).to_f %>
 <% high = (max || 100).to_f %>
 <% percent = high <= low ? 0 : (((value.to_f - low) / (high - low)) * 100).clamp(0, 100).round %>
-<%= tag.ui_meter(**ui_attrs({ value: (value || 0), max: max, min: min, data: { slot: "meter", tone: tone&.to_s } }, attrs)) do %>
+<%= ui_tag(:ui_meter, { value: (value || 0), max: max, min: min, data: { slot: "meter", tone: tone&.to_s } }, attrs) do %>
   <% if label || show_value %>
   <div data-slot="meter-header">
     <% if label %><ui-meter-label data-slot="meter-label"><%= label %></ui-meter-label><% end %>

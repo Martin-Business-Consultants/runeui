@@ -7,7 +7,7 @@
       render tasks.drop(3)
     end
 %>
-<%= tag.ui_collapsible(**ui_attrs({ "default-open": (open ? "" : nil), disabled: (disabled ? "" : nil), data: { slot: "collapsible", open: (open ? "" : nil), closed: (open ? nil : "") } }, attrs)) do %>
+<%= ui_tag(:ui_collapsible, { "default-open": (open ? "" : nil), disabled: (disabled ? "" : nil), data: { slot: "collapsible", open: (open ? "" : nil), closed: (open ? nil : "") } }, attrs) do %>
   <% if trigger %>
   <ui-collapsible-trigger>
     <% if trigger.html_safe? %>

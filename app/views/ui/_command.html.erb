@@ -23,7 +23,7 @@
 <% command_id = ui_id("command", id) %>
 <% groups = items.is_a?(Hash) ? items.to_a : [ [ nil, Array(items) ] ] %>
 <% palette = capture do %>
-<%= tag.ui_command(**ui_attrs({ id: (dialog ? nil : command_id), "auto-highlight": "", loop: "", data: { slot: "command" } }, dialog ? {} : attrs)) do %>
+<%= ui_tag(:ui_command, { id: (dialog ? nil : command_id), "auto-highlight": "", loop: "", data: { slot: "command" } }, dialog ? {} : attrs) do %>
   <div data-slot="command-search">
     <%= ui_icon :search %>
     <ui-command-input data-slot="command-input"><input type="text" placeholder="<%= placeholder || "Type a command or search…" %>" aria-label="<%= placeholder || "Search commands" %>" autocomplete="off"></ui-command-input>
@@ -40,7 +40,7 @@
       <% if group %><ui-command-group-label data-slot="command-group-label"><%= group %></ui-command-group-label><% end %>
       <% commands.each do |command| %>
       <%# herb:key command[:value] || command[:label] %>
-      <%= tag.ui_command_item(class: "ui-item", value: (command[:value] || command[:label].to_s.parameterize).to_s, keywords: (command[:keywords] ? Array(command[:keywords]).join(",") : nil), shortcut: command[:shortcut], disabled: (command[:disabled] ? "" : nil), data: { slot: "command-item", href: command[:href], target: command[:target], runeui_open: command[:open] }) do %>
+      <%= ui_tag(:ui_command_item, { class: "ui-item", value: (command[:value] || command[:label].to_s.parameterize).to_s, keywords: (command[:keywords] ? Array(command[:keywords]).join(",") : nil), shortcut: command[:shortcut], disabled: (command[:disabled] ? "" : nil), data: { slot: "command-item", href: command[:href], target: command[:target], runeui_open: command[:open] } }) do %>
         <% if command[:icon] %><ui-command-item-icon data-slot="command-item-icon"><%= ui_icon command[:icon] %></ui-command-item-icon><% end %>
         <ui-command-item-text data-slot="command-item-text"><%= command[:label] %></ui-command-item-text>
         <% if command[:shortcut] %><ui-command-shortcut data-slot="command-shortcut"></ui-command-shortcut><% end %>
@@ -53,7 +53,7 @@
 <% end %>
 <% end %>
 <% if dialog %>
-<%= tag.ui_dialog(**ui_attrs({ id: command_id, data: { slot: "dialog", command_dialog: "" } }, attrs)) do %>
+<%= ui_tag(:ui_dialog, { id: command_id, data: { slot: "dialog", command_dialog: "" } }, attrs) do %>
   <% unless trigger == false %>
   <ui-dialog-trigger<% if shortcut != false %> shortcut="<%= shortcut || "mod+k" %>"<% end %>>
     <% if trigger.respond_to?(:html_safe?) && trigger.html_safe? %>

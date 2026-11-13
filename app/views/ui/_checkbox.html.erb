@@ -8,7 +8,7 @@
 %>
 <% box_id = ui_id("checkbox", id, name: name) %>
 <% if unchecked_value && name %><input type="hidden" name="<%= name %>" value="<%= unchecked_value %>" autocomplete="off"><% end %>
-<% control = tag.ui_checkbox(**ui_attrs({ id: box_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), indeterminate: (indeterminate ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), data: { slot: "checkbox" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs)) { tag.ui_checkbox_indicator(ui_icon(indeterminate ? :minus : :check), data: { slot: "checkbox-indicator" }) } %>
+<% control = ui_tag(:ui_checkbox, { id: box_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), indeterminate: (indeterminate ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), data: { slot: "checkbox" }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) { ui_tag(:ui_checkbox_indicator, { data: { slot: "checkbox-indicator" } }, {}, ui_icon(indeterminate ? :minus : :check)) } %>
 <% if label %>
 <label data-slot="choice" for="<%= box_id %>"><%= control %><span data-slot="choice-label"><%= label %></span></label>
 <% else %>

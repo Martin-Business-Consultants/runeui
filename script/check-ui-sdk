@@ -1,0 +1,293 @@
+#!/usr/bin/env node
+// Keeps runeui in step with UI SDK (@ui-sdk/web, a beta: its APIs move).
+//
+//   script/check-ui-sdk                  the version vendored, npm's latest and beta, what's newer
+//   script/check-ui-sdk --diff 0.2.0     what 0.2.0 changes in the elements runeui uses (tags,
+//                                        attributes, events, properties), and its changelog
+//   script/check-ui-sdk --try 0.2.0      vendor 0.2.0 and run every test. If something that passed
+//                                        now fails, the old files come back and it says what broke;
+//                                        if not, the new files stay for you to look over and commit
+//   script/check-ui-sdk --json           the report as JSON (for the workflow)
+//
+// --try options: --no-baseline skips running the tests first (then any failure counts as new);
+// anything after -- goes to script/test (-- --jobs 2).
+//
+// docs/upgrading-ui-sdk.md is the whole procedure.
+
+const { execFileSync, spawnSync } = require("node:child_process")
+const fs = require("node:fs")
+const os = require("node:os")
+const path = require("node:path")
+
+const root = path.resolve(__dirname, "..")
+const SDK = "app/javascript/runeui/sdk"
+const PINS = "config/sdk_pins.rb"
+const args = process.argv.slice(2)
+const flag = (name) => args.includes(name)
+const option = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : null)
+const passthrough = args.includes("--") ? args.slice(args.indexOf("--") + 1) : []
+
+function vendored() {
+  return fs.readFileSync(path.join(root, SDK, "entries.js"), "utf8").match(/VERSION = "([^"]+)"/)[1]
+}
+
+function npmView(field) {
+  try {
+    return JSON.parse(execFileSync("npm", ["view", "@ui-sdk/web", field, "--json"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }))
+  } catch {
+    return null
+  }
+}
+
+// 0.1.0-beta.2 against 0.1.0-beta.10, 0.1.0 after every 0.1.0-beta.
+function compare(a, b) {
+  const parse = (v) => { const [core, pre] = v.split("-"); return { core: core.split(".").map(Number), pre: pre ? pre.split(".").map((p) => (/^\d+$/.test(p) ? Number(p) : p)) : null } }
+  const x = parse(a), y = parse(b)
+  for (let i = 0; i < 3; i++) if ((x.core[i] || 0) !== (y.core[i] || 0)) return (x.core[i] || 0) - (y.core[i] || 0)
+  if (!x.pre && !y.pre) return 0
+  if (!x.pre) return 1
+  if (!y.pre) return -1
+  for (let i = 0; i < Math.max(x.pre.length, y.pre.length); i++) {
+    if (x.pre[i] === undefined) return -1
+    if (y.pre[i] === undefined) return 1
+    if (x.pre[i] !== y.pre[i]) return typeof x.pre[i] === typeof y.pre[i] ? (x.pre[i] < y.pre[i] ? -1 : 1) : (typeof x.pre[i] === "number" ? -1 : 1)
+  }
+  return 0
+}
+
+function report() {
+  const current = vendored()
+  const tags = npmView("dist-tags")
+  const versions = (npmView("versions") || []).filter((v) => !v.startsWith("0.0.0"))
+  if (!tags) return { current, error: "couldn't reach the npm registry" }
+  const newer = versions.filter((v) => compare(v, current) > 0).sort(compare)
+  return { current, latest: tags.latest, beta: tags.beta || null, newer, newest: newer[newer.length - 1] || null }
+}
+
+// The package's files for a version, unpacked in a temp directory.
+function unpack(version, work) {
+  const dir = path.join(work, version)
+  fs.mkdirSync(dir, { recursive: true })
+  const tarball = execFileSync("npm", ["pack", `@ui-sdk/web@${version}`, "--silent"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim().split("\n").pop()
+  execFileSync("tar", ["xzf", tarball], { cwd: dir })
+  return path.join(dir, "package")
+}
+
+// tag → { attributes, events, properties } from the package's custom-elements.json.
+function surface(pkg) {
+  const file = path.join(pkg, "custom-elements.json")
+  if (!fs.existsSync(file)) return null
+  const elements = {}
+  for (const module of JSON.parse(fs.readFileSync(file, "utf8")).modules || []) {
+    for (const declaration of module.declarations || []) {
+      if (!declaration.tagName) continue
+      elements[declaration.tagName] = {
+        attributes: (declaration.attributes || []).map((a) => a.name),
+        events: (declaration.events || []).map((e) => e.name),
+        properties: (declaration.members || []).map((m) => m.name)
+      }
+    }
+  }
+  return elements
+}
+
+// The ui-* tags runeui's partials and JavaScript name.
+function usedTags() {
+  const tags = new Set()
+  const scan = (dir, pattern) => {
+    for (const entry of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
+      if (entry.isDirectory()) { if (entry.name !== "sdk") scan(path.join(dir, entry.name), pattern); continue }
+      if (!pattern.test(entry.name)) continue
+      const source = fs.readFileSync(path.join(root, dir, entry.name), "utf8")
+      for (const match of source.matchAll(/\b(ui-[a-z][a-z0-9-]*)/g)) tags.add(match[1])
+      for (const match of source.matchAll(/tag\.(ui_[a-z0-9_]+)/g)) tags.add(match[1].replaceAll("_", "-"))
+    }
+  }
+  scan("app/views/ui", /\.erb$/)
+  scan("app/javascript/runeui", /\.js$/)
+  return tags
+}
+
+function diff(target) {
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), "runeui-check-"))
+  try {
+    const from = surface(unpack(vendored(), work))
+    const toPackage = unpack(target, work)
+    const to = surface(toPackage)
+    const lines = []
+    if (!from || !to) {
+      lines.push("  (no custom-elements.json in one of the packages: can't compare the elements)")
+    } else {
+      const used = usedTags()
+      const removed = Object.keys(from).filter((tag) => !to[tag])
+      const added = Object.keys(to).filter((tag) => !from[tag])
+      const mark = (tag) => (used.has(tag) ? `${tag}  ← runeui uses it` : tag)
+      if (removed.length) lines.push(`  Elements removed (${removed.length}):`, ...removed.sort((a, b) => used.has(b) - used.has(a)).map((tag) => `    - ${mark(tag)}`))
+      if (added.length) lines.push(`  Elements added (${added.length}): ${added.join(", ")}`)
+      for (const tag of Object.keys(from).filter((tag) => to[tag]).sort()) {
+        const changes = []
+        for (const kind of ["attributes", "events", "properties"]) {
+          const gone = from[tag][kind].filter((name) => !to[tag][kind].includes(name))
+          const fresh = to[tag][kind].filter((name) => !from[tag][kind].includes(name))
+          if (gone.length) changes.push(`${kind} removed: ${gone.join(", ")}`)
+          if (fresh.length) changes.push(`${kind} added: ${fresh.join(", ")}`)
+        }
+        if (changes.length) lines.push(`  ${mark(tag)}`, ...changes.map((change) => `    ${change}`))
+      }
+      if (lines.length === 0) lines.push("  No element, attribute, event or property changed in custom-elements.json.")
+    }
+    const changelog = changelogBetween(toPackage, vendored(), target)
+    return { lines, changelog }
+  } finally {
+    fs.rmSync(work, { recursive: true, force: true })
+  }
+}
+
+// The changelog's sections after `from` up to `to`: the package's own if it ships one, else the
+// repository's.
+function changelogBetween(pkg, from, to) {
+  let text = null
+  for (const file of ["CHANGELOG.md", "docs/changelog.md"]) {
+    if (fs.existsSync(path.join(pkg, file))) text = fs.readFileSync(path.join(pkg, file), "utf8")
+  }
+  if (!text) {
+    try {
+      text = execFileSync("curl", ["-fsSL", "--max-time", "15", "https://raw.githubusercontent.com/vercel-labs/ui/main/packages/web/CHANGELOG.md"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+    } catch {
+      return null
+    }
+  }
+  const sections = text.split(/^## /m).slice(1).map((section) => ({ version: section.split("\n")[0].trim(), body: section.split("\n").slice(1).join("\n").trim() }))
+  const between = sections.filter((s) => /^\d/.test(s.version) && compare(s.version, from) > 0 && compare(s.version, to) <= 0)
+  return between.map((s) => `## ${s.version}\n${s.body}`).join("\n\n") || null
+}
+
+function git(...gitArgs) {
+  return execFileSync("git", gitArgs, { cwd: root, encoding: "utf8" })
+}
+
+// Runs script/test; returns { ok, failed: [file names], checks: ["file: check that failed"], output }.
+function runTests(label) {
+  console.log(`\n── ${label}: script/test ${passthrough.join(" ")}`)
+  const result = spawnSync(path.join(root, "script/test"), passthrough, { cwd: root, encoding: "utf8", env: process.env, maxBuffer: 64 * 1024 * 1024 })
+  const output = (result.stdout || "") + (result.stderr || "")
+  if (result.status === 2) {
+    console.error(output)
+    console.error("script/check-ui-sdk: the tests couldn't run at all (see above).")
+    process.exit(2)
+  }
+  // "✗ select" then, indented, "✗ the check" and its message; a file that crashed has no checks.
+  const failed = [], checks = []
+  let file = null, own = 0
+  const close = () => { if (file && own === 0) checks.push(`${file}: (didn't run)`) }
+  for (const line of output.split("\n")) {
+    const top = line.match(/^✗ ([\w -]+?)(?: \(timed out\))?$/)
+    if (top) { close(); file = top[1]; own = 0; failed.push(file); continue }
+    if (/^[✓✗] /.test(line) || line.trim() === "") { close(); file = null; continue }
+    const inner = file && line.match(/^ {4}✗ (.*)$/)
+    if (inner) { checks.push(`${file}: ${inner[1]}`); own++ }
+  }
+  close()
+  console.log(output.trim().split("\n").slice(-1)[0])
+  return { ok: result.status === 0, failed, checks, output }
+}
+
+function restore() {
+  git("checkout", "--", SDK, PINS)
+  git("clean", "-fdq", "--", SDK)
+}
+
+function tryVersion(target) {
+  const dirty = git("status", "--porcelain", "--", SDK, PINS).trim()
+  if (dirty) {
+    console.error(`script/check-ui-sdk: ${SDK} or ${PINS} has uncommitted changes. Commit or restore them first: a failed try puts back what git has.`)
+    process.exit(2)
+  }
+  const from = vendored()
+  console.log(`Trying UI SDK ${target} (vendored: ${from})`)
+
+  const before = flag("--no-baseline") ? { failed: [], checks: [] } : runTests(`before, on ${from}`)
+  if (before.failed.length) console.log(`Already failing on ${from} (not counted against ${target}): ${before.failed.join(", ")}`)
+
+  console.log(`\n── vendoring ${target}`)
+  const vendor = spawnSync(path.join(root, "script/vendor-ui-sdk"), [target], { cwd: root, encoding: "utf8" })
+  process.stdout.write((vendor.stdout || "") + (vendor.stderr || ""))
+  if (vendor.status !== 0) {
+    restore()
+    console.error(`\nUI SDK ${target} couldn't be vendored. The files are as they were (${from}).`)
+    process.exit(1)
+  }
+
+  let after
+  try {
+    after = runTests(`after, on ${vendored()}`)
+  } catch (error) {
+    restore()
+    throw error
+  }
+  // Counted check by check: a file that already failed one check still tells when it fails another.
+  const newChecks = after.checks.filter((check) => !before.checks.includes(check))
+  const broke = [...new Set(newChecks.map((check) => check.split(": ")[0]))]
+  const fixed = before.failed.filter((name) => !after.failed.includes(name))
+
+  if (broke.length === 0) {
+    console.log(`\nUI SDK ${vendored()} passes${after.failed.length ? ` everything ${from} passed` : ""}. The new files are in ${SDK} and ${PINS}:`)
+    console.log(`  git add ${SDK} ${PINS} && git commit -m "UI SDK ${vendored()}"`)
+    if (fixed.length) console.log(`Now passing: ${fixed.join(", ")}`)
+    if (after.failed.length) console.log(`Still failing, as before: ${after.failed.join(", ")}`)
+    process.exit(0)
+  }
+
+  restore()
+  console.log(`\nUI SDK ${target} breaks ${newChecks.length} check${newChecks.length === 1 ? "" : "s"} in ${broke.join(", ")}`)
+  console.log(`The files are as they were (${vendored()}). What failed that didn't before:\n`)
+  const lines = after.output.split("\n")
+  for (const name of broke) {
+    console.log(`✗ ${name}`)
+    const start = lines.findIndex((line) => new RegExp(`^✗ ${name}( \\(timed out\\))?$`).test(line))
+    const wanted = newChecks.filter((check) => check.startsWith(`${name}: `)).map((check) => check.slice(name.length + 2))
+    if (wanted.includes("(didn't run)")) {
+      let end = start + 1
+      while (end < lines.length && lines[end].startsWith("    ")) end++
+      console.log(lines.slice(start + 1, end).join("\n"))
+      continue
+    }
+    for (let i = start + 1; i < lines.length && lines[i].startsWith("    "); i++) {
+      const inner = lines[i].match(/^ {4}✗ (.*)$/)
+      if (inner && wanted.includes(inner[1])) console.log(`${lines[i]}\n${lines[i + 1] && !/^ {4}✗ /.test(lines[i + 1]) ? lines[i + 1] : ""}`.trimEnd())
+    }
+  }
+  if (broke.includes("contract")) console.log("\nStart with contract: each of its checks names the file in runeui that depends on what moved (docs/upgrading-ui-sdk.md).")
+  process.exit(1)
+}
+
+// ── main ─────────────────────────────────────────────────────────────────────────────────────
+
+if (flag("-h") || flag("--help")) {
+  console.log(fs.readFileSync(__filename, "utf8").split("\n").slice(1, 16).map((line) => line.replace(/^\/\/ ?/, "")).join("\n"))
+} else if (option("--try")) {
+  tryVersion(option("--try"))
+} else if (option("--diff")) {
+  const target = option("--diff")
+  const { lines, changelog } = diff(target)
+  console.log(`UI SDK ${vendored()} → ${target}\n`)
+  console.log(lines.join("\n"))
+  console.log(changelog ? `\nChangelog:\n\n${changelog}` : "\n(No changelog entries found between these versions.)")
+} else {
+  const result = report()
+  if (flag("--json")) {
+    console.log(JSON.stringify(result))
+  } else if (result.error) {
+    console.log(`Vendored: UI SDK ${result.current}. ${result.error}.`)
+    process.exitCode = 2
+  } else {
+    console.log(`Vendored: UI SDK ${result.current}`)
+    console.log(`npm:      latest ${result.latest}${result.beta ? `, beta ${result.beta}` : ""}`)
+    if (result.newer.length === 0) {
+      console.log("Up to date.")
+    } else {
+      console.log(`Newer:    ${result.newer.join(", ")}`)
+      console.log(`\nNext: script/check-ui-sdk --diff ${result.newest}   then   script/check-ui-sdk --try ${result.newest}`)
+    }
+  }
+}

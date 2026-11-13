@@ -13,7 +13,7 @@
   A form inside that should close the dialog when it saves: answer with a redirect or
   turbo_stream.ui_close(id). With size: sm, lg, xl or full.
 %>
-<%= tag.ui_dialog(**ui_attrs({ id: id, "default-open": (open ? "" : nil), dismissible: (dismissible == false ? "false" : nil), data: { slot: "dialog" } }, attrs)) do %>
+<%= ui_tag(:ui_dialog, { id: id, "default-open": (open ? "" : nil), dismissible: (dismissible == false ? "false" : nil), data: { slot: "dialog" } }, attrs) do %>
   <% if trigger %>
   <ui-dialog-trigger>
     <% if trigger.html_safe? %>

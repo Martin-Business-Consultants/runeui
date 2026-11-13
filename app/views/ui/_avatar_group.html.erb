@@ -8,7 +8,7 @@
 <% list = Array(people).map { it.is_a?(Hash) ? it : { name: it.try(:name), src: it.try(:avatar_url) } } %>
 <% shown = max ? list.first(max) : list %>
 <% rest = list.size - shown.size %>
-<%= tag.div(**ui_attrs({ role: "group", data: { slot: "avatar-group", size: (size || "default").to_s } }, attrs)) do %>
+<%= ui_tag(:div, { role: "group", data: { slot: "avatar-group", size: (size || "default").to_s } }, attrs) do %>
   <% shown.each do |person| %>
   <%# herb:key person[:name] %>
   <%= ui :avatar, src: person[:src], name: person[:name], size: size %>

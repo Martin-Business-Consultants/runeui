@@ -36,12 +36,12 @@ end %>
     branch = item[:children].present?
     icon = item[:icon] || (with_icons ? (branch ? :folder : :file) : nil)
     inner = safe_join([
-      (branch ? tag.ui_tree_item_indicator(chevron, data: { slot: "tree-indicator" }) : tag.span(data: { tree_spacer: "" })),
+      (branch ? ui_tag(:ui_tree_item_indicator, { data: { slot: "tree-indicator" } }, {}, chevron) : ui_tag(:span, { data: { tree_spacer: "" } })),
       (icon ? ui_icon(icon, class: "ui-tree-icon") : nil),
-      tag.span(item[:label], data: { tree_text: "" })
+      ui_tag(:span, { data: { tree_text: "" } }, {}, item[:label])
     ].compact)
-    label_part = item[:href] ? tag.ui_tree_item_label(link_to(inner, item[:href], data: { slot: "tree-label" }), "as-child": "") : tag.ui_tree_item_label(inner, data: { slot: "tree-label" })
-    tag.ui_tree_item(safe_join([ label_part, (branch ? tag.ui_tree_group(render_items.(item[:children]), hidden: !open_folders.include?(item_value), data: { slot: "tree-group" }) : nil) ].compact), value: item_value, disabled: (item[:disabled] ? "" : nil), data: { slot: "tree-item" })
+    label_part = item[:href] ? ui_tag(:ui_tree_item_label, { "as-child": "" }, {}, link_to(inner, item[:href], data: { slot: "tree-label" })) : ui_tag(:ui_tree_item_label, { data: { slot: "tree-label" } }, {}, inner)
+    ui_tag(:ui_tree_item, { value: item_value, disabled: (item[:disabled] ? "" : nil), data: { slot: "tree-item" } }, {}, safe_join([ label_part, (branch ? ui_tag(:ui_tree_group, { hidden: !open_folders.include?(item_value), data: { slot: "tree-group" } }, {}, render_items.(item[:children])) : nil) ].compact))
   })
 } %>
-<%= tag.ui_tree(render_items.(tree_items), **ui_attrs({ id: id, mode: (mode || "none").to_s, "default-value": (value.present? ? Array(value).join(",") : nil), "default-expanded": open_folders.join(",").presence, current: current&.to_s, "expand-on-press": "", data: { slot: "tree" }, aria: { label: label || "Tree" } }, attrs)) %>
+<%= ui_tag(:ui_tree, { id: id, mode: (mode || "none").to_s, "default-value": (value.present? ? Array(value).join(",") : nil), "default-expanded": open_folders.join(",").presence, current: current&.to_s, "expand-on-press": "", data: { slot: "tree" }, aria: { label: label || "Tree" } }, attrs, render_items.(tree_items)) %>

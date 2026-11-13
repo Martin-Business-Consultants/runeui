@@ -16,7 +16,7 @@
 <% list = Array(tabs) %>
 <% chosen = (value || list.reject { it[:disabled] }.first&.dig(:value)).to_s %>
 <% direction = (orientation || "horizontal").to_s %>
-<%= tag.ui_tabs(**ui_attrs({ "default-value": chosen.presence, orientation: (orientation ? direction : nil), activation: activation&.to_s, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s } }, attrs)) do %>
+<%= ui_tag(:ui_tabs, { "default-value": chosen.presence, orientation: (orientation ? direction : nil), activation: activation&.to_s, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>
@@ -28,7 +28,7 @@
   </ui-tabs-list>
   <% list.each do |tab| %>
   <%# herb:key tab[:value] %>
-  <%= tag.ui_tabs_panel(value: tab[:value], "keep-mounted": "", hidden: tab[:value].to_s != chosen, data: { slot: "tabs-panel" }) do %>
+  <%= ui_tag(:ui_tabs_panel, { value: tab[:value], "keep-mounted": "", hidden: tab[:value].to_s != chosen, data: { slot: "tabs-panel" } }) do %>
     <% if tab[:src] %>
     <turbo-frame id="<%= tab[:frame] || "#{tab[:value]}_tab" %>" src="<%= tab[:src] %>" loading="lazy" data-slot="tabs-frame"><div data-slot="tabs-loading"><%= ui_icon :loader %></div></turbo-frame>
     <% else %>

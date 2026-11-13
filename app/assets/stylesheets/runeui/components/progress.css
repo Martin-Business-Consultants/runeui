@@ -35,7 +35,9 @@
   [data-slot="progress-indicator"][data-complete] { background: var(--primary); }
 
   [data-slot="progress"][data-indeterminate] [data-slot="progress-indicator"] {
-    width: 40% !important;
+    /* UI SDK writes the indicator's width inline; min and max take it over without !important. */
+    min-width: 40%;
+    max-width: 40%;
     animation: ui-progress-slide 1.4s var(--ui-ease) infinite;
   }
 

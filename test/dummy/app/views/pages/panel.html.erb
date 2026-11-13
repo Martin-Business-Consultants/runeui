@@ -1,0 +1,11 @@
+<main id="page">
+  <h1>Saves: <span id="saves"><%= @state["saves"] %></span></h1>
+  <ul>
+    <% %w[one two three].each do |id| %>
+    <li><%= link_to "Record #{id}", peek_path(id), id: "open-#{id}", data: { turbo_frame: "side_panel" } %></li>
+    <% end %>
+  </ul>
+  <%= link_to "Elsewhere", root_path, id: "elsewhere" %>
+  <%= ui :input, name: "typing", id: "typing" %>
+</main>
+<%= ui :side_panel, src: params[:panel] %>

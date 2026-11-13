@@ -7,4 +7,4 @@
       ui :skeleton, shape: :text
     end
 %>
-<%= tag.div(**ui_attrs({ data: { slot: "skeleton", shape: shape&.to_s }, aria: { hidden: true } }, attrs)) %>
+<%= ui_tag(:div, { data: { slot: "skeleton", shape: shape&.to_s }, aria: { hidden: true } }, attrs) %>

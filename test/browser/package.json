@@ -1,0 +1,8 @@
+{
+  "name": "runeui-browser-tests",
+  "private": true,
+  "description": "Playwright for runeui's browser tests (script/test). Not part of the gem: apps that use runeui need no Node.",
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
+}

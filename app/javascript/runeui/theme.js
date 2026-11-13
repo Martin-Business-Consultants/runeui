@@ -24,6 +24,8 @@ export function setTheme(choice) {
 }
 
 export function wireTheme() {
+  // runeui_tags(theme: false): the app owns light and dark.
+  if (document.querySelector('meta[name="runeui-theme"][content="off"]')) return
   const choice = () => saved() || document.documentElement.dataset.defaultTheme || "system"
   apply(choice())
   media.addEventListener("change", () => apply(choice()))

@@ -10,7 +10,7 @@
 
   The block, when given, is the bar's menus instead (ui :menu, bar: true, …).
 %>
-<%= tag.ui_menubar(**ui_attrs({ "aria-label": label, data: { slot: "menubar" } }, attrs)) do %>
+<%= ui_tag(:ui_menubar, { "aria-label": label, data: { slot: "menubar" } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>

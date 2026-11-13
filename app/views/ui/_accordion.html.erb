@@ -12,7 +12,7 @@
     end
 %>
 <% opened = Array(open).map(&:to_s) %>
-<%= tag.ui_accordion(**ui_attrs({ "default-value": (opened.any? ? opened.join(",") : nil), multiple: (multiple ? "" : nil), collapsible: (collapsible == false ? "false" : nil), disabled: (disabled ? "" : nil), data: { slot: "accordion" } }, attrs)) do %>
+<%= ui_tag(:ui_accordion, { "default-value": (opened.any? ? opened.join(",") : nil), multiple: (multiple ? "" : nil), collapsible: (collapsible == false ? "false" : nil), disabled: (disabled ? "" : nil), data: { slot: "accordion" } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>

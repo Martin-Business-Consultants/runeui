@@ -1,0 +1,29 @@
+/* Filter: a pill-shaped select in a GET form of its own, and the bar that lays several out.
+   The trigger is a select's (select.css draws it); here it's made a pill, with its label
+   before the value, and tinted while it narrows the list. */
+
+@layer runeui.components {
+  [data-slot="filter-bar"] { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  [data-slot="filter"] { display: inline-flex; margin: 0; }
+
+  [data-slot="select-trigger"][data-filter] {
+    min-width: 0;
+    gap: 0.375rem;
+    padding-inline: 0.75rem 0.5rem;
+    border-style: dashed;
+    border-radius: var(--ui-radius-full);
+    font-size: var(--ui-text-sm);
+  }
+
+  [data-slot="select-trigger"][data-filter]:hover { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="filter-label"] { color: var(--muted-foreground); }
+  [data-slot="filter-label"]::after { content: ":"; }
+
+  /* Narrowing the list: a solid edge and a tint. */
+  [data-slot="filter"][data-active] [data-slot="select-trigger"][data-filter] {
+    border-style: solid;
+    border-color: color-mix(in oklab, var(--primary) 35%, var(--border));
+    background: color-mix(in oklab, var(--primary) 6%, transparent);
+  }
+  [data-slot="filter"][data-active] [data-slot="select-value"] { font-weight: 500; }
+}
