@@ -28,4 +28,8 @@
   [data-slot="empty-title"] { font-size: var(--ui-text-lg); font-weight: 500; }
   [data-slot="empty-description"] { max-width: 24rem; color: var(--muted-foreground); }
   [data-slot="empty-action"], [data-slot="empty-content"] { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+
+  /* Inside a card or a section: no box of its own, the text where the content would start. */
+  [data-slot="empty"][data-size="sm"] { align-items: flex-start; padding: 0.75rem 1rem; border: 0; text-align: start; }
+  [data-slot="empty"][data-size="sm"] :is([data-slot="empty-action"], [data-slot="empty-content"]) { margin-top: 0.25rem; }
 }

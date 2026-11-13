@@ -1,11 +1,15 @@
-<%# locals: (content: nil, title: nil, description: nil, icon: nil, action: nil, **attrs) %>
+<%# locals: (content: nil, title: nil, description: nil, icon: nil, action: nil, size: nil, **attrs) %>
 <%#
   Empty: what an empty list says, where its records come from, and the way to make one.
 
     ui :empty, icon: :folder, title: "No projects yet", description: "Projects you create show here.",
        action: ui(:button, content: "Create a project", href: new_project_path)
+
+  size: :sm is the quiet one for inside a card or a section: no dashed box, its text at the start.
+
+    ui :empty, size: :sm, description: "Nothing open right now."
 %>
-<%= ui_tag(:div, { data: { slot: "empty" } }, attrs) do %>
+<%= ui_tag(:div, { data: { slot: "empty", size: size&.to_s } }, attrs) do %>
   <% if icon %><div data-slot="empty-media"><%= ui_icon icon, size: 24 %></div><% end %>
   <% if title %><div data-slot="empty-title"><%= title %></div><% end %>
   <% if description %><div data-slot="empty-description"><%= description %></div><% end %>

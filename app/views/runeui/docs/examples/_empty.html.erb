@@ -1,3 +1,7 @@
 <%# locals: () %>
 <%= ui :empty, icon: :folder, title: "No projects yet", description: "You haven't created any projects. Get started by creating your first one.",
   action: ui(:button, content: "Create a project", icon: :plus) %>
+
+<%= ui :card, title: "Open tasks" do %>
+  <%= ui :empty, size: :sm, description: "Nothing open right now." %>
+<% end %>
