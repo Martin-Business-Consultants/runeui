@@ -38,14 +38,24 @@ export function defined(tag) {
   return customElements.whenDefined(tag)
 }
 
+// A <ui-label for="id"> names its target as it upgrades, and can only name a component that is
+// already defined. Modules load in parallel, so the label's waits for its targets' elements.
 function scan(node) {
   if (!(node instanceof Element)) return
+  const waits = []
+  let labels = false
   for (const element of [ node, ...node.querySelectorAll("*") ]) {
     const tag = element.localName
     if (!tag.startsWith("ui-") || customElements.get(tag)) continue
     const entry = entryFor(tag)
-    if (entry) load(entry)
+    if (!entry) continue
+    if (entry !== "label") { load(entry); continue }
+    labels = true
+    const target = element.hasAttribute("for") && document.getElementById(element.getAttribute("for"))
+    const needs = target && target.localName.startsWith("ui-") && !customElements.get(target.localName) && entryFor(target.localName)
+    if (needs && needs !== "label") waits.push(load(needs).then(() => customElements.whenDefined(target.localName)))
   }
+  if (labels) Promise.all(waits).then(() => load("label"))
 }
 
 export function autoload({ root = document } = {}) {

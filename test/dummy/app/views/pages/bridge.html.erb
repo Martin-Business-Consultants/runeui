@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= csrf_meta_tags %>
     <% if ENV["RUNE_UI"] %><%= stylesheet_link_tag "rune_ui/tokens", "rune_ui/base", "rune_ui/buttons", "rune_ui/forms" %><% end %>
-    <%= runeui_tags theme: false %>
+    <%= runeui_tags tokens: false, page: false, theme: false %>
     <%= stylesheet_link_tag "runeui/bridges/rune_ui", "bridge" %>
     <%= javascript_importmap_tags %>
   </head>

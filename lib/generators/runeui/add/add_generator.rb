@@ -30,7 +30,7 @@ module Runeui
 
       def tokens
         return unless components == [ "all" ]
-        %w[tokens base].each do |sheet|
+        %w[tokens page base].each do |sheet|
           copy_file "app/assets/stylesheets/runeui/#{sheet}.css", "app/assets/stylesheets/runeui/#{sheet}.css", force: options[:force]
         end
       end

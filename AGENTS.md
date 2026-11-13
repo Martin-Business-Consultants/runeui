@@ -124,6 +124,22 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 - No inline styles, no build step, nothing from npm at runtime: the vendored modules are the only
   third-party JavaScript.
 
+## Beside another kit
+
+runeui must be able to sit in an app that has its own styles without changing a pixel of them
+(tried in Runwell, beside rune_ui: every existing page identical before and after). So:
+
+- `base.css` and every component sheet select only runeui's own parts: something with a
+  `data-slot` or a `ui-` class, and what's inside it. Nothing bare (`*`, `body`, `button`,
+  `[hidden]`, `:focus-visible`). The page reset and body are `page.css`, which
+  `runeui_tags(page: false)` leaves out.
+- Tokens on `:root` are `tokens.css` only, which `runeui_tags(tokens: false)` leaves out for a
+  bridge. shadcn's names collide with other vocabularies (`--accent`, `--ring`, `--border`,
+  `--muted`), so a bridge defines every token on runeui's parts, never on the root
+  (`bridges/rune_ui.css`).
+- Options come from `runeui_tags` (a `<meta name="runeui">`), not from JavaScript beside the
+  import: `confirm: false`, `toasts: false` keep the app's own.
+
 ## ReActionView
 
 runeui is written to work in an app that compiles its templates with ReActionView (Herb's

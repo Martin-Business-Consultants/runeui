@@ -10,13 +10,24 @@ module Runeui
     #   <%= runeui_tags components: %w[button select dialog] %>   # only these components' CSS
     #   <%= runeui_tags lexxy: true %>                            # with the Lexxy editor's skin
     #   <%= runeui_tags theme: false %>                           # the app sets light and dark
-    def runeui_tags(components: nil, theme: true, lexxy: false, **options)
-      sheets = [ "runeui/tokens", "runeui/base" ]
+    #   <%= runeui_tags page: false %>                            # no reset or body styles
+    #   <%= runeui_tags tokens: false, page: false, theme: false %>  # beside another kit, with a bridge
+    #   <%= runeui_tags confirm: false, toasts: false %>          # keep the app's own confirm and flash
+    #   <%= runeui_tags agent: true %>                            # offer the page to a browser's agent
+    def runeui_tags(components: nil, theme: true, lexxy: false, tokens: true, page: true, confirm: true, toasts: true, agent: false, **options)
+      # page: false leaves the body and the reset to the app (one with its own base styles).
+      # tokens: false leaves runeui's tokens out too, for a bridge that defines them from the
+      # app's own (runeui/bridges/rune_ui): nothing of runeui's then lands on :root.
+      sheets = [ ("runeui/tokens" if tokens), ("runeui/page" if page), "runeui/base" ].compact
       sheets += (components || Runeui.stylesheets).map { "runeui/components/#{it}" }
       # Lexxy's own sheet, then runeui's skin over it (ui :editor).
       sheets += [ "lexxy", "runeui/lexxy" ] if lexxy
+      settings = { confirm: confirm, toasts: toasts, agent: agent }
       safe_join([
         nonce_meta_tag,
+        # What import "runeui" reads as it starts (an import runs before the file that imports
+        # it, so options can't be set in JavaScript beside the import).
+        tag.meta(name: "runeui", content: settings.to_json),
         # theme: false leaves light and dark to the app (one themed another way, as through
         # runeui/bridges/rune_ui.css): no script before paint, and runeui's JavaScript keeps off
         # .dark and data-theme.

@@ -3,8 +3,10 @@
 // included) and the Hotwire layer (morphs keep component state, form values fire change,
 // data-turbo-confirm asks with an alert dialog, the flash and ui_* stream actions show toasts).
 //
-// Options, set before the import as window.runeui = { … } or with start():
-//   confirm: false    keep the browser's confirm() for data-turbo-confirm
+// Options come from the page: runeui_tags(confirm: false, toasts: false, agent: true) writes
+// <meta name="runeui" content='{…}'>, read here as the module starts. (Not from JavaScript
+// beside the import: imports run before the file that imports them.)
+//   confirm: false    keep the app's own confirm for data-turbo-confirm
 //   toasts: false     leave the flash and ui_toast alone
 //   agent: true       let a browser's agent read and use the components (WebMCP)
 import { autoload } from "runeui/autoload"
@@ -22,7 +24,11 @@ export function start(options = {}) {
   }
 }
 
-start(window.runeui || {})
+function pageOptions() {
+  try { return JSON.parse(document.querySelector('meta[name="runeui"]')?.content || "{}") } catch { return {} }
+}
+
+start({ ...pageOptions(), ...(window.runeui || {}) })
 
 export { load, defined } from "runeui/autoload"
 export { toast, confirm } from "runeui/feedback"

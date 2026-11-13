@@ -1,0 +1,22 @@
+/* runeui: the page. A small reset and the body, for an app whose look is runeui's. An app with
+   its own base styles (or another kit's) leaves this out: runeui_tags(page: false). */
+
+@layer runeui.base {
+  *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: var(--ui-text-sm);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  [hidden]:not([hidden="until-found"]) { display: none !important; }
+
+  button, input, select, textarea { font: inherit; color: inherit; }
+}

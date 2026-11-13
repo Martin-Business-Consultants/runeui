@@ -1,27 +1,27 @@
-/* runeui: base. The page, and what every component shares. */
+/* runeui: base. What every component shares. Nothing here reaches past runeui's own parts
+   (anything with a data-slot or a ui-* class, and what's inside it), so runeui can sit beside
+   another kit's styles without changing them. The page itself (body, the reset) is page.css. */
+
+/* The layer order, here as in tokens.css, for a page that links base without tokens. */
+@layer ui-sdk, runeui.tokens, runeui.base, runeui.components, runeui.utilities;
 
 @layer runeui.base {
-  *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
-
-  html { -webkit-text-size-adjust: 100%; }
-
-  body {
-    margin: 0;
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-sans);
-    font-size: var(--ui-text-sm);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
+  :where([data-slot], [class^="ui-"], [class*=" ui-"]),
+  :where([data-slot], [class^="ui-"], [class*=" ui-"]) :where(*, *::before, *::after),
+  :where([data-slot], [class^="ui-"], [class*=" ui-"])::before,
+  :where([data-slot], [class^="ui-"], [class*=" ui-"])::after { box-sizing: border-box; border-color: var(--border); }
 
   /* hidden always hides, whatever display a component's parts are given (UI SDK leaves a
      closing popup shown until its exit transition ends, then sets hidden). */
-  [hidden]:not([hidden="until-found"]) { display: none !important; }
+  :is([data-slot], [class^="ui-"], [class*=" ui-"])[hidden]:not([hidden="until-found"]),
+  :is([data-slot], [class^="ui-"], [class*=" ui-"]) [hidden]:not([hidden="until-found"]) { display: none !important; }
 
-  :focus-visible { outline: none; }
+  /* Components draw their own focus rings (--ui-focus-ring). */
+  :where([data-slot], [class^="ui-"], [class*=" ui-"]):focus-visible,
+  :where([data-slot], [class^="ui-"], [class*=" ui-"]) :focus-visible { outline: none; }
 
-  button, input, select, textarea { font: inherit; color: inherit; }
+  :where([data-slot], [class^="ui-"], [class*=" ui-"]) :where(button, input, select, textarea),
+  :where(button, input, select, textarea):where([data-slot], [class^="ui-"], [class*=" ui-"]) { font: inherit; color: inherit; }
 
   .ui-icon { flex-shrink: 0; width: 1rem; height: 1rem; pointer-events: none; }
 
@@ -40,7 +40,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+    :is([data-slot], [class^="ui-"], [class*=" ui-"]),
+    :is([data-slot], [class^="ui-"], [class*=" ui-"]) * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
   }
 }
 

@@ -91,6 +91,7 @@ merged: classes join, `data-action` and `data-controller` add to the component's
 | Morphs (`turbo_refreshes_with method: :morph`, `method: "morph"` streams) | A component's live state survives: an open popup, a value someone picked but hasn't saved. What the server changed (a new `default-value`) is followed. `data-morph="replace"` or `"keep"` overrides it for a subtree. |
 | Frames and streams | Components in what they bring load and upgrade as they arrive. |
 | Forms | Form controls are form-associated: they submit, reset and validate with the form, and fire `change` so `data-action="change->form#requestSubmit"` works. |
+| Keeping your own | `runeui_tags confirm: false, toasts: false` leaves `data-turbo-confirm` and the flash to the app. |
 | `data-turbo-confirm` | Asks in `ui :confirm`. Add `data-turbo-confirm-description`, `-button`, `-cancel`, `-variant="destructive"`. |
 | Toasts | The flash (`ui_flash_toasts`), `turbo_stream.ui_toast("Saved", type: :success, description: "…")`, `data-runeui-toast='{"title": "Copied"}'` on a button, or `toast()` from `import { toast } from "runeui"`. |
 | Opening from elsewhere | `data-runeui-open="dialog-id"` on any button, `turbo_stream.ui_open(id)` / `ui_close(id)`, or `element.open = true`. |
@@ -117,7 +118,8 @@ so it wins over runeui's defaults. `--radius` sets every corner. Dark mode is `.
 `data-runeui-theme="toggle"` (or `light`, `dark`, `system`) changes it.
 
 Already themed with rune_ui (as Runwell is)? Link `runeui/bridges/rune_ui` after
-`runeui_tags theme: false`: runeui's tokens are then defined from rune's (`--page`, `--text`,
+`runeui_tags tokens: false, page: false, theme: false`: nothing of runeui's then lands on the
+page or its root, and runeui's tokens are defined, on its own parts, from rune's (`--page`, `--text`,
 `--accent`, `--radius-scale`…), so an app's existing appearance settings reach every runeui
 component, and light and dark stay the app's to switch.
 
