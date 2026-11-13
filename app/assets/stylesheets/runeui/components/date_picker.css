@@ -25,7 +25,8 @@
   [data-slot="date-picker-control"][data-size="lg"] { height: var(--ui-h-lg); }
 
   [data-slot="date-picker-input"], .ui-date-picker__input {
-    width: 6.6em;
+    flex: 1 1 auto;
+    width: 7.5em; /* room for a "MM/DD/YYYY" placeholder; a stretched picker gives it the rest */
     min-width: 0;
     padding: 0;
     border: 0;
