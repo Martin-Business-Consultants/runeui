@@ -3,4 +3,10 @@
 
 @layer runeui.components {
   .ui-alert-dialog-form { display: contents; }
+
+  /* confirm_text: the field to type it in, and the action off until it matches. */
+  [data-slot="alert-dialog-confirm"] { display: grid; gap: 0.5rem; font-size: var(--ui-text-sm); }
+  [data-slot="alert-dialog-confirm-label"] { color: var(--muted-foreground); }
+  [data-slot="alert-dialog-confirm-label"] strong { color: var(--foreground); font-weight: 500; user-select: all; }
+  .ui-alert-dialog-form:invalid button[type="submit"] { opacity: 0.5; pointer-events: none; }
 }

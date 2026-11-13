@@ -1,7 +1,10 @@
+<% brand = capture do %>
+  <%= link_to runeui_docs_path, class: "runeui-shell-brand" do %><span class="runeui-shell-logo">R</span><span data-slot="sidebar-label">Acme Studio</span><% end %>
+<% end %>
+<% account = capture do %>
+  <%= link_to "#", class: "runeui-shell-brand" do %><%= ui :avatar, name: "Priya Shah", size: :sm %><span data-slot="sidebar-label">Priya Shah</span><% end %>
+<% end %>
 <% sidebar = capture do %>
-  <div data-slot="sidebar-header">
-    <%= link_to runeui_docs_path, class: "runeui-shell-brand" do %><span class="runeui-shell-logo">R</span><span data-slot="sidebar-label">Acme Studio</span><% end %>
-  </div>
   <%= ui :sidebar_group do %>
     <%= ui :sidebar_item, label: "Inbox", href: "#", icon: :inbox, badge: 4 %>
     <%= ui :sidebar_item, label: "Tasks", href: runeui_doc_path("app_shell", full: 1), icon: :check, active: true %>
@@ -14,7 +17,7 @@
     <%= ui :sidebar_item, label: "Local search", href: "#", icon: :folder %>
   <% end %>
 <% end %>
-<%= ui :app_shell, variant: :inset, sidebar: sidebar, header: ui(:breadcrumb, items: [ [ "Projects", "#" ], "Spring launch" ]) do %>
+<%= ui :app_shell, variant: :inset, sidebar: sidebar, sidebar_header: brand, sidebar_footer: account, header: ui(:breadcrumb, items: [ [ "Projects", "#" ], "Spring launch" ]) do %>
   <%= ui :page_header, title: "Spring launch", description: "Bloom Florists · due Friday", actions: safe_join([ ui(:button, variant: :outline, content: "Share"), ui(:button, content: "New task", icon: :plus) ]) %>
   <%= ui :table do %>
     <thead><tr><th>Task</th><th>Status</th><th>Owner</th><th data-align="end">Due</th></tr></thead>

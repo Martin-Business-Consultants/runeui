@@ -46,6 +46,9 @@ document.addEventListener("click", (event) => {
   const opener = event.target.closest?.("[data-runeui-open], [data-runeui-close]")
   if (!opener) return
   const opening = opener.hasAttribute("data-runeui-open")
+  // A submit button that closes its dialog leaves it open while its form won't send (a field
+  // still to fill in).
+  if (!opening && opener.type === "submit" && opener.form && !opener.form.checkValidity()) return
   const target = document.getElementById(opening ? opener.dataset.runeuiOpen : opener.dataset.runeuiClose)
   if (target && "open" in target) target.open = opening
 })

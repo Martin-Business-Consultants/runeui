@@ -3,12 +3,26 @@ import { Controller } from "@hotwired/stimulus"
 // The app shell's sidebar (ui :app_shell). toggle collapses it to icons and back, remembered in
 // a cookie the server reads so the next page draws it the same way from the first paint; on a
 // phone the same toggle slides it in over the page, and close (the scrim, Escape, following a
-// link) puts it away. The [ key toggles from anywhere outside a field.
+// link) puts it away. The [ key toggles from anywhere outside a field. Where the sidebar's groups
+// were scrolled to is kept as pages change (a Turbo visit brings a new sidebar, at its top), for
+// as long as the tab lasts.
+let scrolledTo = 0
+
 export default class extends Controller {
+  static targets = [ "content" ]
   static values = { cookie: { type: String, default: "runeui_sidebar" } }
 
   connect() {
     this.phone = matchMedia("(max-width: 767px)")
+  }
+
+  contentTargetConnected(content) {
+    if (scrolledTo) content.scrollTop = scrolledTo
+  }
+
+  // scroll->runeui--sidebar#scrolled on the sidebar's content
+  scrolled(event) {
+    scrolledTo = event.currentTarget.scrollTop
   }
 
   toggle() {

@@ -2,6 +2,14 @@
 <div class="runeui-docs__row">
   <%= button_to "From the server", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { hello: "world" }, form: { data: { turbo_stream: true } } %>
   <%= button_to "From the flash", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { via: "flash" }, form: { data: { turbo: false } } %>
+  <%= button_to "From the flash, through Turbo", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { toast: "redirect" } %>
+</div>
+<h2>With an action, and one that stays</h2>
+<p>An action is a button in the toast: <code>action: { label:, url:, method:, params: }</code> sends that request (Undo), <code>{ label:, href: }</code> goes to a page. <code>duration:</code> is how long it shows, in milliseconds; <code>0</code> stays until it's closed, as an alert from the flash does.</p>
+<div class="runeui-docs__row">
+  <%= button_to "With Undo", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { toast: "undo" } %>
+  <%= button_to "One that stays", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { toast: "stays" } %>
+  <%= button_to "A flash with a link", runeui_echo_path("toast"), class: "ui-button", data: { variant: "outline", size: "default" }, params: { toast: "flash" }, form: { data: { turbo: false } } %>
 </div>
 <h2>From JavaScript</h2>
 <pre><code>import { toast } from "runeui"

@@ -19,14 +19,17 @@
     top: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
     height: 100dvh;
-    overflow: hidden auto;
-    padding: 0.5rem;
+    overflow: hidden;
     border-inline-end: 1px solid var(--sidebar-border);
     background: var(--sidebar);
     color: var(--sidebar-foreground);
   }
+
+  /* The header and footer stay; the groups between them scroll. */
+  [data-slot="sidebar-header"], [data-slot="sidebar-footer"] { display: flex; flex: none; flex-direction: column; gap: 0.5rem; min-width: 0; padding: 0.5rem; }
+  [data-slot="sidebar-content"] { display: flex; flex: 1; flex-direction: column; gap: 0.5rem; min-height: 0; overflow: hidden auto; padding: 0.5rem; }
+  [data-slot="sidebar-header"] + [data-slot="sidebar-content"] { padding-top: 0; }
 
   [data-slot="app-shell"][data-variant="inset"] [data-slot="sidebar"] { border-inline-end: 0; }
 
@@ -43,6 +46,7 @@
     top: 0;
     z-index: 10;
     display: flex;
+    flex: none;
     align-items: center;
     gap: 0.5rem;
     height: 3rem;
@@ -105,9 +109,12 @@
   [data-slot="sidebar-menu-label"] { flex: 1; overflow: hidden; text-overflow: ellipsis; }
   [data-slot="sidebar-menu-badge"] { min-width: 1.25rem; padding: 0 0.25rem; border-radius: var(--ui-radius-sm); font-size: var(--ui-text-xs); font-variant-numeric: tabular-nums; text-align: center; }
 
-  /* Collapsed to icons */
-  [data-sidebar="collapsed"] :is([data-slot="sidebar-group-label"], [data-slot="sidebar-menu-label"], [data-slot="sidebar-menu-badge"], [data-slot="sidebar-menu-sub"], [data-slot="sidebar-label"]) { display: none; }
-  [data-sidebar="collapsed"] [data-slot="sidebar-menu-button"] { justify-content: center; width: 2rem; padding: 0; }
+  /* Collapsed to icons (the shell's own data-sidebar: an app may use that name elsewhere). Not
+     on a phone, where the sidebar is a sheet and always whole. */
+  @media (min-width: 768px) {
+    [data-slot="app-shell"][data-sidebar="collapsed"] :is([data-slot="sidebar-group-label"], [data-slot="sidebar-menu-label"], [data-slot="sidebar-menu-badge"], [data-slot="sidebar-menu-sub"], [data-slot="sidebar-label"]) { display: none; }
+    [data-slot="app-shell"][data-sidebar="collapsed"] [data-slot="sidebar-menu-button"] { justify-content: center; width: 2rem; padding: 0; }
+  }
 
   [data-slot="sidebar-scrim"] { display: none; }
 
@@ -125,8 +132,6 @@
     }
     [data-slot="app-shell"][data-mobile-open] [data-slot="sidebar"] { translate: 0 0; }
     [data-slot="app-shell"][data-mobile-open] [data-slot="sidebar-scrim"] { position: fixed; inset: 0; z-index: 55; display: block; background: oklch(0 0 0 / 0.4); }
-    [data-sidebar="collapsed"] :is([data-slot="sidebar-group-label"], [data-slot="sidebar-menu-label"], [data-slot="sidebar-menu-badge"]) { display: revert; }
-    [data-sidebar="collapsed"] [data-slot="sidebar-menu-button"] { justify-content: flex-start; width: auto; padding: 0 0.5rem; }
     [data-slot="app-shell"][data-variant="inset"] [data-slot="app-inset"] { margin: 0; border-radius: 0; }
     [data-slot="app-content"] { padding: 1rem; }
   }
@@ -137,8 +142,4 @@
   [data-slot="page-title"] { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; }
   [data-slot="page-description"] { margin: 0; color: var(--muted-foreground); }
   [data-slot="page-actions"] { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-}
-
-@layer runeui.components {
-  [data-slot="sidebar-header"] { display: flex; align-items: center; min-height: 2.5rem; padding: 0 0.25rem; }
 }

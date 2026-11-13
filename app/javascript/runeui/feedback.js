@@ -20,7 +20,7 @@ const TOASTER = `
   <template>
     <ui-toast data-slot="toast">
       <div data-slot="toast-body"><ui-toast-title data-slot="toast-title"></ui-toast-title><ui-toast-description data-slot="toast-description"></ui-toast-description></div>
-      <ui-toast-action data-slot="toast-action"></ui-toast-action>
+      <ui-toast-action data-slot="toast-action"><button type="button"></button></ui-toast-action>
       <ui-toast-close data-slot="toast-close"><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Close">×</button></ui-toast-close>
     </ui-toast>
   </template>
@@ -41,6 +41,15 @@ const CONFIRM = `
   </ui-alert-dialog-content>
 </ui-alert-dialog>`
 
+// While Turbo renders a page it holds each data-turbo-permanent element aside, a placeholder in
+// its place, and puts it back a moment later. Something that arrives in between (the new page's
+// flash) waits for it, or it would find no region and make a second one.
+async function settled(id) {
+  for (let tries = 0; tries < 100 && document.querySelector(`meta[name="turbo-permanent-placeholder"][content="${id}"]`); tries++) {
+    await new Promise((resolve) => setTimeout(resolve, 10))
+  }
+}
+
 function ensure(id, html) {
   let element = document.getElementById(id)
   if (!element) {
@@ -50,11 +59,55 @@ function ensure(id, html) {
   return element
 }
 
+// Sends a request as a form would, through Turbo when it's there (so the answer may be a
+// redirect or Turbo Streams): what a toast's action does with its url.
+function submit(url, method = "post", params = {}) {
+  const verb = String(method).toLowerCase()
+  const form = document.createElement("form")
+  form.method = verb === "get" ? "get" : "post"
+  form.action = url
+  form.hidden = true
+  const fields = { ...params }
+  if (verb !== "get") {
+    if (verb !== "post") fields._method = verb
+    const name = document.querySelector("meta[name=csrf-param]")?.content
+    const token = document.querySelector("meta[name=csrf-token]")?.content
+    if (name && token) fields[name] = token
+  }
+  for (const [ name, value ] of Object.entries(fields)) {
+    const field = document.createElement("input")
+    field.type = "hidden"
+    field.name = name
+    field.value = value
+    form.append(field)
+  }
+  document.body.append(form)
+  form.addEventListener("turbo:submit-end", () => form.remove(), { once: true })
+  form.requestSubmit()
+}
+
+// A toast's action as the server can write it (JSON has no functions): { label, url, method,
+// params } sends that request, { label, href } visits that page. One with its own onAction is
+// left alone.
+function wireAction(action) {
+  if (!action || typeof action.onAction === "function") return action
+  const { url, method, params, href, ...rest } = action
+  if (url) return { ...rest, onAction: () => submit(url, method, params) }
+  if (href) return { ...rest, onAction: () => (window.Turbo ? window.Turbo.visit(href) : window.location.assign(href)) }
+  return action
+}
+
 // Shows a toast: toast("Saved"), toast("Couldn't save", { type: "error", description: "…" }).
+// From the server (the flash, turbo_stream.ui_toast) the options are JSON, so: duration: 0 stays
+// until it's closed, and action: { label: "Undo", url: "/removals/3", method: "delete" } is a
+// button that sends that request (or { label: "Open", href: "/projects/3" }, which goes there).
 export async function showToast(title, options = {}) {
   await load("toast")
+  await settled("runeui-toaster")
   ensure("runeui-toaster", TOASTER)
   const { type, ...rest } = options
+  if (rest.duration === 0) rest.duration = Infinity
+  if (rest.action) rest.action = wireAction(rest.action)
   return type && typeof toast[type] === "function" ? toast[type](title, rest) : toast(title, rest)
 }
 
@@ -63,6 +116,7 @@ let asker = null
 async function confirmer() {
   if (asker) return asker
   const [ { createConfirm } ] = await Promise.all([ load("alert-dialog") ])
+  await settled("runeui-confirm")
   const dialog = ensure("runeui-confirm", CONFIRM)
   await customElements.whenDefined("ui-alert-dialog")
   const ask = createConfirm()

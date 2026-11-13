@@ -2,7 +2,9 @@ module Runeui
   # Turbo Stream actions the components answer to:
   #
   #   turbo_stream.ui_toast "Saved"
-  #   turbo_stream.ui_toast "Couldn't save", type: :error, description: "The name is taken"
+  #   turbo_stream.ui_toast "Couldn't save", type: :error, description: "The name is taken", duration: 0   # stays until closed
+  #   turbo_stream.ui_toast "Removed", duration: 8000, action: { label: "Undo", url: removal_path(removal), method: :delete }
+  #   turbo_stream.ui_toast "Added Bloom", action: { label: "Open", href: client_path(client) }
   #   turbo_stream.ui_open  "settings-dialog"     # a dialog, sheet, popover or menu by id
   #   turbo_stream.ui_close "settings-dialog"
   module TurboStreamActions

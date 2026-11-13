@@ -23,6 +23,20 @@ module Runeui
 
     def echo
       received = request.request_parameters.except("authenticity_token", "component").to_h
+      # The toast page's own examples: one with an action that sends a request (Undo), one that
+      # stays until it's closed, a flash after a redirect Turbo follows, and one that carries an
+      # action across the redirect.
+      case received["toast"]
+      when "undo"
+        undo = { label: "Undo", url: runeui_echo_path("toast"), params: { undone: "yes" } }
+        return render(turbo_stream: turbo_stream.ui_toast("Removed", duration: 8000, action: undo))
+      when "stays"
+        return render(turbo_stream: turbo_stream.ui_toast("Couldn't save", type: :error, description: "It stays until it's closed", duration: 0))
+      when "redirect"
+        return redirect_to(runeui_doc_path(params[:component]), notice: "Came back with it")
+      when "flash"
+        return redirect_to(runeui_doc_path(params[:component]), notice: { title: "Added Bloom", action: { label: "Open", href: runeui_doc_path("button") } })
+      end
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.ui_toast("Received", type: :success, description: received.to_json) }
         format.html { redirect_to runeui_doc_path(params[:component]), notice: "Received #{received.to_json}" }

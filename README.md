@@ -93,7 +93,8 @@ merged: classes join, `data-action` and `data-controller` add to the component's
 | Forms | Form controls are form-associated: they submit, reset and validate with the form, and fire `change` so `data-action="change->form#requestSubmit"` works. |
 | Keeping your own | `runeui_tags confirm: false, toasts: false` leaves `data-turbo-confirm` and the flash to the app. |
 | `data-turbo-confirm` | Asks in `ui :confirm`. Add `data-turbo-confirm-description`, `-button`, `-cancel`, `-variant="destructive"`. |
-| Toasts | The flash (`ui_flash_toasts`), `turbo_stream.ui_toast("Saved", type: :success, description: "…")`, `data-runeui-toast='{"title": "Copied"}'` on a button, or `toast()` from `import { toast } from "runeui"`. |
+| Typed to confirm | `ui :alert_dialog, confirm_text: project.name, …`: the action stays off until they've typed it. |
+| Toasts | The flash (`ui_flash_toasts`), `turbo_stream.ui_toast("Saved", type: :success, description: "…")`, `data-runeui-toast='{"title": "Copied"}'` on a button, or `toast()` from `import { toast } from "runeui"`. From the server a toast can carry a button: `action: { label: "Undo", url: removal_path(removal), method: :delete }` sends that request, `action: { label: "Open", href: … }` goes to a page; `duration:` is how long it stays (ms; `0` until closed, as an alert from the flash does). A flash message may be a hash with the same options. |
 | Opening from elsewhere | `data-runeui-open="dialog-id"` on any button, `turbo_stream.ui_open(id)` / `ui_close(id)`, or `element.open = true`. |
 
 ## App pieces
@@ -102,7 +103,7 @@ Beyond single components, the parts an app is made of:
 
 | | |
 | --- | --- |
-| `ui :app_shell` with `ui :sidebar_group`, `ui :sidebar_item`, `ui :page_header` | The shell: a sidebar that collapses to icons (`[`), remembered by cookie so the server draws it right from the first paint; a sheet on phones. |
+| `ui :app_shell` with `ui :sidebar_group`, `ui :sidebar_item`, `ui :page_header` | The shell: a sidebar that collapses to icons (`[`), remembered by cookie so the server draws it right from the first paint; a sheet on phones. `sidebar_header:` and `sidebar_footer:` stay put while the groups between them scroll, and the scroll is kept from page to page. |
 | `ui :table, selectable: true` with `ui :select_cell`, `ui :sort_header`, `ui :bulk_bar` | A data table: sort links that keep the page's other params, select-all, shift-click ranges, a bulk bar that submits the picked ids. |
 | `ui :filter`, `ui :filter_bar` | Filter pills: each a GET form that swaps one query param, so filters are bookmarkable and Back works. |
 | `ui :board`, `ui :board_column`, `ui :board_card` | A kanban board: drag between and within columns (pointer, touch, and Shift+arrows on the keyboard), one request per move (`card`, `column`, `before`) answered by Turbo Streams, put back if it fails. |

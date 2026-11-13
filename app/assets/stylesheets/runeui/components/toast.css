@@ -11,6 +11,9 @@
     border: 0;
     background: transparent;
     overflow: visible;
+    /* The region's align="end" attribute (which corner) is also HTML's old align, which a
+       browser reads as text-align: end. */
+    text-align: start;
     transition: height 300ms var(--ui-ease);
   }
 

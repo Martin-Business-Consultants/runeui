@@ -120,11 +120,18 @@ module Runeui
     end
 
     # The flash as toasts: rendered once in the layout, each message becomes a toast as the page
-    # (or a Turbo visit) arrives. Notices go by themselves; alerts stay until closed.
+    # (or a Turbo visit) arrives. Notices go by themselves; alerts stay until closed. A message
+    # may be a hash, for a toast with more than a title (string keys too, as a flash that crossed
+    # a redirect has):
+    #
+    #   flash[:notice] = { title: "Removed.", duration: 8000, action: { label: "Undo", url: removal_path(removal), method: :delete } }
     def ui_flash_toasts(flash = self.flash)
       messages = flash.to_h.filter_map do |kind, message|
         next if message.blank?
-        { type: (kind.to_s == "alert" ? "error" : (kind.to_s == "notice" ? "success" : kind.to_s)), title: message.to_s }
+        options = message.is_a?(Hash) ? message.to_h.deep_symbolize_keys : { title: message.to_s }
+        next if options[:title].blank?
+        type = kind.to_s == "alert" ? "error" : (kind.to_s == "notice" ? "success" : kind.to_s)
+        { type: type, duration: (0 if type == "error") }.compact.merge(options)
       end
       tag.template(data: { runeui_toasts: messages.to_json }) if messages.any?
     end

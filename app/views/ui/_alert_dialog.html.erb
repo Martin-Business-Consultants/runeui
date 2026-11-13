@@ -1,4 +1,4 @@
-<%# locals: (content: nil, trigger: nil, title: nil, description: nil, cancel: nil, action: nil, href: nil, method: nil, params: nil, variant: nil, id: nil, open: nil, **attrs) %>
+<%# locals: (content: nil, trigger: nil, title: nil, description: nil, cancel: nil, action: nil, href: nil, method: nil, params: nil, variant: nil, id: nil, open: nil, confirm_text: nil, confirm_name: nil, confirm_label: nil, **attrs) %>
 <%#
   Alert Dialog: a question that needs an answer before anything else (shadcn's Alert Dialog).
   Cancel closes it; the action button closes it too and, with href:, submits a form there
@@ -8,6 +8,13 @@
 
     ui :alert_dialog, trigger: "Delete project", title: "Delete this project?",
        description: "Its tasks and files go too. This can't be undone.",
+       action: "Delete", variant: :destructive, href: project_path(project), method: :delete
+
+  confirm_text: makes them type it first (a name, say): the action stays off until the field
+  holds exactly that, and what they typed is sent with the form as confirm_name: ("confirm").
+
+    ui :alert_dialog, trigger: "Delete for good", title: "Delete Spring launch for good?",
+       confirm_text: project.name, confirm_name: "confirm_name",
        action: "Delete", variant: :destructive, href: project_path(project), method: :delete
 
   The block, when given, goes under the description. trigger: a string makes an outline
@@ -32,15 +39,25 @@
       <% if description %><ui-alert-dialog-description data-slot="alert-dialog-description"><%= description %></ui-alert-dialog-description><% end %>
     </div>
     <% if content %><div data-slot="dialog-body"><%= content %></div><% end %>
+    <% if confirm_text %>
+    <%# Outside the form (which is the action button's), joined to it by id. Its pattern is the
+        text itself, so the browser keeps the form from sending until it matches, and the
+        stylesheet dims the action while it doesn't (form:invalid). %>
+    <label data-slot="alert-dialog-confirm">
+      <span data-slot="alert-dialog-confirm-label"><%= confirm_label || safe_join([ "Type ", content_tag(:strong, confirm_text), " to confirm" ]) %></span>
+      <%= ui :input, name: (confirm_name || "confirm"), form: "#{dialog_id}-form", required: true, autofocus: true, autocomplete: "off", spellcheck: "false",
+            pattern: "\\s*" + confirm_text.to_s.gsub(/[.*+?^${}()|\[\]\\\/]/) { "\\" + it } + "\\s*", aria: { label: "Type #{confirm_text} to confirm" } %>
+    </label>
+    <% end %>
     <div data-slot="dialog-footer">
       <ui-alert-dialog-close><button type="button" class="ui-button" data-variant="outline" data-size="default" data-slot="alert-dialog-close"><%= cancel || "Cancel" %></button></ui-alert-dialog-close>
       <% if href %>
-      <%= form_with url: href, method: (method || :post), class: "ui-alert-dialog-form" do %>
+      <%= form_with url: href, method: (method || :post), id: "#{dialog_id}-form", class: "ui-alert-dialog-form" do %>
         <% Array(params).each do |key, value| %>
         <%# herb:key key %>
         <input type="hidden" name="<%= key %>" value="<%= value %>">
         <% end %>
-        <%# A Close part would cancel the submit, so the button closes the dialog itself (data-runeui-close) and submits as usual. %>
+        <%# A Close part would cancel the submit, so the button closes the dialog itself (data-runeui-close, only when its form is fit to send) and submits as usual. %>
         <button type="submit" class="ui-button" data-variant="<%= (variant || "default") %>" data-size="default" data-runeui-close="<%= dialog_id %>"><%= action || "Continue" %></button>
       <% end %>
       <% else %>

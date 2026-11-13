@@ -1,4 +1,4 @@
-<%# locals: (content: nil, sidebar: nil, header: nil, variant: nil, **attrs) %>
+<%# locals: (content: nil, sidebar: nil, sidebar_header: nil, sidebar_footer: nil, header: nil, variant: nil, content_attrs: nil, **attrs) %>
 <%#
   App shell: the sidebar beside the page, as shadcn's Sidebar does it. The sidebar collapses to
   icons (the toggle, or [ on the keyboard), remembered in a cookie so the server draws it that
@@ -9,14 +9,24 @@
       (the page: the layout's own yield goes here)
     end
 
-  The sidebar's own pieces: ui :sidebar_group and ui :sidebar_item (see them). Its behaviour is
-  the runeui--sidebar Stimulus controller on the shell: any button inside with
-  data-action="runeui--sidebar#toggle" toggles it.
+  The sidebar's own pieces: ui :sidebar_group and ui :sidebar_item (see them). sidebar_header:
+  stays at its top (the app's name) and sidebar_footer: at its foot (the person's menu) while the
+  groups between them scroll; inside either, whatever has data-slot="sidebar-label" hides while the
+  sidebar is icons. Its behaviour is the runeui--sidebar Stimulus controller on the shell: any
+  button inside with data-action="runeui--sidebar#toggle" toggles it, and where the groups were
+  scrolled to is kept from page to page.
+
+    ui :app_shell, sidebar: render("layouts/nav"), sidebar_header: link_to("Acme", root_path),
+       sidebar_footer: render("layouts/account_menu") do … end
+
+  content_attrs: goes on the page's own box (an id for a skip link, a controller of the app's).
 %>
 <% collapsed = cookies[:runeui_sidebar] == "collapsed" %>
 <%= ui_tag(:div, { data: { slot: "app-shell", variant: (variant || "sidebar").to_s, sidebar: (collapsed ? "collapsed" : "expanded"), controller: "runeui--sidebar", action: "keydown@window->runeui--sidebar#key turbo:before-cache@document->runeui--sidebar#close" } }, attrs) do %>
   <aside data-slot="sidebar" aria-label="Main" data-action="click->runeui--sidebar#closeOnLink">
-    <%= sidebar %>
+    <% if sidebar_header %><div data-slot="sidebar-header"><%= sidebar_header %></div><% end %>
+    <div data-slot="sidebar-content" data-runeui--sidebar-target="content" data-action="scroll->runeui--sidebar#scrolled"><%= sidebar %></div>
+    <% if sidebar_footer %><div data-slot="sidebar-footer"><%= sidebar_footer %></div><% end %>
   </aside>
   <div data-slot="sidebar-scrim" data-action="click->runeui--sidebar#close" aria-hidden="true"></div>
   <main data-slot="app-inset">
@@ -24,6 +34,6 @@
       <button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" data-action="runeui--sidebar#toggle" aria-label="Toggle the sidebar" aria-keyshortcuts="["><%= ui_icon "panel-left" %></button>
       <% if header %><div data-slot="app-header-content"><%= header %></div><% end %>
     </header>
-    <div data-slot="app-content"><%= content %></div>
+    <%= ui_tag(:div, { data: { slot: "app-content" } }, content_attrs, content) %>
   </main>
 <% end %>

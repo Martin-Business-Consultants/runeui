@@ -6,3 +6,9 @@
     description: "Its tasks and files go too.", action: "Delete", variant: :destructive,
     href: runeui_echo_path("alert_dialog"), method: :post, params: { deleted: "project" } %>
 </div>
+<h2>Typed to confirm</h2>
+<div class="runeui-docs__row">
+  <%= ui :alert_dialog, id: "erase-project", trigger: ui(:button, variant: :destructive, content: "Delete for good"), title: "Delete Spring launch for good?",
+    description: "Its tasks, notes and history go with it. There's no undo.", confirm_text: "Spring launch", confirm_name: "confirm_name",
+    action: "Delete for good", variant: :destructive, href: runeui_echo_path("alert_dialog"), method: :post %>
+</div>

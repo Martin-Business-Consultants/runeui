@@ -16,7 +16,7 @@
       <span data-slot="toast-icon" data-show="error"><%= ui_icon "circle-alert" %></span>
       <span data-slot="toast-icon" data-show="loading"><%= ui_icon :loader %></span>
       <div data-slot="toast-body"><ui-toast-title data-slot="toast-title"></ui-toast-title><ui-toast-description data-slot="toast-description"></ui-toast-description></div>
-      <ui-toast-action data-slot="toast-action"></ui-toast-action>
+      <ui-toast-action data-slot="toast-action"><button type="button"></button></ui-toast-action>
       <ui-toast-close data-slot="toast-close"><button type="button" class="ui-button" data-variant="ghost" data-size="icon-xs" aria-label="Close"><%= ui_icon :x %></button></ui-toast-close>
     </ui-toast>
   </template>
