@@ -12,7 +12,7 @@ console.log("board")
 for (const scheme of [ "light", "dark" ]) {
   const { browser, page, errors } = await open("/runeui/board", { colorScheme: scheme })
   await page.waitForTimeout(600)
-  if (scheme === "light") await behaviour(page)
+  if (scheme === "light") { await behaviour(page); await folding(page) }
   else if (process.env.SHOTS) {
     // Mid-drag, for the look of the ghost and the line.
     const from = await page.locator("#board-card-4").boundingBox()
@@ -122,7 +122,7 @@ async function behaviour(page) {
     await page.waitForTimeout(150)
     assert((await order("doing")).split(",").includes("4"), `doing is ${await order("doing")}`)
     assert(await page.evaluate(() => document.activeElement.id) === "board-card-4", "focus left the card")
-    const said = await page.locator("[data-runeui--board-target=status]").innerText()
+    const said = await page.locator("[data-runeui--board-target=status]").first().innerText()
     assert(/moved to In progress, \d of \d/.test(said), said)
   })
 
@@ -135,8 +135,10 @@ async function behaviour(page) {
         if (link) { window.followed.push(link.getAttribute("href")); event.preventDefault() }
       })
     })
+    await page.evaluate(() => { window.handled = null; document.addEventListener("keydown", (event) => { if (event.key === "Enter") window.handled = event.defaultPrevented }, { once: true }) })
     await page.focus("#board-card-5")
     await page.keyboard.press("Enter")
+    assert(await page.evaluate(() => window.handled) === true, "Enter wasn't marked handled, so a page's own Enter would open it again")
     await page.click("#board-card-2 a")
     assert((await page.evaluate(() => window.followed.join(","))) === "#task-5,#task-2", await page.evaluate(() => window.followed.join(",")))
   })
@@ -202,5 +204,123 @@ async function behaviour(page) {
     await page.keyboard.press("Shift+ArrowDown")
     await page.waitForTimeout(150)
     assert(await order("planned") === "2,1,3", `planned is ${await order("planned")}`)
+  })
+}
+
+// The second board: columns that fold (kept per browser, through a morph), a column holding only
+// some of its cards (a total and a next-page item), a url naming the card, the title's link: attributes.
+async function folding(page) {
+  const sent = []
+  await page.route(/\/runeui\/board\/echo\?moved=/, async (route) => {
+    const request = route.request()
+    sent.push({ url: request.url(), turbo: request.headers()["x-turbo-request-id"], ...fields(request.postData() || "") })
+    return route.fulfill({ status: 204, body: "" })
+  })
+  await page.evaluate(() => localStorage.clear())
+  await page.reload()
+  await page.waitForTimeout(600)
+  const column = (id) => page.locator(`#board-column-${id}`)
+  const count = (id) => page.locator(`#board-column-${id} [data-slot=board-column-count]`).innerText()
+  const order = (id) => page.evaluate((id) => [ ...document.querySelectorAll(`#board-list-${id} > *`) ].map((item) => item.dataset.card || item.dataset.slot).join(","), id)
+  const folded = (id) => page.evaluate((id) => document.getElementById(`board-column-${id}`).hasAttribute("data-collapsed"), id)
+
+  await check("collapsible columns start folded, as narrow strips", async () => {
+    assert(await folded("won") && await folded("lost"), "not folded")
+    assert(await page.locator("#board-column-won [data-slot=board-column-toggle]").getAttribute("aria-expanded") === "false", "aria-expanded isn't false")
+    const box = await column("won").boundingBox()
+    assert(box.width < 60, `won is ${box.width}px wide`)
+    assert(await page.locator("#board-card-24").isHidden(), "a folded column's card shows")
+  })
+
+  await check("a column with a total shows it, not its cards", async () => {
+    assert(await count("new") === "40", `new says ${await count("new")}`)
+    assert(await order("new") === "21,22,23,board-more", await order("new"))
+  })
+
+  await check("the title's link takes link: attributes", async () => {
+    assert(await page.locator("#board-card-21 a[data-slot=board-card-title][data-lead='21']").count() === 1, "no data-lead on the link")
+  })
+
+  await check("a click on the strip opens it, and the browser remembers", async () => {
+    await column("won").click({ position: { x: 20, y: 120 } })
+    await page.waitForTimeout(150)
+    assert(!(await folded("won")), "still folded")
+    assert(await page.locator("#board-column-won [data-slot=board-column-toggle]").getAttribute("aria-expanded") === "true", "aria-expanded isn't true")
+    await page.reload()
+    await page.waitForTimeout(600)
+    assert(!(await folded("won")) && await folded("lost"), "the choice didn't survive a reload")
+  })
+
+  await check("a move sends to the url with the card in it, through Turbo, and totals follow", async () => {
+    await page.focus("#board-card-21")
+    await page.keyboard.press("Shift+ArrowRight")
+    await page.waitForTimeout(250)
+    const request = sent.at(-1)
+    assert(request && /moved=21/.test(request.url) && request.column === "won" && request.turbo, JSON.stringify(request))
+    assert(await count("new") === "39", `new says ${await count("new")}`)
+    assert(await count("won") === "2", `won says ${await count("won")}`)
+  })
+
+  await check("moving into a folded column opens it", async () => {
+    await page.focus("#board-card-21")
+    await page.keyboard.press("Shift+ArrowRight")
+    await page.waitForTimeout(250)
+    assert(!(await folded("lost")), "lost is still folded")
+    assert((await order("lost")).startsWith("21"), await order("lost"))
+    assert(await page.evaluate(() => document.activeElement.id) === "board-card-21", "focus left the card")
+  })
+
+  await check("a card dropped at the end of a column goes before its next-page item", async () => {
+    const card = await page.locator("#board-card-24").boundingBox()
+    const list = await page.locator("#board-list-new").boundingBox()
+    await page.mouse.move(card.x + card.width / 2, card.y + card.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(card.x + card.width / 2 + 8, card.y + card.height / 2 + 8, { steps: 2 })
+    await page.mouse.move(list.x + list.width / 2, list.y + list.height - 4, { steps: 6 })
+    await page.mouse.up()
+    await page.waitForTimeout(250)
+    assert(await order("new") === "22,23,24,board-more", await order("new"))
+    assert(sent.at(-1).column === "new" && sent.at(-1).before === "", JSON.stringify(sent.at(-1)))
+  })
+
+  await check("a card held over a folded column opens it", async () => {
+    await page.click("#board-column-lost [data-slot=board-column-toggle]")
+    await page.waitForTimeout(100)
+    assert(await folded("lost"), "didn't fold")
+    const card = await page.locator("#board-card-22").boundingBox()
+    const strip = await column("lost").boundingBox()
+    await page.mouse.move(card.x + 20, card.y + 10)
+    await page.mouse.down()
+    await page.mouse.move(card.x + 30, card.y + 20, { steps: 2 })
+    await page.mouse.move(strip.x + strip.width / 2, strip.y + 40, { steps: 6 })
+    await page.waitForTimeout(800)
+    const open = !(await folded("lost"))
+    await page.keyboard.press("Escape")
+    await page.mouse.up()
+    assert(open, "it stayed folded")
+  })
+
+  await check("a morph leaves the folds as this browser has them", async () => {
+    await page.click("#board-column-won [data-slot=board-column-toggle]")
+    await page.waitForTimeout(100)
+    const before = { won: await folded("won"), lost: await folded("lost") }
+    await page.evaluate(() => Turbo.session.refresh(document.baseURI))
+    await page.waitForTimeout(800)
+    assert(await folded("won") === before.won && await folded("lost") === before.lost, JSON.stringify(before))
+    assert(await count("new") === "40" && await order("new") === "21,22,23,board-more", `${await count("new")} ${await order("new")}`)
+  })
+
+  await check("cards an app wraps in elements of its own still say which card they sit before", async () => {
+    await page.evaluate(() => {
+      const card = document.getElementById("board-card-22")
+      const wrapper = document.createElement("span")
+      wrapper.style.display = "contents"
+      card.before(wrapper)
+      wrapper.append(card)
+    })
+    await page.focus("#board-card-21")
+    await page.keyboard.press("Shift+ArrowDown")
+    await page.waitForTimeout(250)
+    assert(sent.at(-1).card === "21" && sent.at(-1).before === "23", JSON.stringify(sent.at(-1)))
   })
 }

@@ -1,4 +1,4 @@
-<%# locals: (content: nil, id: nil, title: nil, count: nil, action: nil, url: nil, empty: nil, footer: nil, tone: nil, **attrs) %>
+<%# locals: (content: nil, id: nil, title: nil, count: nil, action: nil, url: nil, empty: nil, footer: nil, tone: nil, total: nil, more: nil, collapsible: nil, collapsed: nil, **attrs) %>
 <%#
   One column of a ui :board. id: is what a move sends as column (a status, a stage); the block
   is its ui :board_card's. count: is the number in its header until the board counts the cards
@@ -11,17 +11,28 @@
     end
 
   Its list has the id board-list-<id>, for turbo_stream.append and prepend.
+
+  A column holding only some of its cards (a long one, paged): total: is how many it has, which
+  its count shows and moves keep right, and more: is the list's last item, standing in for the
+  rest (a link to the next page, a lazy frame); cards dropped at the end land before it.
+
+    ui :board_column, id: "new", title: "New", total: 40, more: link_to("37 more", next_page_path) do … end
+
+  collapsible: true makes its title a button that folds it to a narrow strip and opens it again
+  (collapsed: true starts it folded); a board with an id: remembers each choice in this browser,
+  and a morph leaves it. A card held over a folded column, or moved into it, opens it.
 %>
 <% key = id.to_s %>
-<%= ui_tag(:section, { id: "board-column-#{key.parameterize}", aria: { labelledby: "board-column-#{key.parameterize}-title" }, data: { slot: "board-column", column: key, title: title, url: url, tone: tone&.to_s, runeui__board_target: "column" } }, attrs) do %>
+<%= ui_tag(:section, { id: "board-column-#{key.parameterize}", aria: { labelledby: "board-column-#{key.parameterize}-title" }, data: { slot: "board-column", column: key, title: title, url: url, tone: tone&.to_s, total: total&.to_s, collapsible: (collapsible ? "" : nil), collapsed: (collapsible && collapsed ? "" : nil), runeui__board_target: "column" } }, attrs) do %>
   <header data-slot="board-column-header">
     <% if tone %><span data-slot="board-column-dot" aria-hidden="true"></span><% end %>
-    <h3 data-slot="board-column-title" id="board-column-<%= key.parameterize %>-title"><%= title || key.humanize %></h3>
+    <h3 data-slot="board-column-title" id="board-column-<%= key.parameterize %>-title"><% if collapsible %><%= ui_tag :button, { type: "button", data: { slot: "board-column-toggle", action: "runeui--board#toggle" }, aria: { expanded: (collapsed ? "false" : "true") } }, {}, (title || key.humanize) %><% else %><%= title || key.humanize %><% end %></h3>
     <span data-slot="board-column-count"><%= count %></span>
     <% if action %><span data-slot="board-column-action"><%= action %></span><% end %>
   </header>
   <ol data-slot="board-list" id="board-list-<%= key.parameterize %>">
     <%= content %>
+    <% if more %><li data-slot="board-more"><%= more %></li><% end %>
   </ol>
   <p data-slot="board-empty"><%= empty || "Nothing here" %></p>
   <% if footer %><div data-slot="board-column-footer"><%= footer %></div><% end %>

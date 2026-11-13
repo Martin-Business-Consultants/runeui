@@ -15,6 +15,13 @@ import { Controller } from "@hotwired/stimulus"
 //
 // Cards and columns are targets, so cards a stream adds or a morph brings are draggable and
 // counted with nothing more to do.
+//
+// A url may hold __card__, which becomes the card's id. With Turbo on the page the request goes
+// through Turbo's fetch (its X-Turbo-Request-Id), so the page skips a refresh it broadcasts back.
+// A column with data-total holds only some of its cards: its count is that total, moved by one
+// as cards leave and land. A list's data-slot="board-more" item (the next page) stays last.
+// A column marked data-collapsible folds and opens from its title (toggle), kept per browser
+// when the board has an id, and left alone by a morph (keep).
 export default class extends Controller {
   static targets = [ "column", "card", "status" ]
   static values = {
@@ -24,6 +31,7 @@ export default class extends Controller {
   }
 
   connect() {
+    this.restoreFolds()
     this.onMove = this.pointerMove.bind(this)
     this.onUp = this.pointerUp.bind(this)
     this.onCancel = this.cancel.bind(this)
@@ -34,6 +42,7 @@ export default class extends Controller {
 
   disconnect() { this.cancel() }
 
+  columnTargetConnected(column) { this.restoreFolds(column) }
   cardTargetConnected() { this.queueCount() }
   cardTargetDisconnected() { this.queueCount() }
 
@@ -110,14 +119,15 @@ export default class extends Controller {
       return x >= box.left && x <= box.right
     })
     if (!column) return
+    this.openWhileHovered(column)
     const list = this.listOf(column)
     const cards = this.cardsIn(column).filter((card) => card !== drag.card)
-    const before = cards.find((card) => {
+    const before = this.isFolded(column) ? null : cards.find((card) => {
       const box = card.getBoundingClientRect()
       return y < box.top + box.height / 2
     })
     if (before) before.before(drag.line)
-    else list.append(drag.line)
+    else this.appendTo(list, drag.line)
     for (const other of this.columnTargets) other.toggleAttribute("data-drop", other === column)
   }
 
@@ -129,7 +139,7 @@ export default class extends Controller {
     const edge = 40
     const step = 12
     let scrolled = false
-    const list = drag.line.parentElement
+    const list = drag.line.closest("[data-slot=board-list]") || drag.line.parentElement
     const box = list.getBoundingClientRect()
     if (drag.py < box.top + edge && list.scrollTop > 0) { list.scrollTop -= step; scrolled = true }
     else if (drag.py > box.bottom - edge && list.scrollTop < list.scrollHeight - list.clientHeight) { list.scrollTop += step; scrolled = true }
@@ -170,6 +180,7 @@ export default class extends Controller {
     const drag = this.drag
     if (!drag) return
     clearTimeout(drag.timer)
+    clearTimeout(drag.opening?.timer)
     cancelAnimationFrame(this.scrolling)
     drag.ghost?.remove()
     drag.line?.remove()
@@ -191,7 +202,11 @@ export default class extends Controller {
     if (event.target !== card && !event.shiftKey) return
     const direction = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" }[event.key]
     if (!direction) {
-      if (event.key === "Enter" && event.target === card) card.querySelector("a[href]")?.click()
+      // Handled here, so a page-wide key handler doesn't open it a second time.
+      if (event.key === "Enter" && event.target === card) {
+        const link = card.querySelector("a[href]")
+        if (link) { event.preventDefault(); link.click() }
+      }
       return
     }
     if (event.metaKey || event.ctrlKey || event.altKey) return
@@ -209,7 +224,11 @@ export default class extends Controller {
       else if (direction === "down") cards[index + 1]?.focus()
       else if (neighbour) {
         const others = this.cardsIn(neighbour)
-        ;(others[Math.min(index, others.length - 1)] || this.nextWithCards(neighbour, step))?.focus()
+        const next = others[Math.min(index, others.length - 1)] || this.nextWithCards(neighbour, step)
+        if (next) {
+          this.unfold(this.columnOf(next))
+          next.focus()
+        }
       }
       return
     }
@@ -219,9 +238,10 @@ export default class extends Controller {
     else if (direction === "down") { if (index === cards.length - 1) return; cards[index + 1].after(card) }
     else {
       if (!neighbour) return
+      this.unfold(neighbour)
       const others = this.cardsIn(neighbour)
       if (others[index]) others[index].before(card)
-      else this.listOf(neighbour).append(card)
+      else this.appendTo(this.listOf(neighbour), card)
     }
     card.focus()
     this.commit(card, home)
@@ -237,10 +257,12 @@ export default class extends Controller {
     }
     const event = this.dispatch("move", { detail, cancelable: true })
     if (event.defaultPrevented) return this.restore(card, home)
+    home.column = this.columnOf(home.parent)
+    this.shiftTotal(home.column, column)
     this.count()
     this.announce(card, column)
 
-    const url = card.dataset.url || column.dataset.url || (this.hasUrlValue ? this.urlValue : "")
+    const url = (card.dataset.url || column.dataset.url || (this.hasUrlValue ? this.urlValue : "")).replaceAll("__card__", encodeURIComponent(detail.card))
     if (!url) return this.dispatch("moved", { detail })
 
     const body = new FormData()
@@ -249,7 +271,8 @@ export default class extends Controller {
     body.set("before", detail.before)
     card.setAttribute("aria-busy", "true")
     try {
-      const response = await fetch(url, {
+      const send = window.Turbo?.fetch ?? window.fetch.bind(window)
+      const response = await send(url, {
         method: this.methodValue.toUpperCase(),
         body,
         credentials: "same-origin",
@@ -274,8 +297,9 @@ export default class extends Controller {
 
   restore(card, home) {
     if (!home.parent.isConnected) return
+    if (home.column) this.shiftTotal(this.columnOf(card), home.column)
     if (home.next?.parentElement === home.parent) home.next.before(card)
-    else home.parent.append(card)
+    else this.appendTo(home.parent, card)
     this.count()
   }
 
@@ -288,13 +312,83 @@ export default class extends Controller {
     if (this.hasStatusTarget) this.statusTarget.textContent = message
   }
 
-  // Each column's count, from the cards in it.
+  // Each column's count: its total where it holds only some of its cards, else the cards in it.
   count() {
     for (const column of this.columnTargets) {
-      const total = this.cardsIn(column).length
-      for (const count of column.querySelectorAll("[data-slot=board-column-count]")) count.textContent = total
-      column.toggleAttribute("data-empty", total === 0)
+      const cards = this.cardsIn(column).length
+      const shown = column.dataset.total ?? cards
+      for (const count of column.querySelectorAll("[data-slot=board-column-count]")) count.textContent = shown
+      column.toggleAttribute("data-empty", cards === 0)
     }
+  }
+
+  // A card went from one column to another: one fewer in the first's total, one more in the second's.
+  shiftTotal(from, to) {
+    if (!from || !to || from === to) return
+    if (from.dataset.total) from.dataset.total = Math.max(0, Number(from.dataset.total) - 1)
+    if (to.dataset.total) to.dataset.total = Number(to.dataset.total) + 1
+  }
+
+  // Into a list, at its end but before its next-page item.
+  appendTo(list, node) {
+    const more = list.querySelector("[data-slot=board-more]")
+    if (more) more.before(node)
+    else list.append(node)
+  }
+
+  // click->runeui--board#toggle on a collapsible column's title: folds it or opens it.
+  toggle(event) {
+    const column = this.columnTargets.find((element) => element.contains(event.currentTarget))
+    if (column) this.fold(column, !this.isFolded(column))
+  }
+
+  isFolded(column) { return column.hasAttribute("data-collapsed") }
+
+  unfold(column) { if (column && this.isFolded(column)) this.fold(column, false) }
+
+  fold(column, folded, { remember = true } = {}) {
+    if (!column.hasAttribute("data-collapsible")) return
+    column.toggleAttribute("data-collapsed", folded)
+    column.querySelector("[data-slot=board-column-toggle]")?.setAttribute("aria-expanded", String(!folded))
+    if (remember && this.element.id) {
+      try { localStorage.setItem(this.foldKey(column), folded ? "folded" : "open") } catch {}
+    }
+  }
+
+  // Each collapsible column as this browser last left it (the server's choice where it never has).
+  restoreFolds(only) {
+    if (!this.element.id) return
+    for (const column of only ? [ only ] : this.columnTargets) {
+      if (!column.hasAttribute("data-collapsible")) continue
+      let stored = null
+      try { stored = localStorage.getItem(this.foldKey(column)) } catch {}
+      if (stored) this.fold(column, stored === "folded", { remember: false })
+    }
+  }
+
+  foldKey(column) { return `runeui-board:${this.element.id}:${column.dataset.column}` }
+
+  // A card held over a folded column for a moment opens it.
+  openWhileHovered(column) {
+    const drag = this.drag
+    if (drag.opening?.column === column) return
+    clearTimeout(drag.opening?.timer)
+    drag.opening = null
+    if (!this.isFolded(column)) return
+    drag.opening = { column, timer: setTimeout(() => {
+      if (this.drag !== drag) return
+      this.unfold(column)
+      this.place(drag.px ?? drag.x, drag.py ?? drag.y)
+    }, 600) }
+  }
+
+  // turbo:before-morph-attribute->runeui--board#keep: a column's fold is this browser's, not the
+  // server's, so a morph leaves it (and its title's aria-expanded) alone.
+  keep(event) {
+    const { attributeName } = event.detail
+    const target = event.target
+    if (attributeName === "data-collapsed" && this.columnTargets.includes(target)) event.preventDefault()
+    else if (attributeName === "aria-expanded" && target.dataset.slot === "board-column-toggle") event.preventDefault()
   }
 
   queueCount() {
@@ -307,14 +401,15 @@ export default class extends Controller {
   cardsIn(column) { return this.cardTargets.filter((card) => column.contains(card)) }
   titleOf(card) { return card.dataset.title || card.querySelector("[data-slot=board-card-title]")?.textContent.trim() || "The card" }
 
+  // The card after this one in its column, in document order: an app may wrap cards in elements
+  // of its own (ReActionView's debug spans, a frame), so not just the next sibling.
   nextCard(card) {
-    for (let node = card.nextElementSibling; node; node = node.nextElementSibling) {
-      if (this.cardTargets.includes(node)) return node
-    }
-    return null
+    const cards = this.cardsIn(this.columnOf(card))
+    return cards[cards.indexOf(card) + 1] || null
   }
 
   nextWithCards(column, step) {
+    // The cards of a folded column count: moving into it opens it.
     for (let index = this.columnTargets.indexOf(column) + step; this.columnTargets[index]; index += step) {
       const cards = this.cardsIn(this.columnTargets[index])
       if (cards.length) return cards[0]

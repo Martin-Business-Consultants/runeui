@@ -38,6 +38,38 @@
   [data-slot="board-column-count"]:empty { display: none; }
   [data-slot="board-column-action"] { display: flex; margin-inline-start: auto; }
 
+  /* A collapsible column's title is its toggle. */
+  [data-slot="board-column-toggle"] {
+    max-width: 100%;
+    margin: 0 -0.375rem;
+    padding: 0.125rem 0.375rem;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--ui-radius-md);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+  }
+  [data-slot="board-column-toggle"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="board-column-toggle"]:focus-visible { box-shadow: var(--ui-focus-ring); }
+
+  /* Folded: a narrow strip the board's height, its dot, count and title running down it; a click
+     anywhere on it opens it. */
+  [data-slot="board-column"][data-collapsed] { position: relative; flex-basis: 2.75rem; align-self: stretch; padding: 0.5rem 0; cursor: pointer; }
+  [data-slot="board-column"][data-collapsed]:hover { background: var(--muted); }
+  [data-slot="board-column"][data-collapsed] [data-slot="board-column-header"] { flex-direction: column; padding: 0.25rem 0; }
+  [data-slot="board-column"][data-collapsed] [data-slot="board-column-title"] { order: 2; max-height: 60dvh; writing-mode: vertical-rl; }
+  [data-slot="board-column"][data-collapsed] [data-slot="board-column-count"] { order: 1; }
+  [data-slot="board-column"][data-collapsed] [data-slot="board-column-toggle"] { margin: -0.375rem 0; padding: 0.375rem 0.125rem; }
+  [data-slot="board-column"][data-collapsed] [data-slot="board-column-toggle"]::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+  [data-slot="board-column"][data-collapsed] [data-slot="board-column-toggle"]:hover { background: none; color: inherit; }
+  [data-slot="board-column"][data-collapsed] :is([data-slot="board-list"], [data-slot="board-empty"], [data-slot="board-column-footer"], [data-slot="board-column-action"]) { display: none; }
+
   [data-slot="board-column-dot"] { flex-shrink: 0; width: 0.5rem; height: 0.5rem; border-radius: var(--ui-radius-full); background: var(--muted-foreground); }
   [data-slot="board-column"][data-tone="success"] [data-slot="board-column-dot"] { background: var(--success); }
   [data-slot="board-column"][data-tone="warning"] [data-slot="board-column-dot"] { background: var(--warning); }
@@ -60,8 +92,11 @@
 
   /* Shown while the column has no card; the list stays, as somewhere to drop. */
   [data-slot="board-empty"] { display: none; margin: 0; padding: 0.75rem 0.5rem 1rem; color: var(--muted-foreground); font-size: var(--ui-text-sm); text-align: center; }
-  [data-slot="board-column"]:is([data-empty], :not(:has([data-slot="board-card"]))):not([data-drop]) [data-slot="board-empty"] { display: block; }
+  [data-slot="board-column"]:is([data-empty], :not(:has([data-slot="board-card"]))):not([data-drop], [data-collapsed]) [data-slot="board-empty"] { display: block; }
   [data-slot="board-column-footer"] { display: flex; flex-direction: column; }
+
+  /* The list's last item when more cards are still to load (a link to the next page). */
+  [data-slot="board-more"] { flex-shrink: 0; padding: 0.25rem; color: var(--muted-foreground); font-size: var(--ui-text-xs); text-align: center; list-style: none; }
 
   [data-slot="board-card"], [data-slot="board-ghost"] {
     display: flex;

@@ -20,11 +20,20 @@
       head :no_content
     end
 
+  A url: (the board's, a column's or a card's) may name the card: __card__ in it becomes the
+  card's id, so an app whose routes take the record in the path (POST /tasks/__card__/drops)
+  needs no other endpoint. With Turbo on the page the request goes through Turbo's fetch, so a
+  refresh the move broadcasts back to this page is recognised as its own and skipped.
+
+    ui :board_column, id: "done", url: task_drop_path("__card__", column: "done")
+
+  Give the board an id: and its collapsible columns remember being opened or folded.
+
   Keys: the arrows go from card to card, Shift with an arrow moves the card you're on (each
   move is read out), Enter opens it. On a touch screen, press and hold a card to pick it up.
   Cards a stream adds (turbo_stream.append "board-list-planned") or a morph brings just work.
 %>
-<%= ui_tag(:div, { role: "group", aria: { label: (label || "Board") }, data: { slot: "board", controller: "runeui--board", runeui__board_url_value: url, runeui__board_method_value: method&.to_s } }, attrs) do %>
+<%= ui_tag(:div, { role: "group", aria: { label: (label || "Board") }, data: { slot: "board", controller: "runeui--board", action: "turbo:before-morph-attribute->runeui--board#keep", runeui__board_url_value: url, runeui__board_method_value: method&.to_s } }, attrs) do %>
   <%= content %>
   <div class="ui-sr-only" aria-live="assertive" data-runeui--board-target="status"></div>
 <% end %>

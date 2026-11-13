@@ -17,3 +17,19 @@
   <% end %>
 <% end %>
 <p>Drag a card, or focus one and use the arrows; Shift with an arrow moves it. Each move posts <code>card</code>, <code>column</code> and <code>before</code>.</p>
+
+<h2>Folding columns, and one still loading</h2>
+<% leads = [ [ 21, "Corner bakery", "Website" ], [ 22, "Hartley wedding", "Referral" ], [ 23, "Kiln & Co", "Phone" ] ] %>
+<%= ui :board, id: "board-leads", url: runeui_echo_path("board", moved: "__card__"), method: :post, label: "Leads by stage", class: "runeui-docs__full" do %>
+  <%= ui :board_column, id: "new", title: "New", total: 40, more: link_to("37 more", "#more-leads") do %>
+    <% leads.each do |id, name, source| %>
+    <%# herb:key id %>
+    <%= ui :board_card, id: id, title: name, href: "#lead-#{id}", meta: source, link: { data: { lead: id } } %>
+    <% end %>
+  <% end %>
+  <%= ui :board_column, id: "won", title: "Won", tone: :success, collapsible: true, collapsed: true do %>
+    <%= ui :board_card, id: 24, title: "Bloom Florists", href: "#lead-24", meta: "Website" %>
+  <% end %>
+  <%= ui :board_column, id: "lost", title: "Lost", tone: :destructive, collapsible: true, collapsed: true, empty: "None lost" %>
+<% end %>
+<p>Won and Lost fold from their titles (the board's id keeps the choice in this browser). New says it has 40 though only three are here; its last item stands in for the next page. Moves post to a url naming the card (<code>?moved=__card__</code>).</p>

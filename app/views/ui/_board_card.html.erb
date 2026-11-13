@@ -1,4 +1,4 @@
-<%# locals: (content: nil, id: nil, title: nil, href: nil, meta: nil, footer: nil, url: nil, **attrs) %>
+<%# locals: (content: nil, id: nil, title: nil, href: nil, meta: nil, footer: nil, url: nil, link: nil, **attrs) %>
 <%#
   A card on a ui :board. id: is what a move sends as card. title: is its heading, a link with
   href: (Enter on the card follows it); meta: a muted line under it; the block its body;
@@ -8,13 +8,15 @@
     ui :board_card, id: task.id, title: task.title, href: task_path(task), meta: task.client.name,
        footer: ui(:badge, variant: :secondary, content: "Due Friday")
 
+  link: attributes for the title's link (data-turbo-frame, a Stimulus action), merged over its own.
+
   Its element has the id board-card-<id>, for turbo_stream.remove and replace. Buttons, fields
   and anything marked data-board-no-drag inside a card don't start a drag.
 %>
 <%= ui_tag(:li, { id: "board-card-#{id}", tabindex: 0, aria: { roledescription: "Card, movable", keyshortcuts: "Shift+ArrowUp Shift+ArrowDown Shift+ArrowLeft Shift+ArrowRight" }, data: { slot: "board-card", card: id.to_s, title: title, url: url, runeui__board_target: "card", action: "pointerdown->runeui--board#press keydown->runeui--board#key" } }, attrs) do %>
   <% if title %>
   <% if href %>
-  <a data-slot="board-card-title" href="<%= href %>" draggable="false" tabindex="-1"><%= title %></a>
+  <%= ui_tag :a, { href: href, draggable: "false", tabindex: "-1", data: { slot: "board-card-title" } }, (link || {}), title %>
   <% else %>
   <div data-slot="board-card-title"><%= title %></div>
   <% end %>
