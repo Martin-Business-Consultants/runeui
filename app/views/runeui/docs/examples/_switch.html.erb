@@ -4,3 +4,9 @@
   <%= ui :switch, name: "wifi", label: "Wi-Fi", checked: true, size: :sm %>
   <%= ui :button, variant: :outline, content: "Send", type: :submit %>
 </form>
+<h2>Outside its form</h2>
+<form id="elsewhere" action="<%= runeui_echo_path("switch") %>" method="post" data-turbo-stream></form>
+<div class="runeui-docs__row">
+  <%= ui :switch, name: "notify", label: "Notify me", unchecked_value: "0", form: "elsewhere" %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit, form: "elsewhere" %>
+</div>

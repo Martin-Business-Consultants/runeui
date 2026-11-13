@@ -17,3 +17,15 @@
 </form>
 <h2>Searching on the server</h2>
 <%= ui :combobox, name: "person", id: "person", src: "/people.json", placeholder: "Search people" %>
+<h2>Behind a button</h2>
+<form class="runeui-docs__row" action="<%= runeui_echo_path("combobox") %>" method="post" data-turbo-stream>
+  <%= ui :combobox, name: "owner", id: "owner", trigger: true, options: [ [ "Ada Lovelace", "ada" ], [ "Grace Hopper", "grace" ], [ "Katherine Johnson", "katherine" ] ], placeholder: "Unassigned", search: "Find a person…" %>
+  <%= ui :combobox, name: "reviewers[]", id: "reviewers", trigger: true, multiple: true, value: %w[grace], options: [ [ "Ada Lovelace", "ada" ], [ "Grace Hopper", "grace" ], [ "Katherine Johnson", "katherine" ] ], placeholder: "Nobody" %>
+  <%= ui :button, variant: :outline, content: "Send", type: :submit %>
+</form>
+<h2>Opened from elsewhere</h2>
+<div class="runeui-docs__row">
+  <button type="button" class="ui-button" data-variant="outline" data-size="sm" id="assign-a" data-runeui-open="assignees">Assign task A</button>
+  <button type="button" class="ui-button" data-variant="outline" data-size="sm" id="assign-b" data-runeui-open="assignees">Assign task B</button>
+  <%= ui :combobox, id: "assignees", multiple: true, trigger: false, options: [ [ "Ada Lovelace", "ada" ], [ "Grace Hopper", "grace" ], [ "Katherine Johnson", "katherine" ] ], search: "Who’s on it…" %>
+</div>

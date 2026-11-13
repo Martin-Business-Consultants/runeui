@@ -10,7 +10,8 @@
 //     component sees the change (attributeChangedCallback) and follows it.
 //   - The element's own (aria-*, role, tabindex, hidden, inert, style, generated ids, any other
 //     data-* attribute) are never added, changed or removed by a morph. aria-label and
-//     aria-description may be added or changed by the server, not removed.
+//     aria-description may be added or changed by the server, not removed; aria-invalid is the
+//     server's outright (a refused save marks a field, the next answer clears it).
 //   - A ui-* element the server sends empty keeps the children the element made for itself (the
 //     chosen label in ui-select-value, a calendar's grid); its attributes still morph.
 //   - Nodes an element adds inside itself (an OTP input's native field, a slider's thumb inputs,
@@ -27,6 +28,7 @@
 
 const SERVER_DATA = /^data-(controller|action|turbo.*|testid|variant|size|morph|props|triggers|src|label|.+-target|.+-value|.+-param|.+-outlet|.+-class)$/
 const SERVER_ARIA = /^aria-(label|description)$/
+const SERVER_VERDICT = "aria-invalid"
 const OWNED = /^(aria-.*|role|tabindex|hidden|inert|style|data-.*)$/
 const DEFAULTS = { "default-value": "setValue", "default-checked": "setChecked", "default-pressed": "setPressed" }
 
@@ -115,6 +117,7 @@ export function guardMorphs() {
     if (!inComponent(element)) return
     if (name in DEFAULTS) return
     if (SERVER_ARIA.test(name) && mutationType !== "remove") return
+    if (name === SERVER_VERDICT) return
     if (ownedByElement(name, element)) event.preventDefault()
   })
 

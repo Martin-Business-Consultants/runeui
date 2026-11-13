@@ -1,4 +1,4 @@
-<%# locals: (name: nil, options: nil, value: nil, placeholder: nil, id: nil, multiple: nil, disabled: nil, required: nil, invalid: nil, form: nil, empty: nil, src: nil, clearable: nil, creatable: nil, size: nil, content: nil, **attrs) %>
+<%# locals: (name: nil, options: nil, value: nil, placeholder: nil, id: nil, multiple: nil, disabled: nil, required: nil, invalid: nil, form: nil, empty: nil, src: nil, clearable: nil, creatable: nil, size: nil, trigger: nil, search: nil, content: nil, **attrs) %>
 <%#
   Combobox: an input that filters a list as you type, then picks one value, or several with
   multiple: true (shown as chips; Backspace removes the last). Takes options as select does
@@ -17,6 +17,15 @@
   creatable: true takes what's typed when nothing matches (Enter), so with multiple: it's a tags
   input: ui :combobox, name: "tags[]", multiple: true, creatable: true, options: Tag.pluck(:name)
 
+  trigger: true puts it behind a button that looks like a select's and says what's chosen
+  (placeholder: until something is): the box to type in moves into the popup, above the list
+  (search: is its placeholder, "Search…"). With multiple: the button lists the choices and the
+  popup stays open as they're ticked. trigger: false leaves the button out, for a list opened
+  from elsewhere: a button with data-runeui-open="<its id>" opens it beside itself.
+
+    ui :combobox, name: "owner_id", options: User.pluck(:name, :id), trigger: true, placeholder: "Unassigned"
+    ui :combobox, id: "people", name: "people[]", multiple: true, trigger: false, options: people
+
   empty: is the line shown when nothing matches ("No results." by default). clearable: adds a
   button that empties it. The block, when given, is the list instead, for items of your own:
   ui-combobox-item value="…" data-slot="combobox-item" class="ui-item".
@@ -28,6 +37,54 @@
 <% check = ui_icon(:check) %>
 <% combobox_id = ui_id("combobox", id, name: name) %>
 <% input = ui_tag(:input, { type: "text", placeholder: placeholder, value: (multiple ? nil : shown), autocomplete: "off", aria: { invalid: (invalid ? "true" : nil) } }) %>
+<% item_list = capture do %>
+      <% if content %>
+      <%= content %>
+      <% else %>
+      <% choices.each do |choice| %>
+      <%# herb:key choice[:group] || choice[:value] %>
+      <% if choice[:group] %>
+      <ui-combobox-group data-slot="combobox-group">
+        <ui-combobox-group-label data-slot="combobox-group-label"><%= choice[:group] %></ui-combobox-group-label>
+        <% choice[:options].each do |item| %>
+        <%# herb:key item[:value] %>
+        <ui-combobox-item data-slot="combobox-item" class="ui-item" value="<%= item[:value] %>" label="<%= item[:label] %>"<% if item[:disabled] %> disabled<% end %>><ui-combobox-item-text data-slot="combobox-item-text"><%= item[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
+        <% end %>
+      </ui-combobox-group>
+      <% else %>
+      <ui-combobox-item data-slot="combobox-item" class="ui-item" value="<%= choice[:value] %>" label="<%= choice[:label] %>"<% if choice[:disabled] %> disabled<% end %>><ui-combobox-item-text data-slot="combobox-item-text"><%= choice[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
+      <% end %>
+      <% end %>
+      <% end %>
+<% end %>
+<% if !trigger.nil? %>
+<%= ui_tag(:ui_combobox, { id: combobox_id, name: name, "default-value": (values.any? ? default : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, filter: (src ? "false" : nil), "auto-highlight": "", data: { slot: "combobox", src: src, controller: "runeui--filter", runeui__filter_placeholder_value: placeholder.to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
+  <% if trigger %>
+  <ui-combobox-trigger>
+    <%= ui_tag(:button, { type: "button", id: "#{combobox_id}-trigger", disabled: (disabled ? "" : nil), data: { slot: "combobox-trigger", picker: "", size: (size || "default").to_s, runeui__filter_target: "trigger" }, aria: { invalid: (invalid ? "true" : nil) } }) do %>
+      <%= ui_tag(:span, { data: { slot: "combobox-value", runeui__filter_target: "value", placeholder: (shown ? nil : ""), morph: "keep" } }, {}, shown || placeholder) %>
+      <%= ui_icon "chevrons-up-down", class: "ui-select-icon" %>
+    <% end %>
+  </ui-combobox-trigger>
+  <% end %>
+  <%= ui_tag("ui-combobox-content", { class: "ui-popup", anchor: (trigger ? "##{combobox_id}-trigger" : nil), align: "start", "side-offset": 4, hidden: true, data: { slot: "combobox-content", picker: "" } }) do %>
+    <div data-slot="combobox-search">
+      <%= ui_icon :search %>
+      <ui-combobox-input data-slot="combobox-input"><%= ui_tag(:input, { type: "text", placeholder: (search.is_a?(String) ? search : "Search…"), autocomplete: "off", data: { autosubmit: "false" }, aria: { label: (search.is_a?(String) ? search : "Search") } }) %></ui-combobox-input>
+    </div>
+    <% if src %><ui-combobox-status data-slot="combobox-status"></ui-combobox-status><% end %>
+    <ui-combobox-empty data-slot="combobox-empty"><%= empty || "No results." %></ui-combobox-empty>
+    <ui-combobox-list data-slot="combobox-list">
+<%= item_list %>
+    </ui-combobox-list>
+  <% end %>
+  <% if src %>
+  <template>
+    <ui-combobox-item data-slot="combobox-item" class="ui-item"><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
+  </template>
+  <% end %>
+<% end %>
+<% else %>
 <%= ui_tag(:ui_combobox, { id: combobox_id, name: name, "default-value": (values.any? ? default : nil), multiple: (multiple ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, filter: (src ? "false" : nil), "auto-highlight": "", "allow-custom-value": (creatable ? "" : nil), data: { slot: "combobox", size: size&.to_s, src: src }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <div data-slot="combobox-control"<% if invalid %> aria-invalid="true"<% end %>>
     <% if multiple %>
@@ -50,24 +107,7 @@
     <% if src %><ui-combobox-status data-slot="combobox-status"></ui-combobox-status><% end %>
     <ui-combobox-empty data-slot="combobox-empty"><%= empty || "No results." %></ui-combobox-empty>
     <ui-combobox-list data-slot="combobox-list">
-      <% if content %>
-      <%= content %>
-      <% else %>
-      <% choices.each do |choice| %>
-      <%# herb:key choice[:group] || choice[:value] %>
-      <% if choice[:group] %>
-      <ui-combobox-group data-slot="combobox-group">
-        <ui-combobox-group-label data-slot="combobox-group-label"><%= choice[:group] %></ui-combobox-group-label>
-        <% choice[:options].each do |item| %>
-        <%# herb:key item[:value] %>
-        <ui-combobox-item data-slot="combobox-item" class="ui-item" value="<%= item[:value] %>" label="<%= item[:label] %>"<% if item[:disabled] %> disabled<% end %>><ui-combobox-item-text data-slot="combobox-item-text"><%= item[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
-        <% end %>
-      </ui-combobox-group>
-      <% else %>
-      <ui-combobox-item data-slot="combobox-item" class="ui-item" value="<%= choice[:value] %>" label="<%= choice[:label] %>"<% if choice[:disabled] %> disabled<% end %>><ui-combobox-item-text data-slot="combobox-item-text"><%= choice[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
-      <% end %>
-      <% end %>
-      <% end %>
+<%= item_list %>
     </ui-combobox-list>
   </ui-combobox-content>
   <template>
@@ -78,4 +118,5 @@
     <ui-combobox-item data-slot="combobox-item" class="ui-item"><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= check %></ui-combobox-item-indicator></ui-combobox-item>
     <% end %>
   </template>
+<% end %>
 <% end %>

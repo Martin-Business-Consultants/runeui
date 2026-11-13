@@ -2,6 +2,7 @@
 // several, and server search through runeui/remote (stubbed here).
 import { readFileSync } from "node:fs"
 import { component, check, assert } from "../component.mjs"
+import { morph } from "./_dates.mjs"
 
 await component("combobox", async (page) => {
   await check("typing filters, Enter picks, the value submits", async () => {
@@ -71,5 +72,52 @@ await component("combobox", async (page) => {
     const picked = await page.evaluate(() => [ JSON.stringify(document.querySelector("#person").value), document.querySelector("#person input").value ])
     assert(picked[0] === '"3"' && picked[1] === "Grace Hopper", `picked ${picked}`)
     assert(queries.includes("gra"), `queries: ${queries}`)
+  })
+
+  await check("behind a button: the button says the choice, the box in the popup filters, the value submits", async () => {
+    const button = () => page.locator("#owner-trigger").innerText()
+    assert((await button()).trim() === "Unassigned", await button())
+    await page.click("#owner-trigger")
+    await page.waitForSelector("#owner [data-slot=combobox-content][data-open]", { timeout: 3000 })
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#owner [data-slot=combobox-search] input"))
+    await page.keyboard.type("gra")
+    assert(await page.locator("#owner ui-combobox-item:visible").count() === 1, "didn't filter")
+    await page.keyboard.press("Enter")
+    await page.waitForFunction(() => document.querySelector("#owner-trigger").innerText.trim() === "Grace Hopper")
+    const data = await page.evaluate(() => [ ...new FormData(document.querySelector("#owner").closest("form")) ].map((p) => p.join("=")))
+    assert(data.includes("owner=grace"), data.join("&"))
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#owner-trigger"))
+  })
+
+  await check("behind a button, several: the popup stays open and the button lists them", async () => {
+    await page.click("#reviewers-trigger")
+    await page.waitForSelector("#reviewers [data-slot=combobox-content][data-open]", { timeout: 3000 })
+    await page.click("#reviewers ui-combobox-item[value=ada]")
+    assert(await page.$("#reviewers [data-slot=combobox-content][data-open]"), "closed after a pick")
+    await page.waitForFunction(() => document.querySelector("#reviewers-trigger").innerText.trim() === "Grace Hopper, Ada Lovelace")
+    const data = await page.evaluate(() => [ ...new FormData(document.querySelector("#reviewers").closest("form")) ].map((p) => p.join("=")))
+    assert(data.filter((d) => d.startsWith("reviewers")).join("&") === "reviewers[]=grace&reviewers[]=ada", data.join("&"))
+    await page.keyboard.press("Escape")
+  })
+
+  await check("no trigger: a button elsewhere opens it beside itself and gets focus back", async () => {
+    await page.click("#assign-b")
+    await page.waitForSelector("#assignees [data-slot=combobox-content][data-open]", { timeout: 3000 })
+    await page.waitForFunction(() => { const b = document.getElementById("assign-b").getBoundingClientRect(), m = document.querySelector("#assignees [data-slot=combobox-content]").getBoundingClientRect(); return Math.abs(m.left - b.left) < 40 && (Math.abs(m.top - b.bottom) < 20 || Math.abs(b.top - m.bottom) < 20) }, null, { timeout: 3000 })
+    await page.click("#assignees ui-combobox-item[value=katherine]")
+    assert(await page.evaluate(() => JSON.stringify(document.getElementById("assignees").value)) === '["katherine"]', "value")
+    await page.keyboard.press("Escape")
+    await page.waitForFunction(() => document.activeElement === document.getElementById("assign-b"), null, { timeout: 3000 })
+  })
+
+  await check("behind a button: a morph keeps an unsaved pick and the button's words", async () => {
+    await page.click("#owner-trigger")
+    await page.waitForSelector("#owner [data-slot=combobox-content][data-open]", { timeout: 3000 })
+    await page.click("#owner ui-combobox-item[value=katherine]")
+    await page.waitForFunction(() => document.querySelector("#owner-trigger").innerText.trim() === "Katherine Johnson")
+    await morph(page, "owner")
+    assert(await page.evaluate(() => document.getElementById("owner").value) === "katherine", "value lost")
+    const shown = await page.evaluate(() => document.querySelector("#owner-trigger").innerText.trim())
+    assert(shown === "Katherine Johnson", `the button says ${shown}`)
   })
 })

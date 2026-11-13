@@ -37,6 +37,69 @@ export function hotwire(options = {}) {
 // A button anywhere opening or closing a dialog, sheet, popover or menu by its id:
 // <button data-runeui-open="settings">Settings</button>, data-runeui-close="settings".
 // And one that shows a toast: data-runeui-toast='{"title": "Copied", "type": "success"}'.
+//
+// A popup placed beside something (a menu, a popover, a select, a combobox, a date picker) opens
+// beside the button that opened it, so one on the page can serve many buttons (a menu per table,
+// not per row): the button is its anchor for that open, gets aria-expanded while it's open and
+// focus back when it closes, pressing it again closes the popup, and the popup's element says
+// who opened it (runeuiOpener) and fires runeui:open (not bubbling, detail.opener) just before.
+const ANCHORED = "ui-menu-content, ui-popover-content, ui-select-content, ui-combobox-content, ui-date-picker-content"
+
+function anchoredContent(target) {
+  return [ ...target.querySelectorAll(ANCHORED) ].find((content) => content.parentElement === target) || null
+}
+
+// A press on the button that opened a popup dismisses it (a press outside), and the click that
+// follows would open it again: remember it was open, and leave it closed.
+let pressedOpen = null
+let openers = 0
+document.addEventListener("pointerdown", (event) => {
+  const opener = event.target.closest?.("[data-runeui-open]")
+  const target = opener && document.getElementById(opener.dataset.runeuiOpen)
+  pressedOpen = target && target.open && sameOpener(target, opener) ? opener : null
+}, true)
+
+// The same button, or the one a stream or a morph put in its place (the same id).
+function sameOpener(target, opener) {
+  const last = target.runeuiOpener
+  return last === opener || (!!last && !!opener.id && last.id === opener.id && !last.isConnected)
+}
+
+// Through the element's controller where it has one, so it fires openchange as it would for a
+// person (setting the open property is silent on some).
+function setOpen(target, open) {
+  const api = target.api
+  if (open && api?.open) api.open()
+  else if (!open && api?.close) api.close()
+  else target.open = open
+}
+
+function openBeside(target, content, opener) {
+  if (pressedOpen === opener || (target.open && sameOpener(target, opener))) {
+    pressedOpen = null
+    setOpen(target, false)
+    return
+  }
+  if (target.open) setOpen(target, false)
+  target.runeuiOpener = opener
+  // The content takes its anchor as a selector, so the button needs an id.
+  if (!opener.id) opener.id = `runeui-opener-${++openers}`
+  content.setAttribute("anchor", `#${CSS.escape(opener.id)}`)
+  target.dispatchEvent(new CustomEvent("runeui:open", { detail: { opener } }))
+  opener.setAttribute("aria-expanded", "true")
+  const closed = (event) => {
+    if (event.detail?.value !== false) return
+    target.removeEventListener("openchange", closed)
+    opener.setAttribute("aria-expanded", "false")
+    const active = document.activeElement
+    // A stream or a morph may have put a new button in its place: the one with its id now.
+    const back = opener.isConnected ? opener : document.getElementById(opener.id)
+    if (back && (!active || active === document.body || target.contains(active))) back.focus({ preventScroll: true })
+  }
+  target.addEventListener("openchange", closed)
+  setOpen(target, true)
+}
+
 document.addEventListener("click", (event) => {
   const toaster = event.target.closest?.("[data-runeui-toast]")
   if (toaster) {
@@ -50,5 +113,8 @@ document.addEventListener("click", (event) => {
   // still to fill in).
   if (!opening && opener.type === "submit" && opener.form && !opener.form.checkValidity()) return
   const target = document.getElementById(opening ? opener.dataset.runeuiOpen : opener.dataset.runeuiClose)
-  if (target && "open" in target) target.open = opening
+  if (!target || !("open" in target)) return
+  const content = opening && anchoredContent(target)
+  if (content) openBeside(target, content, opener)
+  else target.open = opening
 })

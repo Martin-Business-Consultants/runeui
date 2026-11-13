@@ -37,3 +37,10 @@
 ] do %>
   <div class="ui-context-area">Right-click here</div>
 <% end %>
+<h2>One menu for many buttons</h2>
+<p class="runeui-docs__note">A menu with no trigger of its own, opened beside whichever button names it (<code>data-runeui-open</code>): a table needs one, not one per row.</p>
+<div class="runeui-docs__row" id="shared-menu-rows">
+  <button type="button" class="ui-button" data-variant="outline" data-size="sm" id="row-a-actions" data-runeui-open="row-menu" aria-haspopup="menu">Row A</button>
+  <button type="button" class="ui-button" data-variant="outline" data-size="sm" id="row-b-actions" data-runeui-open="row-menu" aria-haspopup="menu">Row B</button>
+  <%= ui :menu, id: "row-menu", label: "Row actions", items: [ { label: "Rename", value: "rename" }, { label: "Archive", value: "archive" } ] %>
+</div>

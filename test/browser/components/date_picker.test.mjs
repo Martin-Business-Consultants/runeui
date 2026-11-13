@@ -64,6 +64,32 @@ await component("date_picker", async (page) => {
     await page.keyboard.press("Escape")
   })
 
+  await check("a pick, a typed date and Clear each reach the form as one change, with the new date", async () => {
+    await page.evaluate(() => {
+      window.dateChanges = []
+      window.onPicker = []
+      document.getElementById("starts-on").addEventListener("change", (event) => window.onPicker.push(event.target.localName))
+      document.querySelector("form:has(#starts-on)").addEventListener("change", (event) => window.dateChanges.push([ event.target.id, new FormData(event.target.closest("form") || document.getElementById(event.target.getAttribute("form"))).get("starts_on") ]))
+    })
+    const changes = () => page.evaluate(() => window.dateChanges.splice(0))
+    await input(page, "starts-on").fill("12/24/2030")
+    await input(page, "starts-on").press("Tab")
+    await page.waitForTimeout(150)
+    let seen = await changes()
+    assert(seen.length === 1 && seen[0][0] === "starts-on" && seen[0][1] === "2030-12-24", `typed: ${JSON.stringify(seen)}`)
+    const heard = await page.evaluate(() => window.onPicker.splice(0))
+    assert(heard.length === 1 && heard[0] === "ui-date-picker", `data-action on the picker heard ${JSON.stringify(heard)}`)
+    await page.click("#starts-on [data-slot=date-picker-trigger]")
+    await page.click("#starts-on [data-value='2030-12-26']")
+    await page.waitForTimeout(150)
+    seen = await changes()
+    assert(seen.length === 1 && seen[0][1] === "2030-12-26", `picked: ${JSON.stringify(seen)}`)
+    await page.click("#starts-on [data-slot=date-picker-clear]")
+    await page.waitForTimeout(150)
+    seen = await changes()
+    assert(seen.length === 1 && seen[0][1] === "", `cleared: ${JSON.stringify(seen)}`)
+  })
+
   await check("submitting sends the date", async () => {
     await page.click("form:has(#due-on) button[type=submit]")
     await page.waitForSelector("[data-slot=toast] >> text=2026-10-23", { timeout: 3000 })

@@ -14,4 +14,10 @@ await component("switch", async (page) => {
   await check("it has the switch role and a name", async () => {
     assert(await page.getByRole("switch", { name: "Airplane mode" }).count() === 1, "not named by its label")
   })
+  await check("form: joins a form it sits outside of, its off value too", async () => {
+    const data = await page.evaluate(() => new URLSearchParams(new FormData(document.getElementById("elsewhere"))).toString())
+    assert(data === "notify=0", data)
+    await page.click("ui-switch[name=notify]")
+    await page.waitForFunction(() => new URLSearchParams(new FormData(document.getElementById("elsewhere"))).toString() === "notify=0&notify=1")
+  })
 })

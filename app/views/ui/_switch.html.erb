@@ -1,4 +1,4 @@
-<%# locals: (name: nil, value: nil, checked: nil, label: nil, id: nil, unchecked_value: nil, disabled: nil, required: nil, size: nil, **attrs) %>
+<%# locals: (name: nil, value: nil, checked: nil, label: nil, id: nil, unchecked_value: nil, disabled: nil, required: nil, form: nil, size: nil, **attrs) %>
 <%#
   Switch: on or off, saved at once more often than not. Submits value ("1") while on; with
   unchecked_value: a hidden field submits that while off.
@@ -6,8 +6,8 @@
     form.ui :switch, :public, label: "Anyone with the link can see it", data: { action: "change->form#requestSubmit" }
 %>
 <% switch_id = ui_id("switch", id, name: name) %>
-<% if unchecked_value && name %><input type="hidden" name="<%= name %>" value="<%= unchecked_value %>" autocomplete="off"><% end %>
-<% control = ui_tag(:ui_switch, { id: switch_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), data: { slot: "switch", size: size&.to_s } }, attrs) { ui_tag(:ui_switch_thumb, { data: { slot: "switch-thumb" } }) } %>
+<% if unchecked_value && name %><%= ui_tag(:input, { type: "hidden", name: name, value: unchecked_value, form: form, autocomplete: "off" }) %><% end %>
+<% control = ui_tag(:ui_switch, { id: switch_id, name: name, value: (value || "1").to_s, "default-checked": (checked ? "" : nil), disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "switch", size: size&.to_s } }, attrs) { ui_tag(:ui_switch_thumb, { data: { slot: "switch-thumb" } }) } %>
 <% if label %>
 <label data-slot="choice" for="<%= switch_id %>"><%= control %><span data-slot="choice-label"><%= label %></span></label>
 <% else %>
