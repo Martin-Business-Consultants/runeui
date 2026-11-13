@@ -24,6 +24,7 @@ module Runeui
       defaults = { id: field_id(method), invalid: (object.respond_to?(:errors) && object.errors.include?(method)) || nil }
       if component == "field"
         defaults[:errors] = object.respond_to?(:errors) ? object.errors.full_messages_for(method) : []
+        defaults[:control_id] = field_id(method) if locals[:control]
         defaults.delete(:id)
       elsif BOOLEAN.include?(component)
         defaults[:name] = field_name(method)

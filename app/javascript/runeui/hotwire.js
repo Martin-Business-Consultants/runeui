@@ -100,6 +100,17 @@ function openBeside(target, content, opener) {
   setOpen(target, true)
 }
 
+// A menu item that opens (or closes) something by id: chosen with the keys as well as the pointer.
+// UI SDK's menu items fire select, not click, when chosen with Enter or Space; a pointer press
+// fires both, and opening twice is opening once. UI SDK's events don't bubble: the capture phase.
+document.addEventListener("select", (event) => {
+  const item = event.target.closest?.("ui-menu-item")
+  if (!item?.matches("[data-runeui-open], [data-runeui-close]")) return
+  const opening = item.hasAttribute("data-runeui-open")
+  const target = document.getElementById(opening ? item.dataset.runeuiOpen : item.dataset.runeuiClose)
+  if (target && "open" in target) target.open = opening
+}, true)
+
 document.addEventListener("click", (event) => {
   const toaster = event.target.closest?.("[data-runeui-toast]")
   if (toaster) {

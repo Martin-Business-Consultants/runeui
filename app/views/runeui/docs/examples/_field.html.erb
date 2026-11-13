@@ -5,3 +5,7 @@
 <%= ui :field, label: "Email", errors: [ "Email is taken" ] do %>
   <%= ui :input, name: "email", value: "taken@example.com", invalid: true %>
 <% end %>
+<%= ui :field, label: "Marketing emails", description: "Receive emails about new products and features.",
+      control: ui(:switch, name: "marketing", id: "marketing", checked: true, unchecked_value: "0"), control_id: "marketing", class: "ui-field-demo-setting" %>
+<%= ui :field, label: "Theme", description: "How the app looks on this device.",
+      control: ui(:select, name: "theme", id: "theme", options: [ [ "System", "system" ], [ "Light", "light" ], [ "Dark", "dark" ] ], value: "system") %>
