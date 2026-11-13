@@ -109,7 +109,7 @@ Beyond single components, the parts an app is made of:
 | `ui :toggle_group` with `href:` options | A list's views as links (Table, Board): the same joined toggles, the current page's pressed. |
 | `ui :board`, `ui :board_column`, `ui :board_card` | A kanban board: drag between and within columns (pointer, touch, and Shift+arrows on the keyboard), one request per move (`card`, `column`, `before`) answered by Turbo Streams, put back if it fails. |
 | `ui :side_panel` | A record opened over the page in a Turbo Frame: links with `data-turbo-frame="side_panel"`, the address keeps `?panel=`, so refresh, Back and sharing work. Or the page's own state (`params: %w[task]`: the frame loads this page with `?task=`); a block draws it from the first paint; `closable: false` for content with its own close. |
-| `ui :command, dialog: true` | A ⌘K palette whose commands visit pages through Turbo. |
+| `ui :command, dialog: true` | A ⌘K palette whose commands visit pages through Turbo (`link: true` makes one a real link). `src:` searches the server as you type (from `min:` characters, the `prompt:` until then): the action answers HTML, `ui :command, part: "items", items: …`, when the request carries the `Runeui-Command` header. |
 | `ui :editor` | The Lexxy editor, skinned (`runeui_tags lexxy: true`). |
 
 ## Theme

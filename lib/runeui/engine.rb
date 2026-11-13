@@ -36,6 +36,7 @@ module Runeui
           get "runeui", to: "runeui/docs#index", as: :runeui_docs
           get "runeui/:component", to: "runeui/docs#show", as: :runeui_doc
           post "runeui/:component/echo", to: "runeui/docs#echo", as: :runeui_echo
+          get "runeui/:component/search", to: "runeui/docs#search", as: :runeui_search
         end
       end
     end

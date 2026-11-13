@@ -1,4 +1,4 @@
-<%# locals: (items: nil, placeholder: nil, empty: nil, dialog: nil, trigger: nil, shortcut: nil, title: nil, id: nil, content: nil, **attrs) %>
+<%# locals: (items: nil, placeholder: nil, empty: nil, dialog: nil, trigger: nil, shortcut: nil, title: nil, id: nil, src: nil, min: nil, prompt: nil, part: nil, content: nil, **attrs) %>
 <%#
   Command: a search box over a list of commands, filtered as you type (fuzzy), run with Enter, a
   click or their own shortcut. With dialog: true it's a palette over the page, opened by its
@@ -14,25 +14,27 @@
 
   items: is a hash of group name to commands, or an array of commands (no groups). A command:
   label:, then href: (visited through Turbo when it runs; target: "_blank" for a new tab),
-  value: (what the action event reports; from the label otherwise), icon:, shortcut: ("mod+k",
-  "g p"), keywords:, disabled:, open: (the id of a dialog or popover to open). Anything else, listen
-  for action (in the capture phase: it doesn't bubble), event.detail.value. The block, when given,
-  is the list instead: ui-command-item, ui-command-group, ui-command-separator.
+  value: (what the action event reports; from the label otherwise), icon: (a name, or markup),
+  description: (a second, muted line), meta: (muted, at the end of the row), shortcut: ("mod+k",
+  "g p"), keywords:, disabled:, open: (the id of a dialog or popover to open). With href:,
+  link: true makes the command a real link (Enter or a click follows it, Turbo's way, and a
+  modified click opens a tab); link: { data: { … } } gives the link attributes of its own. Anything
+  else, listen for action (in the capture phase: it doesn't bubble), event.detail.value. The
+  block, when given, is the list instead: ui-command-item, ui-command-group, ui-command-separator.
   Needs runeui/command (for href: and open:).
+
+  src: searches the server instead of filtering what's on the page: as someone types (from min:
+  characters, 1 by default), GET src?q=<text> with the header Runeui-Command, answering HTML: the
+  list's new contents, which ui :command, part: "items", items: … draws. Until then the list
+  holds items: (or the block) and the empty line says prompt:. runeui/remote does the fetching
+  (debounced, stale requests cancelled).
+
+    ui :command, dialog: true, src: search_path, min: 2, prompt: "Search projects and people"
+    # in the action: render html: helpers.ui(:command, part: "items", items: { "Projects" => … }) if request.headers["Runeui-Command"]
 %>
 <% command_id = ui_id("command", id) %>
 <% groups = items.is_a?(Hash) ? items.to_a : [ [ nil, Array(items) ] ] %>
-<% palette = capture do %>
-<%= ui_tag(:ui_command, { id: (dialog ? nil : command_id), "auto-highlight": "", loop: "", data: { slot: "command" } }, dialog ? {} : attrs) do %>
-  <div data-slot="command-search">
-    <%= ui_icon :search %>
-    <ui-command-input data-slot="command-input"><input type="text" placeholder="<%= placeholder || "Type a command or search…" %>" aria-label="<%= placeholder || "Search commands" %>" autocomplete="off"></ui-command-input>
-  </div>
-  <ui-command-empty data-slot="command-empty"><%= empty || "No results found." %></ui-command-empty>
-  <ui-command-list data-slot="command-list">
-    <% if content %>
-    <%= content %>
-    <% else %>
+<% list = capture do %>
     <% groups.each_with_index do |(group, commands), index| %>
     <%# herb:key group || index %>
     <% if index.positive? %><ui-command-separator data-slot="command-separator"></ui-command-separator><% end %>
@@ -40,14 +42,47 @@
       <% if group %><ui-command-group-label data-slot="command-group-label"><%= group %></ui-command-group-label><% end %>
       <% commands.each do |command| %>
       <%# herb:key command[:value] || command[:label] %>
-      <%= ui_tag(:ui_command_item, { class: "ui-item", value: (command[:value] || command[:label].to_s.parameterize).to_s, keywords: (command[:keywords] ? Array(command[:keywords]).join(",") : nil), shortcut: command[:shortcut], disabled: (command[:disabled] ? "" : nil), data: { slot: "command-item", href: command[:href], target: command[:target], runeui_open: command[:open] } }) do %>
-        <% if command[:icon] %><ui-command-item-icon data-slot="command-item-icon"><%= ui_icon command[:icon] %></ui-command-item-icon><% end %>
+      <% value = (command[:value] || strip_tags(command[:label].to_s).parameterize).to_s %>
+      <% icon = command[:icon] && (command[:icon].respond_to?(:html_safe?) && command[:icon].html_safe? ? command[:icon] : ui_icon(command[:icon])) %>
+      <% text = capture do %>
+        <% if icon %><ui-command-item-icon data-slot="command-item-icon"><%= icon %></ui-command-item-icon><% end %>
+        <% if command[:description] %>
+        <span data-slot="command-item-body"><ui-command-item-text data-slot="command-item-text"><%= command[:label] %></ui-command-item-text><span data-slot="command-item-description"><%= command[:description] %></span></span>
+        <% else %>
         <ui-command-item-text data-slot="command-item-text"><%= command[:label] %></ui-command-item-text>
+        <% end %>
+        <% if command[:meta] %><span data-slot="command-item-meta"><%= command[:meta] %></span><% end %>
         <% if command[:shortcut] %><ui-command-shortcut data-slot="command-shortcut"></ui-command-shortcut><% end %>
+      <% end %>
+      <% item = { value: value, label: (command[:label].respond_to?(:html_safe?) && command[:label].html_safe? ? strip_tags(command[:label]) : nil), keywords: (command[:keywords] ? Array(command[:keywords]).join(",") : nil), shortcut: command[:shortcut], disabled: (command[:disabled] ? "" : nil) } %>
+      <% if command[:link] && command[:href] %>
+      <% link = command[:link].is_a?(Hash) ? command[:link] : {} %>
+      <%= ui_tag(:ui_command_item, item.merge("as-child": "", data: { slot: "command-link-item" })) do %><%= ui_tag(:a, { href: command[:href], class: "ui-item", target: command[:target], data: { slot: "command-item" } }, link, text) %><% end %>
+      <% else %>
+      <%= ui_tag(:ui_command_item, item.merge(class: "ui-item", data: { slot: "command-item", href: command[:href], target: command[:target], runeui_open: command[:open] })) do %><%= text %><% end %>
       <% end %>
       <% end %>
     </ui-command-group>
     <% end %>
+<% end %>
+<% if part.to_s == "items" %>
+<%= list %>
+<% else %>
+<% palette = capture do %>
+<%= ui_tag(:ui_command, { id: (dialog ? nil : command_id), "auto-highlight": "", loop: "", filter: (src ? "false" : nil), data: { slot: "command", src: src, src_min: (src && min ? min.to_s : nil) } }, dialog ? {} : attrs) do %>
+  <div data-slot="command-search">
+    <%= ui_icon :search %>
+    <ui-command-input data-slot="command-input"><input type="text" placeholder="<%= placeholder || "Type a command or search…" %>" aria-label="<%= placeholder || "Search commands" %>" autocomplete="off"></ui-command-input>
+  </div>
+  <% if src %><ui-command-status data-slot="command-status"></ui-command-status><% end %>
+  <ui-command-empty data-slot="command-empty">
+    <% if prompt %><span data-slot="command-prompt"><%= prompt %></span><span data-slot="command-no-results"><%= empty || "No results found." %></span><% else %><%= empty || "No results found." %><% end %>
+  </ui-command-empty>
+  <ui-command-list data-slot="command-list">
+    <% if content %>
+    <%= content %>
+    <% else %>
+    <%= list %>
     <% end %>
   </ui-command-list>
 <% end %>
@@ -71,4 +106,5 @@
 <% end %>
 <% else %>
 <%= palette %>
+<% end %>
 <% end %>

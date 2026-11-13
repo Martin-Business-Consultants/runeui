@@ -74,6 +74,17 @@ await component("combobox", async (page) => {
     assert(queries.includes("gra"), `queries: ${queries}`)
   })
 
+  await check("src: behind a button opens on the empty search, not the choice's words, and doesn't search as it closes", async () => {
+    const queries = []
+    page.on("request", (request) => { if (request.url().includes("/people.json?picker=1")) queries.push(new URL(request.url()).searchParams.get("q")) })
+    await page.click("#person-picker-trigger")
+    await page.waitForSelector("#person-picker ui-combobox-item >> text=Grace Hopper", { timeout: 3000 })
+    assert(queries[0] === "", `first query: ${JSON.stringify(queries)}`)
+    await page.keyboard.press("Escape")
+    await page.waitForTimeout(500)
+    assert(queries.length === 1, `searched as it closed: ${JSON.stringify(queries)}`)
+  })
+
   await check("behind a button: the button says the choice, the box in the popup filters, the value submits", async () => {
     const button = () => page.locator("#owner-trigger").innerText()
     assert((await button()).trim() === "Unassigned", await button())

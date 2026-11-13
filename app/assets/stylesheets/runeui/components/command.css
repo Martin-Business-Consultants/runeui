@@ -42,6 +42,24 @@
   [data-slot="command-empty"][data-empty] { display: block; }
   [data-slot="command"][data-loading] [data-slot="command-list"] { opacity: 0.6; }
 
+  /* A command with a second line (description:) and something at its end (meta:). */
+  [data-slot="command-item-body"] { display: grid; flex: 1; gap: 0.125rem; min-width: 0; }
+  [data-slot="command-item-body"] [data-slot="command-item-text"] { flex: none; font-weight: 500; }
+  [data-slot="command-item-description"], [data-slot="command-item-meta"] { overflow: hidden; color: var(--muted-foreground); font-size: var(--ui-text-xs); text-overflow: ellipsis; white-space: nowrap; }
+  [data-slot="command-item-meta"] { flex: none; max-width: 40%; margin-inline-start: auto; }
+  [data-slot="command-item"][data-highlighted] :is([data-slot="command-item-description"], [data-slot="command-item-meta"]) { color: var(--accent-foreground); opacity: 0.75; }
+  [data-slot="command-item-icon"] > :is(img, [data-slot="avatar"]) { width: 1.25rem; height: 1.25rem; }
+
+  /* A command that's a link (link: true): the link is the row. */
+  [data-slot="command-link-item"] { display: contents; }
+  [data-slot="command-link-item"] > a { color: inherit; text-decoration: none; outline: none; }
+
+  /* Searching the server (src:): its status line, and the prompt until there's a search. */
+  [data-slot="command-status"] { display: block; padding: 0.375rem 0.75rem 0; color: var(--muted-foreground); font-size: var(--ui-text-xs); }
+  [data-slot="command-status"]:empty { display: none; }
+  [data-slot="command-prompt"], [data-slot="command"][data-searched] [data-slot="command-no-results"] { display: inline; }
+  [data-slot="command-no-results"], [data-slot="command"][data-searched] [data-slot="command-prompt"] { display: none; }
+
   /* The palette: the dialog's content is the command, no padding of its own. */
   [data-command-dialog][data-slot="dialog-content"] { gap: 0; width: min(calc(100% - 2rem), 32rem); padding: 0; overflow: hidden; inset-block-start: 20%; translate: -50% 0; }
   [data-command-dialog] [data-slot="command"] { max-width: none; border: 0; border-radius: 0; box-shadow: none; }

@@ -17,6 +17,7 @@
 </form>
 <h2>Searching on the server</h2>
 <%= ui :combobox, name: "person", id: "person", src: "/people.json", placeholder: "Search people" %>
+<%= ui :combobox, name: "picked_person", id: "person-picker", trigger: true, src: "/people.json?picker=1", value: "4", options: { "People" => [ [ "Katherine Johnson", "4" ] ] }, placeholder: "Choose a person", search: "Find a person…" %>
 <h2>Behind a button</h2>
 <form class="runeui-docs__row" action="<%= runeui_echo_path("combobox") %>" method="post" data-turbo-stream>
   <%= ui :combobox, name: "owner", id: "owner", trigger: true, options: [ [ "Ada Lovelace", "ada" ], [ "Grace Hopper", "grace" ], [ "Katherine Johnson", "katherine" ] ], placeholder: "Unassigned", search: "Find a person…" %>

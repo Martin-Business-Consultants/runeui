@@ -43,6 +43,23 @@ module Runeui
       end
     end
 
+    # The command page's server search (ui :command, src:): what matches, drawn as the palette's
+    # items, grouped. A few made-up records stand in for an app's.
+    RECORDS = {
+      "Projects" => [ [ "Website rebuild", "Harbor Dental" ], [ "Spring landing page", "Hill Bakery" ], [ "Local search", "Harbor Dental" ] ],
+      "People" => [ [ "Ada Lovelace", "ada@example.com" ], [ "Grace Hopper", "grace@example.com" ], [ "Alan Turing", "alan@example.com" ] ]
+    }.freeze
+
+    def search
+      query = params[:q].to_s.strip.downcase
+      groups = RECORDS.transform_values do |records|
+        records.select { |name, _| name.downcase.include?(query) }.map do |name, detail|
+          { label: name, value: name.parameterize, description: detail, icon: :file, href: runeui_doc_path("command", anchor: name.parameterize), link: true }
+        end
+      end.reject { |_, found| found.empty? }
+      render html: helpers.ui(:command, part: "items", items: groups)
+    end
+
     private
       def examples
         Dir[Engine.root.join("app/views/runeui/docs/examples/_*.html.erb")].map { File.basename(it, ".html.erb").delete_prefix("_") }.sort

@@ -40,6 +40,35 @@ await component("command", async (page) => {
     assert((await page.evaluate(() => window.ran)).includes("profile"), `ran ${await page.evaluate(() => window.ran)}`)
   })
 
+  await check("src: shows the prompt, then asks the server from min: characters and lists its answer", async () => {
+    const queries = []
+    page.on("request", (request) => { if (request.url().includes("/command/search")) queries.push([ new URL(request.url()).searchParams.get("q"), request.headers()["runeui-command"] ]) })
+    const remote = "#remote-command"
+    const empty = () => page.locator(`${remote} [data-slot=command-empty]`).innerText()
+    assert((await empty()).includes("Projects and people"), `prompt: ${await empty()}`)
+    await page.click(`${remote} input`)
+    await page.keyboard.type("a")
+    await page.waitForTimeout(450)
+    assert(queries.length === 0, `asked with one letter: ${JSON.stringify(queries)}`)
+    await page.keyboard.type("d")
+    await page.waitForSelector(`${remote} [role=option] >> text=Ada Lovelace`, { timeout: 3000 })
+    assert(JSON.stringify(queries) === '[["ad","remote-command"]]', JSON.stringify(queries))
+    const first = await page.locator(`${remote} [role=option]`).first().getAttribute("data-highlighted")
+    assert(first !== null, "the first answer isn't highlighted")
+    await page.fill(`${remote} input`, "qqq")
+    await page.waitForFunction((r) => document.querySelector(`${r} [data-slot=command-empty]`).innerText.includes("Nothing by that name"), remote, { timeout: 3000 })
+    await page.fill(`${remote} input`, "")
+    await page.waitForTimeout(100)
+    assert((await empty()).includes("Projects and people"), `prompt again: ${await empty()}`)
+  })
+
+  await check("src: a link command's link is followed with Enter", async () => {
+    await page.fill("#remote-command input", "web")
+    await page.waitForSelector("#remote-command a[role=option] >> text=Website rebuild", { timeout: 3000 })
+    await page.keyboard.press("Enter")
+    await page.waitForURL("**/runeui/command#website-rebuild", { timeout: 3000 })
+  })
+
   await check("⌘K opens the palette; an href command visits its page", async () => {
     await page.click("h1")
     await page.keyboard.press("ControlOrMeta+k")

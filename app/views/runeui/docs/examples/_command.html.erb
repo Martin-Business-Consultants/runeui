@@ -17,3 +17,5 @@
   "Components" => [ { label: "Button", href: runeui_doc_path("button"), icon: "arrow-right" }, { label: "Select", href: runeui_doc_path("select"), icon: "arrow-right" }, { label: "Dialog", href: runeui_doc_path("dialog"), icon: "arrow-right" } ],
   "Docs" => [ { label: "All components", href: runeui_docs_path, icon: :home, keywords: %w[index home] } ]
 } %>
+<h2>Searching the server: type two letters</h2>
+<%= ui :command, id: "remote-command", src: runeui_search_path("command"), min: 2, placeholder: "Search projects and people…", prompt: "Projects and people, by name.", empty: "Nothing by that name." %>
