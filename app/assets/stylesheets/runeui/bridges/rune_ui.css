@@ -49,7 +49,7 @@
     --primary-foreground: var(--accent-ink);
     --secondary: var(--layer-2);
     --secondary-foreground: var(--text);
-    --muted: var(--layer-1);
+    --muted: var(--layer-2);
     --muted-foreground: var(--text-muted);
     --accent: var(--layer-2);
     --accent-foreground: var(--text);
@@ -57,7 +57,9 @@
     --destructive-foreground: #fff;
     --border: var(--line);
     --input: var(--line-strong);
-    --ring: var(--rune-accent);
+    /* shadcn's --ring is a colour of its own (a grey by default), which rune_ui has no name for:
+       an app that has one says so with --ring-color; otherwise the brand colour. */
+    --ring: var(--ring-color, var(--rune-accent));
     --success: var(--ok);
     --warning: var(--attention);
     --info: var(--rune-accent);
@@ -73,11 +75,11 @@
     --sidebar-accent: var(--accent-soft);
     --sidebar-accent-foreground: var(--text);
     --sidebar-border: var(--line);
-    --sidebar-ring: var(--rune-accent);
+    --sidebar-ring: var(--ring-color, var(--rune-accent));
 
     /* runeui's scale, from rune_ui's (so --radius-scale, --control-h and the text steps reach
        it). Controls share --radius-control where the app sets it. */
-    --ui-radius-sm: var(--radius-xs);
+    --ui-radius-sm: var(--radius-sm);
     --ui-radius-md: var(--radius-control, var(--radius-sm));
     --ui-radius-lg: var(--radius);
     --ui-radius-xl: var(--radius-panel);
@@ -92,21 +94,24 @@
     --ui-text-lg: var(--text-title, 1.125rem);
     --ui-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --ui-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --ui-shadow-md: var(--shadow-popover);
-    --ui-shadow-lg: var(--shadow-popover);
+    --ui-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --ui-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --ui-focus-ring: var(--rune-ring);
     --ui-invalid-ring: 0 0 0 3px color-mix(in oklab, var(--danger) 20%, transparent);
     --ui-duration: var(--motion-fast);
     --ui-duration-slow: var(--motion);
     --ui-ease: var(--ease);
-    --ui-field-bg: var(--panel);
-    --ui-field-bg-hover: var(--panel);
-    --ui-surface-bg: var(--panel);
-    --ui-surface-bg-hover: var(--layer-2);
-    --ui-ghost-hover: var(--hover);
-    --ui-switch-track: var(--line-strong);
-    --ui-switch-thumb: var(--panel);
-    --ui-switch-thumb-on: var(--accent-ink);
+    /* The surfaces that differ between light and dark, as tokens.css has them (shadcn's): a
+       field is clear in light and a faint fill in dark, and so on. They follow color-scheme, as
+       rune_ui's own colours do. */
+    --ui-field-bg: light-dark(transparent, color-mix(in oklab, var(--input) 30%, transparent));
+    --ui-field-bg-hover: light-dark(transparent, color-mix(in oklab, var(--input) 50%, transparent));
+    --ui-surface-bg: light-dark(var(--background), color-mix(in oklab, var(--input) 30%, transparent));
+    --ui-surface-bg-hover: light-dark(var(--accent), color-mix(in oklab, var(--input) 50%, transparent));
+    --ui-ghost-hover: light-dark(var(--accent), color-mix(in oklab, var(--accent) 50%, transparent));
+    --ui-switch-track: light-dark(var(--input), color-mix(in oklab, var(--input) 80%, transparent));
+    --ui-switch-thumb: light-dark(var(--background), var(--foreground));
+    --ui-switch-thumb-on: light-dark(var(--background), var(--primary-foreground));
   }
 
   /* rune_ui markup inside a runeui component: its own --accent and --ring back. */
