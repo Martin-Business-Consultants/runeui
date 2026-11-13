@@ -10,18 +10,25 @@ import { Controller } from "@hotwired/stimulus"
 // A GET form leaves blank fields out of the address (cleanValue: false keeps them), so a filter
 // set back to "any" drops its param. A field marked data-autosubmit="false" never triggers it.
 //
+// resetValue: true puts the form back as the server rendered it before Turbo caches the page
+// (ui :filter sets it): the page left behind keeps its own choice, so Back shows the filter that
+// was on, not the one just picked.
+//
 // To wire it yourself, call its actions: data-action="change->runeui--autosubmit#submit" or
 // "input->runeui--autosubmit#later".
 export default class extends Controller {
   static values = {
     debounce: { type: Number, default: 0 },
-    clean: { type: Boolean, default: true }
+    clean: { type: Boolean, default: true },
+    reset: { type: Boolean, default: false }
   }
 
   connect() {
     this.onChange = (event) => { if (this.triggers(event)) this.submit() }
     this.onInput = (event) => { if (this.debounceValue > 0 && this.typed(event) && this.triggers(event)) this.later() }
     this.onFormData = (event) => this.dropBlanks(event.formData)
+    this.onCache = () => { if (this.resetValue) this.element.reset() }
+    document.addEventListener("turbo:before-cache", this.onCache)
     this.element.addEventListener("change", this.onChange)
     this.element.addEventListener("input", this.onInput)
     this.element.addEventListener("formdata", this.onFormData)
@@ -29,6 +36,7 @@ export default class extends Controller {
 
   disconnect() {
     clearTimeout(this.timer)
+    document.removeEventListener("turbo:before-cache", this.onCache)
     this.element.removeEventListener("change", this.onChange)
     this.element.removeEventListener("input", this.onInput)
     this.element.removeEventListener("formdata", this.onFormData)

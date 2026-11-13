@@ -21,7 +21,7 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 | `forms.js` | fires native `change`/`input` when a form-associated component's value moves |
 | `feedback.js` | toasts (flash, `ui_toast`, `toast()`) and `data-turbo-confirm` through the alert dialog |
 | `theme.js` | `.dark` on `<html>`, `data-runeui-theme` buttons |
-| `controllers/*_controller.js` | Stimulus controllers, registered as `runeui--<name>` (`controllers/index.js`): sidebar, selection, board, autosubmit, side-panel |
+| `controllers/*_controller.js` | Stimulus controllers, registered as `runeui--<name>` (`controllers/index.js`): sidebar, selection, columns, board, autosubmit, filter, side-panel |
 | `props.js` | `data-props` JSON → element properties; an image cropper's crop → its hidden fields |
 | `remote.js`, `command.js`, `triggers.js` | server search (`src:`), commands that visit (`href:`), a trigger menu's triggers from markup |
 | `agent.js` | UI SDK's agent bridge over WebMCP, opt-in |
@@ -100,7 +100,8 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 - **UI SDK's elements** do a component's own behaviour (keys, focus, ARIA, popups). Never
   re-implement one.
 - **Stimulus controllers** (`runeui--<name>`) are for stateful pieces runeui adds itself: the
-  sidebar, row selection, the board, the side panel, a form that submits as it changes. The
+  sidebar, row selection, a table's hidden columns, the board, the side panel, a form that
+  submits as it changes, a filter's searched list. The
   partial that owns the root wires `data-controller`, targets and actions; apps extend them the
   usual way. They register on the app's Stimulus application (`window.Stimulus`) or one runeui
   starts.

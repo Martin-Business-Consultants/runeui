@@ -12,13 +12,17 @@ import SelectionController from "runeui/controllers/selection_controller"
 import BoardController from "runeui/controllers/board_controller"
 import AutosubmitController from "runeui/controllers/autosubmit_controller"
 import SidePanelController from "runeui/controllers/side_panel_controller"
+import FilterController from "runeui/controllers/filter_controller"
+import ColumnsController from "runeui/controllers/columns_controller"
 
 export const CONTROLLERS = {
   "runeui--sidebar": SidebarController,
   "runeui--selection": SelectionController,
   "runeui--board": BoardController,
   "runeui--autosubmit": AutosubmitController,
-  "runeui--side-panel": SidePanelController
+  "runeui--side-panel": SidePanelController,
+  "runeui--filter": FilterController,
+  "runeui--columns": ColumnsController
 }
 
 export function registerControllers(application = window.Stimulus) {

@@ -1,4 +1,4 @@
-<%# locals: (param: nil, options: nil, label: nil, value: nil, any: nil, url: nil, frame: nil, keep: nil, **attrs) %>
+<%# locals: (param: nil, options: nil, label: nil, value: nil, any: nil, url: nil, frame: nil, keep: nil, search: nil, **attrs) %>
 <%#
   Filter: a pill above a list that narrows it by one query param. It's a select in a GET form
   of its own that swaps that param and keeps the page's others (not page: a new filter starts
@@ -13,6 +13,16 @@
   given). any: names the choice that clears it ("Any"; false for none). url: is where it
   submits (this page). frame: a Turbo Frame to load the answer into, when the list is in one.
   keep: the other query params to carry (all of them, unless given).
+
+  search: true puts a box in the popup that narrows a long list as you type (a combobox behind
+  the same pill; the runeui--filter Stimulus controller keeps the pill's words); a string is the
+  box's placeholder.
+
+    ui :filter, param: :owner_id, label: "Owner", options: User.pluck(:name, :id), search: true
+
+  The pill is marked active (data-active: a solid edge, a tint) while it narrows the list: a
+  choice is made and, when value: is given, the param is in the address (a value the controller
+  filled in as its default isn't one someone picked).
 %>
 <% name = param.to_s %>
 <% current = (value.nil? ? request.query_parameters[name] : value).to_s %>
@@ -24,11 +34,39 @@
 <% others = others.slice(*Array(keep).map(&:to_s)) unless keep.nil? %>
 <% carried = others.to_query.split("&").reject(&:blank?).map { it.split("=", 2).map { |part| CGI.unescape(part.to_s) } } %>
 <% filter_id = ui_id("filter", attrs.delete(:id), name: name) %>
-<%= ui_tag(:form, { action: (url || request.path), method: "get", data: { slot: "filter", controller: "runeui--autosubmit", turbo_frame: frame, active: (chosen ? "" : nil) } }, attrs) do %>
+<% active = chosen && (value.nil? || request.query_parameters[name].present?) %>
+<%= ui_tag(:form, { action: (url || request.path), method: "get", data: { slot: "filter", controller: "runeui--autosubmit", runeui__autosubmit_reset_value: "true", turbo_frame: frame, active: (active ? "" : nil) } }, attrs) do %>
   <% carried.each do |key, carried_value| %>
   <%# herb:key key %>
   <input type="hidden" name="<%= key %>" value="<%= carried_value %>" autocomplete="off">
   <% end %>
+  <% if search %>
+  <%= ui_tag("ui-combobox", { id: filter_id, name: name, "default-value": (chosen ? current : nil), "auto-highlight": "", data: { slot: "combobox", controller: "runeui--filter", runeui__filter_placeholder_value: any_label }, aria: { label: label } }) do %>
+    <ui-combobox-trigger>
+      <%= ui_tag(:button, { type: "button", id: "#{filter_id}-trigger", data: { slot: "combobox-trigger", size: "sm", filter: "", runeui__filter_target: "trigger" } }) do %>
+        <% if label %><span data-slot="filter-label"><%= label %></span><% end %>
+        <%= ui_tag(:span, { data: { slot: "filter-value", runeui__filter_target: "value", placeholder: (chosen ? nil : "") } }, {}, (chosen ? chosen[:label] : any_label)) %>
+        <%= ui_icon "chevron-down", class: "ui-select-icon" %>
+      <% end %>
+    </ui-combobox-trigger>
+    <%= ui_tag("ui-combobox-content", { class: "ui-popup", anchor: "##{filter_id}-trigger", align: "start", "side-offset": 4, hidden: true, data: { slot: "combobox-content", filter: "" } }) do %>
+      <div data-slot="filter-search">
+        <%= ui_icon :search %>
+        <ui-combobox-input data-slot="combobox-input"><%= ui_tag(:input, { type: "text", placeholder: (search.is_a?(String) ? search : "Search…"), autocomplete: "off", data: { autosubmit: "false" }, aria: { label: (label ? "Search #{label.downcase}" : "Search") } }) %></ui-combobox-input>
+      </div>
+      <ui-combobox-empty data-slot="combobox-empty">No results.</ui-combobox-empty>
+      <ui-combobox-list data-slot="combobox-list">
+        <% if any_label %>
+        <ui-combobox-item data-slot="combobox-item" class="ui-item" value="" label="<%= any_label %>" data-filter-any><ui-combobox-item-text data-slot="combobox-item-text"><%= any_label %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= ui_icon :check %></ui-combobox-item-indicator></ui-combobox-item>
+        <% end %>
+        <% flat.each do |item| %>
+        <%# herb:key item[:value] %>
+        <%= ui_tag("ui-combobox-item", { class: "ui-item", value: item[:value], label: item[:label], disabled: (item[:disabled] ? "" : nil), data: { slot: "combobox-item" } }) do %><ui-combobox-item-text data-slot="combobox-item-text"><%= item[:label] %></ui-combobox-item-text><ui-combobox-item-indicator data-slot="combobox-item-indicator"><%= ui_icon :check %></ui-combobox-item-indicator><% end %>
+        <% end %>
+      </ui-combobox-list>
+    <% end %>
+  <% end %>
+  <% else %>
   <%= ui_tag("ui-select", { id: filter_id, name: name, "default-value": (chosen ? current : nil), placeholder: any_label, data: { slot: "select" }, aria: { label: label } }) do %>
     <ui-select-trigger>
       <button type="button" data-slot="select-trigger" data-size="sm" data-filter>
@@ -57,5 +95,6 @@
       <% end %>
       <% end %>
     </ui-select-content>
+  <% end %>
   <% end %>
 <% end %>

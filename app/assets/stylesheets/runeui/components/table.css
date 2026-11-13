@@ -1,5 +1,6 @@
 @layer runeui.components {
-  [data-slot="table-container"] { position: relative; width: 100%; overflow-x: auto; }
+  [data-slot="table-container"] { position: relative; width: 100%; min-width: 0; }
+  [data-slot="table-scroll"] { width: 100%; overflow-x: auto; }
   [data-slot="table"] { width: 100%; border-collapse: collapse; caption-side: bottom; font-size: var(--ui-text-sm); }
   [data-slot="table"] thead tr { border-bottom: 1px solid var(--border); }
   [data-slot="table"] tbody tr { border-bottom: 1px solid var(--border); transition: background-color var(--ui-duration); }
@@ -11,6 +12,18 @@
   [data-slot="table"] td { padding: 0.5rem; white-space: nowrap; }
   [data-slot="table"] :is(th, td)[data-align="end"] { text-align: end; font-variant-numeric: tabular-nums; }
   [data-slot="table"] :is(th, td):has([data-slot="checkbox"]) { width: 1px; padding-inline-end: 0; }
+  /* Widths, as shadcn's table has them: every column is as wide as what it holds, on one line.
+     data-grow marks the column that names each row: it takes what's left and cuts a long name
+     short, never narrower than 12rem (a narrower table scrolls in its container instead).
+     data-truncate caps a column of free text (16rem, or --ui-table-truncate). */
+  [data-slot="table"] :is(th, td)[data-grow] { width: 100%; min-width: 12rem; max-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  /* data-grow="wrap": a name that reads as a sentence (a task's title) wraps instead, to two
+     lines at most where its content is one element (a link). */
+  [data-slot="table"] td[data-grow="wrap"] { white-space: normal; overflow-wrap: anywhere; }
+  [data-slot="table"] td[data-grow="wrap"] > a:only-child { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  [data-slot="table"] td[data-truncate] { max-width: var(--ui-table-truncate, 16rem); overflow: hidden; text-overflow: ellipsis; }
+  [data-slot="table"] :is(th, td)[data-align="center"] { text-align: center; }
+  [data-slot="table"] :is(th, td)[hidden] { display: none; }
   [data-slot="table-caption"] { margin-top: 1rem; color: var(--muted-foreground); }
 }
 

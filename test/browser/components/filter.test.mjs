@@ -35,6 +35,8 @@ await component("filter", async (page) => {
     await page.goBack()
     await settled(() => location.search === "?status=planned")
     await settled(() => document.querySelectorAll("#filtered tr").length === 2)
+    await settled(() => document.querySelector("#filter-owner [data-slot=select-value]").textContent.trim() === "Anyone")
+    await settled(() => document.querySelector("#filter-status [data-slot=select-value]").textContent.trim() === "Planned")
   })
 
   await check("the clearing choice drops the param", async () => {
@@ -65,6 +67,29 @@ await component("filter", async (page) => {
     await page.keyboard.type("in r")
     await page.keyboard.press("Enter")
     await settled(() => new URLSearchParams(location.search).get("status") === "review")
+  })
+
+  await check("a searched list: the box narrows it, Enter picks, the pill and the address follow", async () => {
+    await page.waitForFunction(() => customElements.get("ui-combobox"))
+    await page.click("#filter-person-trigger")
+    await settled(() => document.activeElement?.matches("#filter-person input"))
+    await page.keyboard.type("pri")
+    await settled(() => [ ...document.querySelectorAll("#filter-person ui-combobox-item") ].filter((item) => item.offsetParent).length === 1)
+    await page.keyboard.press("Enter")
+    await settled(() => new URLSearchParams(location.search).get("person") === "Priya")
+    assert((await page.locator("#filter-person-trigger").innerText()).replace(/\s+/g, " ").trim() === "Person Priya", await page.locator("#filter-person-trigger").innerText())
+    assert(await page.locator("#searched-result").innerText() === "Showing Priya", await page.locator("#searched-result").innerText())
+    assert(await page.locator("form[data-slot=filter][data-active] #filter-person").count() === 1, "the pill isn't marked active")
+  })
+
+  await check("a searched list: the clearing choice drops the param, the box opens empty", async () => {
+    await page.waitForFunction(() => customElements.get("ui-combobox"))
+    await page.click("#filter-person-trigger")
+    await settled(() => document.activeElement?.matches("#filter-person input"))
+    assert(await page.locator("#filter-person input").inputValue() === "", "the box kept its text")
+    await page.click("#filter-person ui-combobox-item[data-filter-any]")
+    await settled(() => !new URLSearchParams(location.search).has("person"))
+    await settled(() => document.querySelector("#searched-result").textContent === "Showing everyone")
   })
 
   await check("in a Turbo Frame only the frame loads, and the address still follows", async () => {

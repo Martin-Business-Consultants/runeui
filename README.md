@@ -104,8 +104,9 @@ Beyond single components, the parts an app is made of:
 | | |
 | --- | --- |
 | `ui :app_shell` with `ui :sidebar_group`, `ui :sidebar_item`, `ui :page_header` | The shell: a sidebar that collapses to icons (`[`), remembered by cookie so the server draws it right from the first paint; a sheet on phones. `sidebar_header:` and `sidebar_footer:` stay put while the groups between them scroll, and the scroll is kept from page to page. |
-| `ui :table, selectable: true` with `ui :select_cell`, `ui :sort_header`, `ui :bulk_bar` | A data table: sort links that keep the page's other params, select-all, shift-click ranges, a bulk bar that submits the picked ids. |
-| `ui :filter`, `ui :filter_bar` | Filter pills: each a GET form that swaps one query param, so filters are bookmarkable and Back works. |
+| `ui :table, selectable: true` with `ui :select_cell`, `ui :sort_header`, `ui :bulk_bar`, `ui :columns_menu` | A data table: sort links that keep the page's other params, select-all, shift-click ranges, a bulk bar that submits the picked ids. Columns size themselves: each as wide as what it holds, the one marked `data-grow` taking the rest and cutting a long name short. `columns: "key"` with `ui :columns_menu` lets columns be hidden, remembered per browser. |
+| `ui :filter`, `ui :filter_bar` | Filter pills: each a GET form that swaps one query param, so filters are bookmarkable and Back works. `search: true` puts a search box in a long list. |
+| `ui :toggle_group` with `href:` options | A list's views as links (Table, Board): the same joined toggles, the current page's pressed. |
 | `ui :board`, `ui :board_column`, `ui :board_card` | A kanban board: drag between and within columns (pointer, touch, and Shift+arrows on the keyboard), one request per move (`card`, `column`, `before`) answered by Turbo Streams, put back if it fails. |
 | `ui :side_panel` | A record opened over the page in a Turbo Frame: links with `data-turbo-frame="side_panel"`, the address keeps `?panel=`, so refresh, Back and sharing work. |
 | `ui :command, dialog: true` | A ⌘K palette whose commands visit pages through Turbo. |

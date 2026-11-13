@@ -1,7 +1,8 @@
-<%# locals: (content: nil, caption: nil, selectable: nil, bulk: nil, noun: nil, **attrs) %>
+<%# locals: (content: nil, caption: nil, selectable: nil, bulk: nil, noun: nil, columns: nil, **attrs) %>
 <%#
   Table: the block is the table's rows, plain <thead>, <tbody>, <tr>, <th>, <td>, styled by
-  the table's data-slot. Wrapped in a scroll container for narrow screens. A row with
+  the table's data-slot. Wrapped in a box that scrolls sideways on narrow screens (data-slot
+  table-scroll, the place for a border of your own; the bulk bar sits above it and stays put). A row with
   aria-selected="true" (or data-state="selected") shows as chosen.
 
     ui :table, caption: "Recent invoices" do
@@ -9,15 +10,26 @@
       <tbody> rows </tbody>
     end
 
+  Every column is as wide as what it holds. Mark the one that names each row data-grow (on its
+  <th> and <td>s): it takes the width that's left and cuts a long name short with an ellipsis.
+  data-truncate on a <td> caps free text at 16rem (--ui-table-truncate to change it); data-align="end" (numbers) or "center" aligns
+  a column. Narrower than its columns need, the table scrolls sideways in its container.
+
   selectable: true lets rows be picked (the runeui--selection Stimulus controller): a
   ui :select_cell in each row and, all: true, in the header; bulk: is the ui :bulk_bar shown
   while any are, and noun: what it counts ("3 projects selected"). Put it in a form and the
   picked rows submit as ids[].
+
+  columns: "projects" lets columns be hidden (the runeui--columns Stimulus controller): a
+  ui :columns_menu somewhere in it ticks them, cells say which column they're in with
+  data-column="key", and the choice is remembered in this browser under that name.
 %>
-<%= ui_tag(:div, { data: { slot: "table-container", controller: (selectable ? "runeui--selection" : nil), runeui__selection_noun_value: (selectable ? (noun || "row").to_s : nil), action: (selectable ? "change->runeui--selection#queueRefresh" : nil) } }) do %>
+<%= ui_tag(:div, { data: { slot: "table-container", controller: [ ("runeui--selection" if selectable), ("runeui--columns" if columns) ].compact.join(" ").presence, runeui__selection_noun_value: (selectable ? (noun || "row").to_s : nil), runeui__columns_key_value: columns&.to_s, action: (selectable ? "change->runeui--selection#queueRefresh" : nil) } }) do %>
   <% if bulk %><%= bulk %><% end %>
-  <%= ui_tag(:table, { data: { slot: "table" } }, attrs) do %>
-    <% if caption %><caption data-slot="table-caption"><%= caption %></caption><% end %>
-    <%= content %>
-  <% end %>
+  <div data-slot="table-scroll">
+    <%= ui_tag(:table, { data: { slot: "table" } }, attrs) do %>
+      <% if caption %><caption data-slot="table-caption"><%= caption %></caption><% end %>
+      <%= content %>
+    <% end %>
+  </div>
 <% end %>

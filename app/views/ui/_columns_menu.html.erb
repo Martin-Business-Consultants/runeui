@@ -1,0 +1,19 @@
+<%# locals: (columns: nil, label: nil, trigger: nil, align: nil, **attrs) %>
+<%#
+  A table's Columns menu: a checkbox per column that can be hidden, for ui :table, columns:
+  (the runeui--columns Stimulus controller, which hides the cells and remembers the choice in
+  this browser). columns: [label, key] pairs; each names the cells carrying data-column="key".
+  Put it anywhere inside the table: its header's last cell, usually.
+
+    ui :table, columns: "projects" do
+      <thead><tr><th>Name</th><th data-column="status">Status</th><th data-column="due">Due</th>
+        <th data-align="end"> ui :columns_menu, columns: [["Status", "status"], ["Due", "due"]] </th></tr></thead>
+      … each row: <td>…</td><td data-column="status">…</td><td data-column="due">…</td><td></td>
+    end
+
+  label: names the menu ("Columns"). trigger: markup for its button (else a quiet icon button).
+%>
+<% name = label || "Columns" %>
+<% button = trigger || ui_tag(:button, { type: "button", class: "ui-button", title: name, data: { variant: "ghost", size: "icon-sm" }, aria: { label: name } }, {}, ui_icon("settings-2")) %>
+<% items = [ { heading: "Show columns" }, :separator ] + Array(columns).map { |text, key| { label: text, value: (key || text).to_s, checkbox: true, checked: true } } %>
+<%= ui :menu, trigger: button, items: items, align: (align || :end), label: name, data: { runeui__columns_target: "menu" }, **attrs %>

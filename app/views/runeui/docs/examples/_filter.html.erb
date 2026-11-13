@@ -14,6 +14,12 @@
     <% end %>
   </tbody>
 <% end %>
+<h2>A long list, searched</h2>
+<% people = %w[Ada Amir Bea Chidi Dana Eleanor Farid Grace Hana Ivan Jordan Kira Luis Marcus Noor Omar Priya Quinn Rosa Sarah Tomas] %>
+<%= ui :filter_bar, params: %i[person] do %>
+  <%= ui :filter, param: :person, label: "Person", any: "Anyone", options: people, search: "Search people" %>
+<% end %>
+<p id="searched-result"><%= params[:person].present? ? "Showing #{params[:person]}" : "Showing everyone" %></p>
 <h2>A search that submits as you type</h2>
 <form action="<%= request.path %>" method="get" data-controller="runeui--autosubmit" data-runeui--autosubmit-debounce-value="300" id="search-as-you-type">
   <%= ui :input, name: "q", type: :search, value: params[:q], placeholder: "Search tasks", autocomplete: "off" %>

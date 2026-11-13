@@ -1,14 +1,15 @@
-<%# locals: (value: nil, name: nil, label: nil, all: nil, checked: nil, **attrs) %>
+<%# locals: (value: nil, name: nil, label: nil, all: nil, checked: nil, checkbox: nil, **attrs) %>
 <%#
   The checkbox column of a table whose rows can be picked: in each row a <td> submitting the
   row's value as ids[] (name: to change it), in the header (all: true) a <th> that picks every
   row, shows mixed when some are, and counts them for the bulk bar. Shift-click picks a range.
-  For ui :table, selectable: true.
+  For ui :table, selectable: true. checkbox: is attributes for the checkbox itself (the rest
+  land on the cell), as a key that presses it: checkbox: { data: { keys: "x" } }.
 
     <th> ui :select_cell, all: true </th> … per row: ui :select_cell, value: project.id, label: project.name
 %>
 <% if all %>
-<%= ui_tag(:th, { data: { slot: "table-select" } }, attrs) do %><%= ui_tag(:ui_checkbox, { data: { slot: "checkbox", select_all: "", runeui__selection_target: "all", action: "click->runeui--selection#toggleAll" }, aria: { label: (label || "Pick every row") } }, {}, ui_tag(:ui_checkbox_indicator, { data: { slot: "checkbox-indicator" } }, {}, ui_icon(:check)) + ui_icon(:minus, class: "ui-mixed-icon")) %><% end %>
+<%= ui_tag(:th, { data: { slot: "table-select" } }, attrs) do %><%= ui_tag(:ui_checkbox, { data: { slot: "checkbox", select_all: "", runeui__selection_target: "all", action: "click->runeui--selection#toggleAll" }, aria: { label: (label || "Pick every row") } }, (checkbox || {}), ui_tag(:ui_checkbox_indicator, { data: { slot: "checkbox-indicator" } }, {}, ui_icon(:check)) + ui_icon(:minus, class: "ui-mixed-icon")) %><% end %>
 <% else %>
-<%= ui_tag(:td, { data: { slot: "table-select" } }, attrs) do %><%= ui_tag(:ui_checkbox, { name: (name || "ids[]"), value: value.to_s, "default-checked": (checked ? "" : nil), data: { slot: "checkbox", runeui__selection_target: "row", action: "click->runeui--selection#pick" }, aria: { label: (label ? "Pick #{label}" : "Pick this row") } }, {}, ui_tag(:ui_checkbox_indicator, { data: { slot: "checkbox-indicator" } }, {}, ui_icon(:check))) %><% end %>
+<%= ui_tag(:td, { data: { slot: "table-select" } }, attrs) do %><%= ui_tag(:ui_checkbox, { name: (name || "ids[]"), value: value.to_s, "default-checked": (checked ? "" : nil), data: { slot: "checkbox", runeui__selection_target: "row", action: "click->runeui--selection#pick" }, aria: { label: (label ? "Pick #{label}" : "Pick this row") } }, (checkbox || {}), ui_tag(:ui_checkbox_indicator, { data: { slot: "checkbox-indicator" } }, {}, ui_icon(:check))) %><% end %>
 <% end %>

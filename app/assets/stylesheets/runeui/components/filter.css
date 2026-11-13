@@ -20,10 +20,42 @@
   [data-slot="filter-label"]::after { content: ":"; }
 
   /* Narrowing the list: a solid edge and a tint. */
-  [data-slot="filter"][data-active] [data-slot="select-trigger"][data-filter] {
+  [data-slot="filter"][data-active] [data-filter]:is([data-slot="select-trigger"], [data-slot="combobox-trigger"]) {
     border-style: solid;
     border-color: color-mix(in oklab, var(--primary) 35%, var(--border));
     background: color-mix(in oklab, var(--primary) 6%, transparent);
   }
-  [data-slot="filter"][data-active] [data-slot="select-value"] { font-weight: 500; }
+  [data-slot="filter"][data-active] :is([data-slot="select-value"], [data-slot="filter-value"]) { font-weight: 500; }
+
+  /* A list that can be searched (search: true): a combobox behind the same pill, its input in
+     the popup above the list. */
+  [data-slot="filter"] ui-combobox { display: inline-flex; width: auto; }
+  [data-slot="combobox-trigger"][data-filter] {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: var(--ui-h-sm);
+    padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+    border: 1px dashed var(--input);
+    border-radius: var(--ui-radius-full);
+    background: var(--ui-field-bg, light-dark(transparent, color-mix(in oklab, var(--input) 30%, transparent)));
+    color: inherit;
+    font: inherit;
+    font-size: var(--ui-text-sm);
+    white-space: nowrap;
+    box-shadow: var(--ui-shadow-xs);
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
+  }
+  [data-slot="combobox-trigger"][data-filter]:hover { background: var(--accent); color: var(--accent-foreground); }
+  [data-slot="combobox-trigger"][data-filter]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
+  [data-slot="combobox-trigger"][data-filter] .ui-select-icon { opacity: 0.5; }
+  [data-slot="filter-value"] { max-width: 16rem; overflow: hidden; text-overflow: ellipsis; }
+  [data-slot="filter-value"][data-placeholder] { color: var(--muted-foreground); }
+  [data-slot="combobox-content"][data-filter] { min-width: 12rem; max-width: min(22rem, calc(100vw - 1rem)); }
+  [data-slot="filter-search"] { display: flex; align-items: center; gap: 0.5rem; margin: -0.25rem -0.25rem 0.25rem; padding: 0 0.625rem; border-bottom: 1px solid var(--border); }
+  [data-slot="filter-search"] .ui-icon { flex: none; opacity: 0.5; }
+  [data-slot="filter-search"] input { flex: 1; min-width: 0; height: var(--ui-h); padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: var(--ui-text-sm); outline: none; }
+  [data-slot="filter-search"] input::placeholder { color: var(--muted-foreground); }
 }

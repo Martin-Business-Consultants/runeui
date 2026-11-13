@@ -5,3 +5,7 @@
   <%= ui :toggle_group, name: "align", id: "align", variant: :outline, size: :sm, value: "left", options: [ [ "Left", "left" ], [ "Center", "center" ], [ "Right", "right" ] ] %>
   <div class="runeui-docs__row"><%= ui :button, variant: :outline, content: "Send", type: :submit %></div>
 </form>
+<h2>As links: a list's views</h2>
+<% view = params[:view].presence_in(%w[table board]) || "table" %>
+<%= ui :toggle_group, id: "views", value: view, variant: :outline, size: :sm, label: "View", options: [ [ "Table", "table", { icon: :menu, href: url_for(view: "table") } ], [ "Board", "board", { icon: :calendar, href: url_for(view: "board"), data: { keys: "v" } } ] ] %>
+<p id="view-shown">Showing the <%= view %></p>

@@ -1,4 +1,4 @@
-<%# locals: (options: nil, value: nil, multiple: nil, name: nil, variant: nil, size: nil, orientation: nil, disabled: nil, invalid: nil, id: nil, content: nil, **attrs) %>
+<%# locals: (options: nil, value: nil, multiple: nil, name: nil, variant: nil, size: nil, orientation: nil, disabled: nil, invalid: nil, id: nil, content: nil, label: nil, **attrs) %>
 <%#
   Toggle group: a row of toggles, one pressed (multiple: true for several), as for text
   alignment or formatting. options: [label, value] pairs, or [label, value, { icon: :bold }] for an
@@ -7,10 +7,28 @@
 
     ui :toggle_group, value: "left", options: [["Left", "left", { icon: "align-left" }], …]
     ui :toggle_group, name: "days[]", multiple: true, options: %w[Mon Tue Wed Thu Fri], variant: :outline
+
+  Options that carry href: make it a row of links instead, for a choice that's a page (a
+  list's views): a <nav> of links that look the same, the one for value: current
+  (aria-current="page"). Each may also carry title: and data:, and its icon: may be markup of
+  your own. label: names the nav.
+
+    ui :toggle_group, value: "table", variant: :outline, label: "View", options: [
+      ["Table", "table", { icon: :menu, href: url_for(view: "table") }],
+      ["Board", "board", { icon: "panel-left", href: url_for(view: "board") }]]
 %>
 <% values = Array(value).map(&:to_s) %>
 <% raw = (options || []).map { |item| item.is_a?(Array) && item[2].is_a?(Hash) ? item[2] : {} } %>
 <% choices = ui_options((options || []).map { |item| item.is_a?(Array) ? item.first(2) : item }) %>
+<% if raw.any? { it[:href] } %>
+<%= ui_tag(:nav, { id: id, data: { slot: "toggle-group", variant: (variant || "default").to_s, size: (size || "default").to_s, orientation: orientation&.to_s, links: "" }, aria: { label: label } }, attrs) do %>
+  <% choices.each_with_index do |choice, index| %>
+  <%# herb:key choice[:value] %>
+  <% link = raw[index] %>
+  <%= ui_tag(:a, { href: link[:href], class: "ui-toggle", title: link[:title], data: { slot: "toggle", variant: (variant || "default").to_s, size: (size || "default").to_s }, aria: { current: (values.include?(choice[:value]) ? "page" : nil), label: (link[:icon] ? choice[:label] : nil) } }, { data: link[:data] }.compact) do %><% if link[:icon] %><%= link[:icon].to_s.html_safe? ? link[:icon] : ui_icon(link[:icon]) %><% else %><%= choice[:label] %><% end %><% end %>
+  <% end %>
+<% end %>
+<% else %>
 <%= ui_tag(:ui_toggle_group, { id: ui_id("toggle-group", id, name: name), "default-value": values.join(","), multiple: (multiple ? "" : nil), orientation: orientation&.to_s, disabled: (disabled ? "" : nil), data: { slot: "toggle-group", variant: (variant || "default").to_s, size: (size || "default").to_s, name: name }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
   <% if content %>
   <%= content %>
@@ -27,4 +45,5 @@
   <input type="hidden" name="<%= name %>" value="<%= chosen %>" data-toggle-field autocomplete="off">
   <% end %>
   <% end %>
+<% end %>
 <% end %>
