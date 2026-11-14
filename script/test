@@ -6,7 +6,7 @@
 #   script/test select dialog      only those (names of files in test/browser: select, hotwire, contract…)
 #   script/test --shots tmp/shots  save each component's light and dark screenshots there
 #   script/test --jobs 1           one test file at a time (default 4)
-#   script/test --no-lint          skip Herb
+#   script/test --no-lint          skip Herb and runeui's lint tests
 #   script/test --port 3320        use this port (default: a free one)
 #
 # Needs Node, playwright-core and a Chromium. Once:
@@ -93,6 +93,14 @@ if [ $LINT -eq 1 ]; then
   else
     echo "✗ herb lint"
     grep -E -A3 '^\[error\]' "$OUT/lint" | grep -E '^\[error\]|^app/' | sed 's/^/    /' | head -40
+    FAILED=$((FAILED + 1))
+  fi
+  # runeui's own lint (bin/rails runeui:lint and its Herb rule) against a made-up app.
+  if ruby test/lint/lint_test.rb > "$OUT/runeui-lint" 2>&1; then
+    echo "✓ runeui lint"
+  else
+    echo "✗ runeui lint"
+    grep -E -A12 'Failure:|Error:' "$OUT/runeui-lint" | sed 's/^/    /' | head -40
     FAILED=$((FAILED + 1))
   fi
 fi

@@ -1,0 +1,25 @@
+<%# locals: () %>
+<button type="button">Bare</button>
+<button type="button" class="ui-button" data-variant="outline">Styled</button>
+<input type="text" name="q">
+<input type="hidden" name="h" value="1">
+<select name="s"><option>a</option></select>
+<dialog>Hi</dialog>
+<table><tr><td>1</td></tr></table>
+<%= tag.button "Built" %>
+<%= check_box_tag :done %>
+<%= select_control(select_tag(:kind, "")) %>
+<%= button_to "Go", "/" %>
+<%= button_to "Go", "/", class: "ui-button" %>
+<%= form_with url: "/" do |form| %>
+  <%= form.text_field :name %>
+  <%= form.email_field :email %>
+  <%= form.ui :input, :email %>
+  <% tasks = [].select(&:present?) %>
+<% end %>
+<%# runeui:allow native-control — out of sight, what a key presses %>
+<button type="button" class="hidden-trigger">Kept</button>
+<%# runeui:allow native-control %>
+<button type="button">No reason</button>
+<div data-slot="card"><table data-slot="table"></table></div>
+<a class="btn" href="/">Old</a>

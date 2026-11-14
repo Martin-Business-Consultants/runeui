@@ -1,0 +1,11 @@
+# A made-up app for runeui's lint tests: every line marked "flag" below should be reported.
+skip:
+  - app/views/pages/skipped.html.erb
+form_builder:
+  - text_field
+wrappers:
+  - select_control
+deny_classes:
+  - btn
+tokens:
+  - brand-*

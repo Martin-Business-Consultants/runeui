@@ -131,6 +131,63 @@ component, and light and dark stay the app's to switch.
 All of runeui's CSS is in cascade layers (`ui-sdk`, `runeui.tokens`, `runeui.base`,
 `runeui.components`), so your own CSS always wins without `!important` or specificity games.
 
+## Keep an app on runeui
+
+shadcn keeps an app on its components with lint rules; runeui does the same, in two parts:
+
+```sh
+bin/rails runeui:lint        # stylesheets, helpers and JavaScript; installs the Herb rule
+bundle exec herb lint        # templates, with runeui's rule from .herb/rules/
+```
+
+`runeui:lint` puts runeui's [Herb](https://herb-tools.dev) rule, `runeui-native-controls`, in
+`.herb/rules/` (commit it; the task keeps it current), so `herb lint` and Herb's language server
+flag a control runeui draws for you, written by hand or by a Rails helper: `<button>`, `<input>`,
+`<select>`, `<textarea>`, `<dialog>` or `<table>` without a `ui-*` class or `data-slot`;
+`tag.button`, `check_box_tag`, `select_tag` and the other `*_tag` fields; `button_to` without
+`class: "ui-button"`; and `form.text_field` and the other form builder fields. The task itself
+reads what Herb doesn't:
+
+| Rule | Flags |
+| --- | --- |
+| `unknown-token` | `var(--x)` that neither runeui, your stylesheets nor your JavaScript (`setProperty`) define: an old kit's name, or a typo |
+| `hard-coded-colour` | A colour literal (`#hex`, `rgb()`, `oklch()`…, `white`, `black`) in a property. Colours come from tokens: one defined as a custom property (a theme, or a component's own palette) is fine, as is a relative colour from one (`oklch(from var(--primary) …)`) |
+| `colour-mix` | `color-mix` in a space other than OKLab, as runeui mixes (`colour_mix:` to change it) |
+| `denied-class` | A class you've retired (`deny_classes:`), in views, helpers or JavaScript |
+| `native-control` | The same native controls as the Herb rule, built in a Ruby helper |
+
+Turn on Herb's own `html-no-style-attributes` and `html-no-style-elements` in `.herb.yml` too
+(they're off by default), so styling stays in stylesheets.
+
+A deliberate exception says why, in a comment on its line or the line above; one without a reason
+is an offense of its own:
+
+```erb
+<%# runeui:allow native-control — a bare trigger; its menu is on the page once %>
+```
+
+```css
+.qr { background: #fff; } /* runeui:allow hard-coded-colour — a QR code scans on white */
+```
+
+`config/runeui.yml` (optional) tunes it. The Herb rule reads the same file, so keep to plain lists:
+
+```yaml
+skip:            # paths not checked
+  - app/views/mailers/**
+form_builder:    # form builder fields your own builder draws with runeui
+  - text_field
+  - select
+wrappers:        # helpers that turn a native control into runeui's
+  - select_control
+deny_classes:    # classes you've retired
+  - btn
+tokens:          # custom properties defined somewhere the lint can't see (a trailing * matches a prefix)
+  - chart-*
+```
+
+Run both in CI. The rule needs Node (Herb's linter runs on it); apps don't.
+
 ## Own a component
 
 ```sh

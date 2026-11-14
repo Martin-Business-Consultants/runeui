@@ -15,6 +15,7 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 | `lib/runeui/form_builder.rb` | `form.ui :select, :status, …`: name, id, value (or checked), invalid, errors from the record |
 | `lib/runeui/turbo_stream_actions.rb` | `turbo_stream.ui_toast`, `ui_open`, `ui_close` |
 | `lib/runeui/icons.rb` | Lucide shapes (ISC) for `ui_icon` |
+| `lib/runeui/lint.rb`, `lib/runeui/lint/runeui-native-controls.mjs`, `lib/tasks/runeui.rake` | keeping an app on runeui (README: Keep an app on runeui): `bin/rails runeui:lint` for stylesheets, helpers and JavaScript, and the Herb rule it copies into the app's `.herb/rules/` for templates (self-contained: no imports, since it loads from the app). `test/lint` is a made-up app holding every case; a new check adds its case there |
 | `app/javascript/runeui/index.js` | `import "runeui"`: starts `autoload` and `hotwire` |
 | `autoload.js` | imports `runeui/sdk/<entry>` the first time a `ui-<entry>-*` tag appears (frames and streams too) |
 | `morph.js` | the morph guard: the server owns configuration, the element owns state |

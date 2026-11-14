@@ -1,0 +1,13 @@
+:root { --app-gap: 1rem; --app-ink: #123456; }
+.a { color: var(--foreground); gap: var(--app-gap); }
+.b { color: var(--text-muted); }
+.c { background: #fff; }
+.d { border-color: color-mix(in srgb, var(--primary) 50%, transparent); }
+.e { box-shadow: 0 1px 2px rgb(0 0 0 / .1); }
+.f { background: oklch(from var(--primary) calc(l + .1) c h); color: var(--brand-ink); }
+.g { color: white; }
+/* runeui:allow hard-coded-colour — a QR code scans on white */
+.h { background: #fff; }
+/* runeui:allow hard-coded-colour */
+.i { background: #000; }
+#app-root .j { color: var(--app-ink); }
