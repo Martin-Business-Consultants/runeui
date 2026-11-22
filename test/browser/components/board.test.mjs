@@ -64,9 +64,20 @@ async function behaviour(page) {
     assert(await page.locator("#board-column-planned").getAttribute("data-drop") !== null, "the column isn't marked")
   })
 
+  await check("the lifted card leaves its column, and the cards beside the line part, nearest most", async () => {
+    assert(await page.locator("#board-card-4").isHidden(), "the lifted card still holds its place")
+    await page.waitForTimeout(350)
+    const shift = (id) => page.locator(id).evaluate((card) => new DOMMatrix(getComputedStyle(card).transform).f)
+    const [ before, after, further ] = [ await shift("#board-card-1"), await shift("#board-card-2"), await shift("#board-card-3") ]
+    assert(Math.abs(before + 8) < 0.5 && Math.abs(after - 8) < 0.5 && Math.abs(further - 5.6) < 0.5, `nudges ${before}, ${after}, ${further}`)
+  })
+
   await check("dropping moves the card and sends card, column and before", async () => {
     await page.mouse.up()
-    await page.waitForTimeout(300)
+    assert(await page.locator("[data-slot=board-flight]").count() === 1, "the card didn't glide into its slot")
+    await page.waitForTimeout(350)
+    assert(await page.locator("[data-slot=board-flight]").count() === 0 && await page.locator("#board-card-4[data-landing]").count() === 0, "the glide didn't land")
+    assert(await page.locator("#board-card-2").evaluate((card) => card.style.transform) === "", "a nudge was left behind")
     assert(await order("planned") === "1,4,2,3", `planned is ${await order("planned")}`)
     assert(await order("doing") === "5", `doing is ${await order("doing")}`)
     assert(await count("planned") === "4" && await count("doing") === "1", "counts didn't follow")

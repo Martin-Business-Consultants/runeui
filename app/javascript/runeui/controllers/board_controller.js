@@ -22,6 +22,20 @@ import { Controller } from "@hotwired/stimulus"
 // as cards leave and land. A list's data-slot="board-more" item (the next page) stays last.
 // A column marked data-collapsible folds and opens from its title (toggle), kept per browser
 // when the board has an id, and left alone by a morph (keep).
+//
+// The feel of a drag (after microinteractions.dev's drag reorder): the lifted card follows the
+// pointer with no transition; its column closes up behind it; the line glides to each new place
+// (150ms) and the cards beside it part a little, the nearest first and furthest least (8px ×
+// 0.7ⁿ, a stagger falling off the same way, for cards at rest); dropped, the card glides into its
+// slot (250ms on the ease-out) as everything settles together. Nothing overshoots. The keyboard
+// moves at once, and reduced motion drops every glide.
+const NUDGE = 8
+const FALLOFF = 0.7
+const STAGGER = 24
+const SETTLE = 250
+
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches
+
 export default class extends Controller {
   static targets = [ "column", "card", "status" ]
   static values = {
@@ -106,9 +120,67 @@ export default class extends Controller {
     drag.line = line
     card.before(line)
 
-    card.setAttribute("data-dragging", "")
+    // The card leaves its column, which closes up behind it.
+    this.flip(this.cardsIn(this.columnOf(card)).filter((other) => other !== card), () => card.setAttribute("data-dragging", ""))
     this.element.setAttribute("data-dragging", "")
     getSelection()?.removeAllRanges()
+  }
+
+  // Moves elements (mutate) and glides them from where they were to where they land, by translate.
+  flip(elements, mutate) {
+    const before = elements.map((element) => element.getBoundingClientRect().top)
+    mutate()
+    if (reduced()) return
+    elements.forEach((element, index) => {
+      const delta = before[index] - element.getBoundingClientRect().top
+      if (Math.abs(delta) < 0.5) return
+      element.animate([ { translate: `0 ${delta}px` }, { translate: "0 0" } ], { duration: SETTLE, easing: "cubic-bezier(0.23, 1, 0.32, 1)" })
+    })
+  }
+
+  // The line glides to its new place in its column (150ms), or fades in where it first appears.
+  moveLine(insert) {
+    const drag = this.drag
+    const line = drag.line
+    const list = line.parentElement
+    const from = line.getBoundingClientRect().top
+    insert()
+    if (!reduced()) {
+      if (line.parentElement !== list || !drag.lineShown) {
+        line.animate([ { opacity: 0 }, { opacity: 1 } ], { duration: 150, easing: "ease-out" })
+      } else {
+        const delta = from - line.getBoundingClientRect().top
+        if (Math.abs(delta) >= 0.5) line.animate([ { translate: `0 ${delta}px` }, { translate: "0 0" } ], { duration: 150, easing: "ease-out" })
+      }
+    }
+    drag.lineShown = true
+    this.nudge()
+  }
+
+  // The cards each side of the line part: 8px for the nearest, 0.7 of that for each further out,
+  // the nearest moving first (a stagger only for cards at rest; a moving one retargets at once).
+  nudge() {
+    const drag = this.drag
+    const list = drag.line.parentElement
+    for (const card of this.cardTargets) {
+      if (card === drag.card) continue
+      if (!list.contains(card)) { this.unnudge(card); continue }
+      const siblings = this.cardsIn(this.columnOf(card)).filter((other) => other !== drag.card)
+      let gap = siblings.findIndex((other) => drag.line.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING)
+      if (gap < 0) gap = siblings.length
+      const index = siblings.indexOf(card)
+      const after = index >= gap
+      const steps = after ? index - gap : gap - 1 - index
+      const offset = (after ? 1 : -1) * NUDGE * FALLOFF ** steps
+      const moving = card.getAnimations().some((animation) => animation.transitionProperty === "transform")
+      card.style.transitionDelay = moving || reduced() ? "0ms" : `${Math.round(STAGGER * (1 - FALLOFF ** steps) / (1 - FALLOFF))}ms`
+      card.style.transform = `translateY(${offset.toFixed(2)}px)`
+    }
+  }
+
+  unnudge(card) {
+    card.style.transitionDelay = ""
+    card.style.transform = ""
   }
 
   // Puts the line where the card would land for a pointer at x, y.
@@ -126,8 +198,8 @@ export default class extends Controller {
       const box = card.getBoundingClientRect()
       return y < box.top + box.height / 2
     })
-    if (before) before.before(drag.line)
-    else this.appendTo(list, drag.line)
+    const already = before ? drag.line.nextElementSibling === before : drag.line.parentElement === list && !this.nextCardAfter(drag.line)
+    if (!already || !drag.lineShown) this.moveLine(() => { if (before) before.before(drag.line); else this.appendTo(list, drag.line) })
     for (const other of this.columnTargets) other.toggleAttribute("data-drop", other === column)
   }
 
@@ -159,8 +231,9 @@ export default class extends Controller {
     const drag = this.drag
     if (!drag || event.pointerId !== drag.id) return
     if (!drag.active) return this.release()
-    const { card, line, home } = drag
+    const { card, line, home, ghost } = drag
     line.replaceWith(card)
+    this.settle(card, ghost)
     this.release()
     // The click that follows a drag isn't a click on the card's link.
     const swallow = (click) => { click.preventDefault(); click.stopPropagation() }
@@ -173,7 +246,28 @@ export default class extends Controller {
     const drag = this.drag
     if (!drag) return
     drag.line?.remove()
+    if (drag.active) this.settle(drag.card, drag.ghost)
     this.release()
+  }
+
+  // The dropped card glides into its slot: its copy flies from the pointer to where the card now
+  // sits, which shows once it lands. Everything else settles at the same time, without delays.
+  settle(card, ghost) {
+    for (const other of this.cardTargets) this.unnudge(other)
+    card.removeAttribute("data-dragging")
+    if (!ghost || reduced()) return
+    const to = card.getBoundingClientRect()
+    const flying = ghost.cloneNode(true)
+    flying.setAttribute("data-slot", "board-flight")
+    document.body.append(flying)
+    card.setAttribute("data-landing", "")
+    const flight = flying.animate(
+      [ { translate: ghost.style.translate, rotate: "2deg" }, { translate: `${to.left}px ${to.top}px`, rotate: "0deg", boxShadow: "var(--ui-shadow-xs)" } ],
+      { duration: SETTLE, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" }
+    )
+    const land = () => { flying.remove(); card.removeAttribute("data-landing") }
+    flight.addEventListener("finish", land)
+    flight.addEventListener("cancel", land)
   }
 
   release() {
@@ -185,6 +279,7 @@ export default class extends Controller {
     drag.ghost?.remove()
     drag.line?.remove()
     drag.card.removeAttribute("data-dragging")
+    for (const card of this.cardTargets) this.unnudge(card)
     this.element.removeAttribute("data-dragging")
     for (const column of this.columnTargets) column.removeAttribute("data-drop")
     document.removeEventListener("pointermove", this.onMove)
@@ -403,6 +498,10 @@ export default class extends Controller {
 
   // The card after this one in its column, in document order: an app may wrap cards in elements
   // of its own (ReActionView's debug spans, a frame), so not just the next sibling.
+  nextCardAfter(node) {
+    return this.cardTargets.find((card) => card !== this.drag?.card && node.parentElement?.contains(card) && (node.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING)) || null
+  }
+
   nextCard(card) {
     const cards = this.cardsIn(this.columnOf(card))
     return cards[cards.indexOf(card) + 1] || null

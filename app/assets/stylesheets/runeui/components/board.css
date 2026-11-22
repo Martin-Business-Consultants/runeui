@@ -1,6 +1,7 @@
 /* Board: columns side by side, each a header over a scrolling list of cards. While a card is
-   dragged, a copy follows the pointer (board-ghost), the card itself dims, and a line
-   (board-drop) shows where it will land. */
+   dragged, a copy follows the pointer (board-ghost), the card leaves its column, which closes up,
+   and a line (board-drop) shows where it will land, the cards beside it parting a little
+   (runeui--board writes their transforms; they glide 250ms on the ease-out and retarget). */
 
 @layer runeui.components {
   [data-slot="board"] {
@@ -55,7 +56,9 @@
     cursor: pointer;
     outline: none;
   }
-  [data-slot="board-column-toggle"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="board-column-toggle"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  }
   [data-slot="board-column-toggle"]:focus-visible { box-shadow: var(--ui-focus-ring); }
 
   /* Folded: a narrow strip the board's height, its dot, count and title running down it; a click
@@ -98,7 +101,7 @@
   /* The list's last item when more cards are still to load (a link to the next page). */
   [data-slot="board-more"] { flex-shrink: 0; padding: 0.25rem; color: var(--muted-foreground); font-size: var(--ui-text-xs); text-align: center; list-style: none; }
 
-  [data-slot="board-card"], [data-slot="board-ghost"] {
+  [data-slot="board-card"], [data-slot="board-ghost"], [data-slot="board-flight"] {
     display: flex;
     flex-shrink: 0;
     flex-direction: column;
@@ -118,12 +121,16 @@
     cursor: grab;
     user-select: none;
     -webkit-touch-callout: none;
-    transition: box-shadow var(--ui-duration), border-color var(--ui-duration), opacity var(--ui-duration);
+    transition: box-shadow var(--ui-duration), border-color var(--ui-duration), opacity var(--ui-duration), transform var(--ui-duration-move) var(--ui-ease-out);
   }
 
-  [data-slot="board-card"]:hover { border-color: color-mix(in oklab, var(--ring) 60%, var(--border)); }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="board-card"]:hover { border-color: color-mix(in oklab, var(--ring) 60%, var(--border)); }
+  }
   [data-slot="board-card"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
-  [data-slot="board-card"][data-dragging] { opacity: 0.35; }
+  [data-slot="board-card"][data-dragging] { display: none; }
+  /* Its copy is still flying into the slot. */
+  [data-slot="board-card"][data-landing] { visibility: hidden; }
   [data-slot="board-card"][aria-busy="true"] { cursor: progress; }
   [data-slot="board"][data-dragging] [data-slot="board-card"] { cursor: grabbing; }
 
@@ -133,14 +140,15 @@
   [data-slot="board-card-body"] { color: var(--muted-foreground); }
   [data-slot="board-card-footer"] { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; margin-top: 0.25rem; }
 
-  /* The copy that follows the pointer. */
-  [data-slot="board-ghost"] {
+  /* The copy that follows the pointer, and (board-flight) the one gliding into the slot on a drop. */
+  [data-slot="board-ghost"], [data-slot="board-flight"] {
     position: fixed;
     top: 0;
     left: 0;
     z-index: 200;
     margin: 0;
     rotate: 2deg;
+    border-color: color-mix(in oklab, var(--ring) 70%, var(--border));
     box-shadow: var(--ui-shadow-lg);
     pointer-events: none;
     cursor: grabbing;
@@ -154,6 +162,11 @@
     border-radius: var(--ui-radius-full);
     background: var(--primary);
     list-style: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-slot="board-ghost"] { border-color: Highlight; outline: 2px solid Highlight; }
+    [data-slot="board-drop"] { background: Highlight; }
   }
 
   @media (max-width: 767px) {
