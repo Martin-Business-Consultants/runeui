@@ -27,3 +27,21 @@
   [data-slot="radio-indicator"]:is([data-starting-style], [data-ending-style]) { scale: 0.4; opacity: 0; }
   [data-slot="radio-indicator"] { transition: scale var(--ui-duration) var(--ui-ease), opacity var(--ui-duration); }
 }
+
+/* variant: :gooey (runeui--gooey): the dot is a layer of eight circles over the radios, under the
+   SVG filter that fuses them as they travel; each radio's own dot hides once the layer has placed
+   itself on the chosen one, and stands in until then. The filter's <svg> has no size: display:
+   none would turn the filter off in some browsers. */
+@layer runeui.components {
+  [data-slot="radio-group"][data-variant="gooey"] { position: relative; isolation: isolate; }
+  [data-slot="radio-goo-filter"] { position: absolute; width: 0; height: 0; }
+  [data-slot="radio-goo"] { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
+  [data-slot="radio-goo-blob"] { position: absolute; top: 0; left: 0; width: 0.5rem; height: 0.5rem; border-radius: var(--ui-radius-full); background: var(--primary); }
+  [data-slot="radio-group"][data-goo-ready]:not([data-goo-chosen]) [data-slot="radio-goo"] { opacity: 0; }
+  [data-slot="radio-group"][data-variant="gooey"]:not([data-goo-ready]) [data-slot="radio-goo"] { visibility: hidden; }
+  [data-slot="radio-group"][data-goo-ready] [data-slot="radio-indicator"] { visibility: hidden; }
+  [data-slot="radio-group"][aria-invalid="true"] [data-slot="radio-goo-blob"] { background: var(--destructive); }
+  @media (forced-colors: active) {
+    [data-slot="radio-goo-blob"] { background: CanvasText; forced-color-adjust: none; }
+  }
+}

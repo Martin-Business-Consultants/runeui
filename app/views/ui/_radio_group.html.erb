@@ -1,4 +1,4 @@
-<%# locals: (name: nil, options: nil, value: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, orientation: nil, content: nil, **attrs) %>
+<%# locals: (name: nil, options: nil, value: nil, id: nil, disabled: nil, required: nil, invalid: nil, form: nil, orientation: nil, variant: nil, content: nil, **attrs) %>
 <%#
   Radio group: one choice out of a few, all in view. Takes options as select does ([label, value]
   pairs, values, a hash; [label, value, { disabled: true }] for one that can't be chosen). The
@@ -6,12 +6,21 @@
   label data-slot="choice" > ui-radio value="…" data-slot="radio" > ui-radio-indicator.
   Submits its value with its form; arrow keys move between radios.
 
+  variant: :gooey pours the dot into the radio chosen like a drop of liquid (runeui--gooey); the
+  radios are the same ones, and the keyboard and reduced motion move it at once.
+
     ui :radio_group, name: "plan", options: [["Free", "free"], ["Pro", "pro"]], value: "free"
     form.ui :radio_group, :shipping, options: Order::SHIPPING, orientation: :horizontal
+    ui :radio_group, name: "delivery", options: %w[Standard Express Pickup], variant: :gooey
 %>
 <% choices = ui_options(options || []) %>
 <% group_id = ui_id("radio-group", id, name: name) %>
-<%= ui_tag(:ui_radio_group, { id: group_id, name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "radio-group", orientation: (orientation || "vertical").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
+<% gooey = variant.to_s == "gooey" %>
+<%= ui_tag(:ui_radio_group, { id: group_id, name: name, "default-value": value&.to_s, disabled: (disabled ? "" : nil), required: (required ? "" : nil), form: form, data: { slot: "radio-group", orientation: (orientation || "vertical").to_s, variant: (gooey ? "gooey" : nil), controller: (gooey ? "runeui--gooey" : nil) }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
+  <% if gooey %>
+  <svg data-slot="radio-goo-filter" aria-hidden="true" focusable="false"><filter id="<%= group_id %>-goo" data-runeui--gooey-target="filter"><feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="blur"></feGaussianBlur><feColorMatrix in="blur" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo"></feColorMatrix><feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite></filter></svg>
+  <span data-slot="radio-goo" aria-hidden="true" data-runeui--gooey-target="layer"><% 8.times do |index| %><%# herb:key index %><span data-slot="radio-goo-blob" data-runeui--gooey-target="blob"></span><% end %></span>
+  <% end %>
   <% if content %>
   <%= content %>
   <% else %>

@@ -14,6 +14,12 @@ import AutosubmitController from "runeui/controllers/autosubmit_controller"
 import SidePanelController from "runeui/controllers/side_panel_controller"
 import FilterController from "runeui/controllers/filter_controller"
 import ColumnsController from "runeui/controllers/columns_controller"
+import HoldController from "runeui/controllers/hold_controller"
+import PluckController from "runeui/controllers/pluck_controller"
+import TabsController from "runeui/controllers/tabs_controller"
+import CarouselController from "runeui/controllers/carousel_controller"
+import ResizableController from "runeui/controllers/resizable_controller"
+import GooeyController from "runeui/controllers/gooey_controller"
 
 export const CONTROLLERS = {
   "runeui--sidebar": SidebarController,
@@ -22,7 +28,13 @@ export const CONTROLLERS = {
   "runeui--autosubmit": AutosubmitController,
   "runeui--side-panel": SidePanelController,
   "runeui--filter": FilterController,
-  "runeui--columns": ColumnsController
+  "runeui--columns": ColumnsController,
+  "runeui--hold": HoldController,
+  "runeui--pluck": PluckController,
+  "runeui--tabs": TabsController,
+  "runeui--carousel": CarouselController,
+  "runeui--resizable": ResizableController,
+  "runeui--gooey": GooeyController
 }
 
 export function registerControllers(application = window.Stimulus) {
