@@ -1,15 +1,30 @@
+/* Collapsible: as an accordion's panel, on the same clock (accordion.css): the panel travels to
+   its height, its content arriving from slightly behind and leaving ahead of the close; the
+   chevron turns with it and grows into an arrow on hover. */
 @layer runeui.components {
   [data-slot="collapsible"] { display: flex; flex-direction: column; gap: 0.5rem; }
   [data-slot="collapsible-trigger"] { align-self: flex-start; }
-  [data-slot="collapsible-trigger"] .ui-collapsible-icon { color: var(--muted-foreground); transition: rotate var(--ui-duration) var(--ui-ease); }
+  [data-slot="collapsible-trigger"] .ui-collapsible-icon { color: var(--muted-foreground); transition: rotate var(--ui-duration-travel) var(--ui-ease-travel); }
   [data-slot="collapsible-trigger"][data-open] .ui-collapsible-icon { rotate: 180deg; }
 
   [data-slot="collapsible-panel"] {
     overflow: hidden;
     height: var(--collapsible-panel-height, auto);
-    transition: height var(--ui-duration-slow) var(--ui-ease), opacity var(--ui-duration-slow) var(--ui-ease);
+    transition: height var(--ui-duration-travel) var(--ui-ease-travel);
   }
 
-  [data-slot="collapsible-panel"]:is([data-starting-style], [data-ending-style]) { height: 0; opacity: 0; }
-  [data-slot="collapsible-content"] { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  [data-slot="collapsible-panel"]:is([data-starting-style], [data-ending-style]) { height: 0; }
+  [data-slot="collapsible-content"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    transition: opacity 210ms var(--ui-ease-out) 90ms, transform 210ms var(--ui-ease-out) 90ms, filter 210ms var(--ui-ease-out) 90ms;
+  }
+  [data-slot="collapsible-panel"][data-starting-style] [data-slot="collapsible-content"] { opacity: 0; transform: translateY(-6px); filter: blur(3px); }
+  [data-slot="collapsible-panel"][data-ending-style] [data-slot="collapsible-content"] {
+    opacity: 0;
+    transform: translateY(-6px);
+    filter: blur(3px);
+    transition: opacity 140ms cubic-bezier(0.215, 0.61, 0.355, 1), transform 140ms cubic-bezier(0.215, 0.61, 0.355, 1), filter 140ms cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
 }

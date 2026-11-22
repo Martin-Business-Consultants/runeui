@@ -32,9 +32,9 @@
   <ui-date-picker-content data-slot="date-picker-content" class="ui-popup" align="start" side-offset="4" hidden>
     <div data-slot="calendar" data-months="<%= count %>">
       <div data-slot="calendar-nav">
-        <ui-calendar-previous><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Previous month"><%= ui_icon "chevron-left" %></button></ui-calendar-previous>
+        <ui-calendar-previous><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Previous month"><%= ui_icon "chevron-left-arrow" %></button></ui-calendar-previous>
         <ui-calendar-heading data-slot="calendar-heading" id="<%= picker_id %>-heading" data-morph="keep"></ui-calendar-heading>
-        <ui-calendar-next><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Next month"><%= ui_icon "chevron-right" %></button></ui-calendar-next>
+        <ui-calendar-next><button type="button" class="ui-button" data-variant="ghost" data-size="icon-sm" aria-label="Next month"><%= ui_icon "chevron-right-arrow" %></button></ui-calendar-next>
       </div>
       <div data-slot="calendar-months">
         <% count.times do |offset| %>

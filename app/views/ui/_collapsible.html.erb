@@ -1,7 +1,8 @@
 <%# locals: (content: nil, trigger: nil, open: nil, disabled: nil, **attrs) %>
 <%#
   Collapsible: a panel shown and hidden by a button. trigger: a string makes a ghost button
-  with a chevron; markup is used as it is (it must hold a <button>).
+  with a chevron (which grows into an arrow on hover); markup is used as it is (it must hold a
+  <button>). The panel travels to its height, its content arriving from just behind.
 
     ui :collapsible, trigger: "Show 3 more" do
       render tasks.drop(3)
@@ -13,7 +14,7 @@
     <% if trigger.html_safe? %>
     <%= trigger %>
     <% else %>
-    <button type="button" class="ui-button" data-variant="ghost" data-size="sm" data-slot="collapsible-trigger"><%= trigger %><%= ui_icon "chevron-down", class: "ui-collapsible-icon" %></button>
+    <button type="button" class="ui-button" data-variant="ghost" data-size="sm" data-slot="collapsible-trigger"><%= trigger %><%= ui_icon "chevron-down-arrow", class: "ui-collapsible-icon" %></button>
     <% end %>
   </ui-collapsible-trigger>
   <% end %>

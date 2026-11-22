@@ -9,4 +9,9 @@ await component("collapsible", async (page) => {
     assert(await panel.isVisible(), "didn't open")
     assert(await page.locator("[data-slot=collapsible-trigger]").getAttribute("aria-expanded") === "true", "aria-expanded isn't true")
   })
+  await check("the content arrives from slightly behind as the panel opens", async () => {
+    const content = page.locator("[data-slot=collapsible-content]").first()
+    const delay = await content.evaluate((element) => getComputedStyle(element).transitionDelay)
+    assert(delay.startsWith("0.09s"), `transition delay ${delay}`)
+  })
 })

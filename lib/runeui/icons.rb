@@ -11,6 +11,12 @@ module Runeui
       "chevron-up": '<path d="m18 15-6-6-6 6"/>',
       "chevron-left": '<path d="m15 18-6-6 6-6"/>',
       "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+      # Chevrons that grow a stem into an arrow on hover and keyboard focus (base.css): the
+      # chevron and the stem are separate paths, moved only with transform and opacity.
+      "chevron-down-arrow": '<path data-part="chevron" d="m6 9 6 6 6-6"/><path data-part="stem" d="M12 7v9"/>',
+      "chevron-up-arrow": '<path data-part="chevron" d="m18 15-6-6-6 6"/><path data-part="stem" d="M12 17V8"/>',
+      "chevron-left-arrow": '<path data-part="chevron" d="m15 18-6-6 6-6"/><path data-part="stem" d="M17 12H8"/>',
+      "chevron-right-arrow": '<path data-part="chevron" d="m9 18 6-6-6-6"/><path data-part="stem" d="M7 12h9"/>',
       "chevrons-up-down": '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
       "arrow-left": '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
       "arrow-right": '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',

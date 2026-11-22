@@ -4,7 +4,8 @@
   content: (text or markup), value: (else its position), disabled:. Or give a block of
   accordion_item partials for anything else. open: the values open at first (one or a list);
   multiple: true lets several be open; collapsible: false keeps one always open.
-  heading: the heading level the titles are (h3 by default).
+  heading: the heading level the titles are (h3 by default). A panel travels to its height with
+  its text arriving from just behind, and each chevron grows into an arrow on hover.
 
     ui :accordion, items: [ { title: "Is it accessible?", content: "Yes." }, … ], open: "0"
     ui :accordion, multiple: true do

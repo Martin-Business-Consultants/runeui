@@ -25,6 +25,31 @@
 
   .ui-icon { flex-shrink: 0; width: 1rem; height: 1rem; pointer-events: none; }
 
+  /* Chevrons that become arrows (ui_icon "chevron-right-arrow"…; after microinteractions.dev's
+     chevron morph) on the control they're in: hovered with a mouse, the chevron moves 2px the way
+     it points while a stem grows from its tail (the stem scales around its own box, pinned at the
+     tail). Keyboard focus shows the arrow at once. Only transform and opacity move. */
+  .ui-icon [data-part] { transform-box: fill-box; transition: transform 190ms var(--ui-ease-press), opacity 190ms var(--ui-ease-press); }
+  .ui-icon [data-part="stem"] { opacity: 0; transform: scale(0.5, 1); }
+  .ui-icon:is([data-icon="chevron-up-arrow"], [data-icon="chevron-down-arrow"]) [data-part="stem"] { transform: scale(1, 0.5); }
+  .ui-icon[data-icon="chevron-right-arrow"] [data-part="stem"] { transform-origin: left center; }
+  .ui-icon[data-icon="chevron-left-arrow"] [data-part="stem"] { transform-origin: right center; }
+  .ui-icon[data-icon="chevron-down-arrow"] [data-part="stem"] { transform-origin: center top; }
+  .ui-icon[data-icon="chevron-up-arrow"] [data-part="stem"] { transform-origin: center bottom; }
+  :is(a, button, summary):focus-visible .ui-icon [data-part] { transition-duration: 0ms; }
+  :is(a, button, summary):focus-visible .ui-icon [data-part="stem"] { opacity: 1; transform: none; }
+  :is(a, button, summary):focus-visible .ui-icon[data-icon="chevron-right-arrow"] [data-part="chevron"] { transform: translateX(2px); }
+  :is(a, button, summary):focus-visible .ui-icon[data-icon="chevron-left-arrow"] [data-part="chevron"] { transform: translateX(-2px); }
+  :is(a, button, summary):focus-visible .ui-icon[data-icon="chevron-down-arrow"] [data-part="chevron"] { transform: translateY(2px); }
+  :is(a, button, summary):focus-visible .ui-icon[data-icon="chevron-up-arrow"] [data-part="chevron"] { transform: translateY(-2px); }
+  @media (hover: hover) and (pointer: fine) {
+    :is(a[href], button:enabled, summary):not([aria-disabled="true"], [data-disabled]):hover .ui-icon [data-part="stem"] { opacity: 1; transform: none; }
+    :is(a[href], button:enabled, summary):not([aria-disabled="true"], [data-disabled]):hover .ui-icon[data-icon="chevron-right-arrow"] [data-part="chevron"] { transform: translateX(2px); }
+    :is(a[href], button:enabled, summary):not([aria-disabled="true"], [data-disabled]):hover .ui-icon[data-icon="chevron-left-arrow"] [data-part="chevron"] { transform: translateX(-2px); }
+    :is(a[href], button:enabled, summary):not([aria-disabled="true"], [data-disabled]):hover .ui-icon[data-icon="chevron-down-arrow"] [data-part="chevron"] { transform: translateY(2px); }
+    :is(a[href], button:enabled, summary):not([aria-disabled="true"], [data-disabled]):hover .ui-icon[data-icon="chevron-up-arrow"] [data-part="chevron"] { transform: translateY(-2px); }
+  }
+
   /* Before its module loads, a component is its own HTML: nothing jumps when it upgrades
      because partials render each part's data-slot (and its hidden) on the server. */
   :where(ui-select, ui-combobox, ui-menu, ui-popover, ui-dialog, ui-alert-dialog, ui-drawer, ui-tooltip, ui-hover-card,
@@ -39,6 +64,9 @@
     clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
   }
 
+  /* Reduced motion: nothing of runeui's moves. A component whose motion carries meaning (a hold
+     button's fill measures time) or that swaps movement for a crossfade sets its own transition
+     with !important in runeui.components, which wins over this later layer's. */
   @media (prefers-reduced-motion: reduce) {
     :is([data-slot], [class^="ui-"], [class*=" ui-"]),
     :is([data-slot], [class^="ui-"], [class*=" ui-"]) * { transition-duration: 0ms !important; animation-duration: 0ms !important; }

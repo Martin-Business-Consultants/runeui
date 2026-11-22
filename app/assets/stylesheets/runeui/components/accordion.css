@@ -1,4 +1,8 @@
-/* Accordion: headings over a hairline each, a chevron that turns as the panel opens. */
+/* Accordion: headings over a hairline each, a chevron that turns as the panel opens. The panel
+   opens on its way to its new height (300ms, speeding up over the first third and braking over
+   the rest), its text arriving 6px from behind out of a slight blur as it lands and leaving the
+   same way, ahead of the close (after microinteractions.dev's FAQ panel). The chevron turns on
+   the panel's clock and grows into an arrow on hover. */
 
 @layer runeui.components {
   [data-slot="accordion"] { display: block; width: 100%; }
@@ -25,11 +29,13 @@
     transition: color var(--ui-duration), box-shadow var(--ui-duration);
   }
 
-  [data-slot="accordion-trigger"]:hover span { text-decoration: underline; text-underline-offset: 4px; }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="accordion-trigger"]:hover span { text-decoration: underline; text-underline-offset: 4px; }
+  }
   [data-slot="accordion-trigger"]:focus-visible { box-shadow: var(--ui-focus-ring); }
   [data-slot="accordion-trigger"]:is([data-disabled], [aria-disabled="true"]) { opacity: 0.5; cursor: not-allowed; }
   [data-slot="accordion-trigger"]:is([data-disabled], [aria-disabled="true"]):hover span { text-decoration: none; }
-  [data-slot="accordion-trigger"] .ui-accordion-icon { margin-top: 0.125rem; color: var(--muted-foreground); transition: rotate var(--ui-duration-slow) var(--ui-ease); }
+  [data-slot="accordion-trigger"] .ui-accordion-icon { margin-top: 0.125rem; color: var(--muted-foreground); transition: rotate var(--ui-duration-travel) var(--ui-ease-travel); }
   [data-slot="accordion-trigger"][data-open]:not([data-closed]) .ui-accordion-icon { rotate: 180deg; }
 
   [data-slot="accordion-panel"] {
@@ -37,11 +43,21 @@
     overflow: hidden;
     height: var(--accordion-panel-height, auto);
     font-size: var(--ui-text-sm);
-    transition: height var(--ui-duration-slow) var(--ui-ease);
+    transition: height var(--ui-duration-travel) var(--ui-ease-travel);
   }
 
   [data-slot="accordion-panel"]:is([data-starting-style], [data-ending-style]) { height: 0; }
-  [data-slot="accordion-content"] { padding-bottom: 1rem; }
+  [data-slot="accordion-content"] {
+    padding-bottom: 1rem;
+    transition: opacity 210ms var(--ui-ease-out) 90ms, transform 210ms var(--ui-ease-out) 90ms, filter 210ms var(--ui-ease-out) 90ms;
+  }
+  [data-slot="accordion-panel"][data-starting-style] [data-slot="accordion-content"] { opacity: 0; transform: translateY(-6px); filter: blur(3px); }
+  [data-slot="accordion-panel"][data-ending-style] [data-slot="accordion-content"] {
+    opacity: 0;
+    transform: translateY(-6px);
+    filter: blur(3px);
+    transition: opacity 140ms cubic-bezier(0.215, 0.61, 0.355, 1), transform 140ms cubic-bezier(0.215, 0.61, 0.355, 1), filter 140ms cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
   [data-slot="accordion-content"] > :first-child { margin-top: 0; }
   [data-slot="accordion-content"] > :last-child { margin-bottom: 0; }
 }

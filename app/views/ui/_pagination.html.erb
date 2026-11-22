@@ -21,9 +21,9 @@
   <ul data-slot="pagination-list">
     <li data-slot="pagination-item">
       <% if current > 1 %>
-      <a href="<%= href.(current - 1) %>" rel="prev" class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-previous"><%= ui_icon "chevron-left" %><span>Previous</span></a>
+      <a href="<%= href.(current - 1) %>" rel="prev" class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-previous"><%= ui_icon "chevron-left-arrow" %><span>Previous</span></a>
       <% else %>
-      <span class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-previous" aria-disabled="true"><%= ui_icon "chevron-left" %><span>Previous</span></span>
+      <span class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-previous" aria-disabled="true"><%= ui_icon "chevron-left-arrow" %><span>Previous</span></span>
       <% end %>
     </li>
     <% range.each_with_index do |n, i| %>
@@ -40,9 +40,9 @@
     <% end %>
     <li data-slot="pagination-item">
       <% if current < count %>
-      <a href="<%= href.(current + 1) %>" rel="next" class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-next"><span>Next</span><%= ui_icon "chevron-right" %></a>
+      <a href="<%= href.(current + 1) %>" rel="next" class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-next"><span>Next</span><%= ui_icon "chevron-right-arrow" %></a>
       <% else %>
-      <span class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-next" aria-disabled="true"><span>Next</span><%= ui_icon "chevron-right" %></span>
+      <span class="ui-button" data-variant="ghost" data-size="default" data-slot="pagination-next" aria-disabled="true"><span>Next</span><%= ui_icon "chevron-right-arrow" %></span>
       <% end %>
     </li>
   </ul>
