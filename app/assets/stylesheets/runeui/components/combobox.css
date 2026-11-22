@@ -72,7 +72,7 @@
     color: var(--muted-foreground);
     cursor: pointer;
   }
-  button[data-slot="combobox-chip-remove"]:hover { background: color-mix(in oklab, var(--foreground) 10%, transparent); color: var(--foreground); }
+  @media (hover: hover) and (pointer: fine) { button[data-slot="combobox-chip-remove"]:hover { background: color-mix(in oklab, var(--foreground) 10%, transparent); color: var(--foreground); } }
   button[data-slot="combobox-chip-remove"] .ui-icon { width: 0.75rem; height: 0.75rem; }
 
   [data-slot="combobox-content"] { min-width: max(12rem, var(--anchor-width, 0px)); }
@@ -112,7 +112,7 @@
     cursor: pointer;
     transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
   }
-  [data-slot="combobox-trigger"][data-picker]:hover { background: var(--ui-field-bg-hover, light-dark(transparent, color-mix(in oklab, var(--input) 50%, transparent))); }
+  @media (hover: hover) and (pointer: fine) { [data-slot="combobox-trigger"][data-picker]:hover { background: var(--ui-field-bg-hover, light-dark(transparent, color-mix(in oklab, var(--input) 50%, transparent))); } }
   [data-slot="combobox-trigger"][data-picker]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="combobox-trigger"][data-picker][aria-invalid="true"] { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
   [data-slot="combobox-trigger"][data-picker]:disabled { opacity: 0.5; cursor: not-allowed; }

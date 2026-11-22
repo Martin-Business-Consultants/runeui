@@ -49,5 +49,5 @@
   @media (min-width: 640px) { [data-slot="dialog-footer"] { flex-direction: row; justify-content: flex-end; } }
 
   [data-dialog-x] { position: absolute; top: 0.75rem; inset-inline-end: 0.75rem; opacity: 0.7; }
-  [data-dialog-x]:hover { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) { [data-dialog-x]:hover { opacity: 1; } }
 }

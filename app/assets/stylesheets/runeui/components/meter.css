@@ -29,6 +29,10 @@
     width: 0;
     border-radius: inherit;
     background: var(--meter-fill);
-    transition: width var(--ui-duration-slow) var(--ui-ease);
+    /* A full-width fill slid in from the start (translate, not UI SDK's inline width). */
+    width: 100% !important;
+    translate: calc(var(--meter-value, 0%) - 100%) 0;
+    transition: translate var(--ui-duration-slow) var(--ui-ease-out);
   }
+  [data-slot="meter"]:dir(rtl) [data-slot="meter-indicator"] { translate: calc(100% - var(--meter-value, 0%)) 0; }
 }

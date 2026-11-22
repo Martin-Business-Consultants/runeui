@@ -21,7 +21,7 @@
 
   [data-slot="waterfall-row"] { min-height: 2.25rem; border-bottom: 1px solid var(--border); outline: none; cursor: default; }
   [data-slot="waterfall-row"]:last-child { border-bottom: 0; }
-  [data-slot="waterfall-row"]:hover { background: color-mix(in oklab, var(--muted) 60%, transparent); }
+  @media (hover: hover) and (pointer: fine) { [data-slot="waterfall-row"]:hover { background: color-mix(in oklab, var(--muted) 60%, transparent); } }
   [data-slot="waterfall-row"][data-selected] { background: var(--accent); color: var(--accent-foreground); }
   [data-slot="waterfall-row"]:focus-visible, [data-slot="waterfall-row"] :focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
 

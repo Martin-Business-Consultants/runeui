@@ -26,7 +26,8 @@
     transition: background-color var(--ui-duration), color var(--ui-duration);
   }
 
-  :is([data-slot="navigation-menu-trigger"], .ui-navigation-menu-top-link):is(:hover, :focus-visible, [data-open]) { background: var(--accent); color: var(--accent-foreground); }
+  :is([data-slot="navigation-menu-trigger"], .ui-navigation-menu-top-link):is(:focus-visible, [data-open]) { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) { :is([data-slot="navigation-menu-trigger"], .ui-navigation-menu-top-link):hover { background: var(--accent); color: var(--accent-foreground); } }
   :is([data-slot="navigation-menu-trigger"], .ui-navigation-menu-top-link):focus-visible { box-shadow: var(--ui-focus-ring); }
   .ui-navigation-menu-top-link[aria-current="page"] { background: color-mix(in oklab, var(--accent) 60%, transparent); }
   .ui-navigation-menu-chevron { width: 0.75rem; height: 0.75rem; margin-inline-start: 0.125rem; transition: rotate 300ms; }
@@ -87,7 +88,8 @@
     outline: none;
     transition: background-color var(--ui-duration);
   }
-  .ui-navigation-menu-panel-link:is(:hover, :focus-visible) { background: var(--accent); color: var(--accent-foreground); }
+  .ui-navigation-menu-panel-link:is(:focus-visible) { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) { .ui-navigation-menu-panel-link:hover { background: var(--accent); color: var(--accent-foreground); } }
   .ui-navigation-menu-panel-link[aria-current="page"] { background: color-mix(in oklab, var(--accent) 60%, transparent); }
   .ui-navigation-menu-panel-link > :not([data-slot="navigation-menu-link-icon"]) { grid-column: 2; }
   .ui-navigation-menu-panel-link:not([data-has-icon]) { grid-template-columns: 1fr; }

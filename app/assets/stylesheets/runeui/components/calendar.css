@@ -50,14 +50,14 @@
     transition: background-color var(--ui-duration), color var(--ui-duration);
   }
 
-  [data-slot="calendar-day"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) { [data-slot="calendar-day"]:hover { background: var(--accent); color: var(--accent-foreground); } }
   [data-slot="calendar-day"]:focus-visible { box-shadow: var(--ui-focus-ring); z-index: 1; }
   [data-slot="calendar-day"][data-today] { background: var(--accent); color: var(--accent-foreground); }
   [data-slot="calendar-day"][data-outside] { color: var(--muted-foreground); cursor: default; }
-  [data-slot="calendar-day"][data-outside]:hover { background: transparent; }
+  @media (hover: hover) and (pointer: fine) { [data-slot="calendar-day"][data-outside]:hover { background: transparent; } }
   [data-slot="calendar-day"]:is([data-disabled], [data-unavailable]) { color: var(--muted-foreground); opacity: 0.5; cursor: not-allowed; }
   [data-slot="calendar-day"][data-unavailable] { text-decoration: line-through; }
-  [data-slot="calendar-day"][data-disabled]:hover { background: transparent; }
+  @media (hover: hover) and (pointer: fine) { [data-slot="calendar-day"][data-disabled]:hover { background: transparent; } }
 
   [data-slot="calendar-day"][data-selected] { background: var(--primary); color: var(--primary-foreground); }
 

@@ -20,6 +20,9 @@
   [data-slot="checkbox"][data-disabled] { opacity: 0.5; cursor: not-allowed; }
   [data-slot="checkbox-indicator"] { display: grid; place-items: center; }
   [data-slot="checkbox-indicator"] .ui-icon { width: 0.875rem; height: 0.875rem; }
+  /* The check draws itself as it appears (160ms on the ease-out); unchecking clears it at once. */
+  [data-slot="checkbox-indicator"] .ui-icon[data-icon="check"] path { stroke-dasharray: 23; stroke-dashoffset: 0; transition: stroke-dashoffset var(--ui-duration-press) var(--ui-ease-out); }
+  [data-slot="checkbox-indicator"][data-starting-style] .ui-icon[data-icon="check"] path { stroke-dashoffset: 23; }
   /* Before it upgrades, a checkbox shows nothing checked unless the server said so. */
   ui-checkbox:not(:defined):not([default-checked]) [data-slot="checkbox-indicator"] { visibility: hidden; }
 }

@@ -59,7 +59,7 @@
   [data-slot="drawer-footer"] { display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; padding-inline: 1rem; }
 
   [data-drawer-x] { position: absolute; top: 0.75rem; inset-inline-end: 0.75rem; opacity: 0.7; }
-  [data-drawer-x]:hover { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) { [data-drawer-x]:hover { opacity: 1; } }
 }
 
 /* The gallery's examples. */

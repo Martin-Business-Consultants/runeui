@@ -29,6 +29,7 @@
     user-select: none;
   }
 
-  .ui-menubar-trigger:is(:hover, :focus-visible, [data-open]) { background: var(--accent); color: var(--accent-foreground); }
+  .ui-menubar-trigger:is(:focus-visible, [data-open]) { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) { .ui-menubar-trigger:hover { background: var(--accent); color: var(--accent-foreground); } }
   [data-slot="menubar"] [data-slot="menu-content"] { min-width: 12rem; }
 }

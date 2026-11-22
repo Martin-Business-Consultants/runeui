@@ -17,16 +17,20 @@
     white-space: nowrap;
     outline: none;
     cursor: pointer;
-    transition: background-color var(--ui-duration), color var(--ui-duration), box-shadow var(--ui-duration);
+    transition: background-color var(--ui-duration), color var(--ui-duration), box-shadow var(--ui-duration), transform var(--ui-duration-press) var(--ui-ease-press);
   }
 
-  .ui-toggle:hover { background: var(--muted); color: var(--muted-foreground); }
+  @media (hover: hover) and (pointer: fine) { .ui-toggle:hover { background: var(--muted); color: var(--muted-foreground); } }
   .ui-toggle:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   .ui-toggle:is([aria-pressed="true"], [data-pressed]) { background: var(--accent); color: var(--accent-foreground); }
   .ui-toggle:is(:disabled, [data-disabled], [aria-disabled="true"]) { opacity: 0.5; pointer-events: none; }
   .ui-toggle[data-variant="outline"] { border-color: var(--input); box-shadow: var(--ui-shadow-xs); }
-  .ui-toggle[data-variant="outline"]:hover { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) { .ui-toggle[data-variant="outline"]:hover { background: var(--accent); color: var(--accent-foreground); } }
   .ui-toggle[data-size="sm"] { min-width: var(--ui-h-sm); height: var(--ui-h-sm); padding: 0 0.375rem; }
   .ui-toggle[data-size="lg"] { min-width: var(--ui-h-lg); height: var(--ui-h-lg); padding: 0 0.625rem; }
   [data-slot="toggle-icon"] { display: inline-flex; }
+  /* Pressed, it gives a little, as a button does; not for keyboard presses or reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ui-toggle:active:not(:focus-visible, :disabled, [data-disabled]) { transform: scale(0.97); }
+  }
 }

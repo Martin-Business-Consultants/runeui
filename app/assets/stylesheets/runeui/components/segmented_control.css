@@ -20,15 +20,17 @@
   [data-slot="segmented-control-indicator"] {
     position: absolute;
     z-index: -1;
-    left: var(--segmented-control-indicator-left);
-    top: var(--segmented-control-indicator-top);
+    left: 0;
+    top: 0;
+    translate: var(--segmented-control-indicator-left) var(--segmented-control-indicator-top);
     width: var(--segmented-control-indicator-width);
     height: var(--segmented-control-indicator-height);
     border-radius: var(--ui-radius-md);
     border: 1px solid light-dark(transparent, var(--input));
     background: var(--ui-surface-bg, light-dark(var(--background), color-mix(in oklab, var(--input) 30%, transparent)));
     box-shadow: var(--ui-shadow-sm);
-    transition: left var(--ui-duration-slow) var(--ui-ease), top var(--ui-duration-slow) var(--ui-ease), width var(--ui-duration-slow) var(--ui-ease);
+    /* Moved by translate (its items are equal widths); 250ms on the ease-out, retargeting. */
+    transition: translate var(--ui-duration-move) var(--ui-ease-out), width var(--ui-duration-move) var(--ui-ease-out);
   }
 
   /* Until it upgrades, the server's chosen item carries the pill itself. */
@@ -53,7 +55,7 @@
     transition: color var(--ui-duration);
   }
 
-  [data-slot="segmented-control-item"]:hover { color: var(--foreground); }
+  @media (hover: hover) and (pointer: fine) { [data-slot="segmented-control-item"]:hover { color: var(--foreground); } }
   [data-slot="segmented-control-item"][data-checked] { color: var(--foreground); }
   [data-slot="segmented-control-item"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="segmented-control-item"][data-disabled] { opacity: 0.5; pointer-events: none; }

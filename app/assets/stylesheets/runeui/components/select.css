@@ -21,7 +21,7 @@
     transition: border-color var(--ui-duration), box-shadow var(--ui-duration);
   }
 
-  [data-slot="select-trigger"]:hover { background: var(--ui-field-bg-hover, light-dark(transparent, color-mix(in oklab, var(--input) 50%, transparent))); }
+  @media (hover: hover) and (pointer: fine) { [data-slot="select-trigger"]:hover { background: var(--ui-field-bg-hover, light-dark(transparent, color-mix(in oklab, var(--input) 50%, transparent))); } }
   [data-slot="select-trigger"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="select-trigger"]:is([aria-invalid="true"], [data-invalid]) { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
   [data-slot="select-trigger"]:is(:disabled, [data-disabled]) { opacity: 0.5; cursor: not-allowed; }

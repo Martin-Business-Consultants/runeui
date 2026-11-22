@@ -138,8 +138,25 @@
     --ui-switch-thumb: light-dark(var(--background), var(--foreground));
     --ui-switch-thumb-on: light-dark(var(--background), var(--primary-foreground));
 
+    /* Motion (after microinteractions.dev's studies; see NOTICE). Interfaces answer on the
+       ease-out: fast at the start, so a press or a hover registers at once, then settling.
+       Things that travel from one place to another (a drop, an indicator crossing a row) take
+       the ease-in-out; a press takes the press curve. Animate transform and opacity, keep
+       keyboard-driven changes instant, and under prefers-reduced-motion crossfade or don't move. */
+    --ui-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ui-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ui-ease-press: cubic-bezier(0.19, 1, 0.22, 1);
+    /* A panel opening on the way to its new height: speeds up over the first third, brakes over
+       the rest (accordions, collapsibles). */
+    --ui-ease-travel: cubic-bezier(0.64, 0, 0.2, 1);
+    --ui-duration-fast: 120ms;
+    --ui-duration-press: 160ms;
+    --ui-duration-move: 250ms;
+    --ui-duration-travel: 300ms;
+
+    /* The kit's general colour and state changes; --ui-ease is the ease-out. */
     --ui-duration: 150ms;
     --ui-duration-slow: 200ms;
-    --ui-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ui-ease: var(--ui-ease-out);
   }
 }

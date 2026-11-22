@@ -29,10 +29,17 @@
     width: 0;
     border-radius: inherit;
     background: var(--primary);
-    transition: width var(--ui-duration-slow) var(--ui-ease);
   }
 
   [data-slot="progress-indicator"][data-complete] { background: var(--primary); }
+  /* A known value slides a full-width fill in from the start (shadcn's way): translate, not the
+     width UI SDK writes, so it moves on the compositor. */
+  [data-slot="progress"]:not([data-indeterminate]) [data-slot="progress-indicator"] {
+    width: 100% !important;
+    translate: calc(var(--progress-value, 0%) - 100%) 0;
+    transition: translate var(--ui-duration-slow) var(--ui-ease-out);
+  }
+  [data-slot="progress"]:not([data-indeterminate]):dir(rtl) [data-slot="progress-indicator"] { translate: calc(100% - var(--progress-value, 0%)) 0; }
 
   [data-slot="progress"][data-indeterminate] [data-slot="progress-indicator"] {
     /* UI SDK writes the indicator's width inline; min and max take it over without !important. */

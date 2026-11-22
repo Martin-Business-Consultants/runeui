@@ -49,6 +49,6 @@
 
   [data-slot="number-input-decrement"] { border-inline-end: 1px solid var(--input); }
   [data-slot="number-input-increment"] { border-inline-start: 1px solid var(--input); }
-  :is([data-slot="number-input-decrement"], [data-slot="number-input-increment"]):hover { background: var(--accent); color: var(--accent-foreground); }
+  @media (hover: hover) and (pointer: fine) { :is([data-slot="number-input-decrement"], [data-slot="number-input-increment"]):hover { background: var(--accent); color: var(--accent-foreground); } }
   :is([data-slot="number-input-decrement"], [data-slot="number-input-increment"]):is([data-disabled], :disabled) { opacity: 0.4; pointer-events: none; }
 }
