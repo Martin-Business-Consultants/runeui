@@ -1,5 +1,5 @@
 @layer runeui.components {
-  [data-slot="popover-content"] { width: 18rem; max-width: var(--available-width, 18rem); padding: 1rem; overflow: visible; outline: none; }
+  [data-slot="popover-content"] { white-space: normal; width: 18rem; max-width: var(--available-width, 18rem); padding: 1rem; overflow: visible; outline: none; }
   [data-slot="popover-header"] { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem; }
   [data-slot="popover-title"] { font-weight: 500; line-height: 1; }
   [data-slot="popover-description"] { color: var(--muted-foreground); font-size: var(--ui-text-sm); }
