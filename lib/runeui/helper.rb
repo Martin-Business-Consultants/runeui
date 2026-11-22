@@ -79,11 +79,9 @@ module Runeui
 
     # Whether a ui :data_table is drawing its rows inside its bulk form (ui :row_actions then
     # deletes with a button of that form, since forms can't nest).
-    def ui_within_data_table_form(inside)
-      before, @runeui_data_table_form = @runeui_data_table_form, inside
-      yield
-    ensure
-      @runeui_data_table_form = before
+    def ui_data_table_form!(inside)
+      @runeui_data_table_form = inside
+      nil
     end
 
     def ui_data_table_form?

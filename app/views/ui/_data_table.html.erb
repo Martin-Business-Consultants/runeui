@@ -50,8 +50,8 @@
 <% now = direction.nil? ? params[:direction] : direction %>
 <% none = content.blank? && rows.respond_to?(:none?) && rows.none? %>
 <% inside_form = selectable && bulk && !(none && empty) %>
-<% table = ui_within_data_table_form(inside_form) do %>
-  <% capture do %>
+<% ui_data_table_form!(inside_form) %>
+<% table = capture do %>
   <%= ui :table, id: (id ? "#{id}_table" : nil), selectable: selectable, noun: noun, bulk: bulk, columns: (base if menu) do %>
     <thead<% unless header %> class="ui-sr-only"<% end %>>
       <tr>
@@ -82,8 +82,8 @@
       <% end %>
     </tbody>
   <% end %>
-  <% end %>
 <% end %>
+<% ui_data_table_form!(nil) %>
 <%= ui_tag(:div, { id: (id ? "#{id}_list" : nil), data: { slot: "data-table" } }, attrs) do %>
   <% if none && empty %>
     <%= empty %>
