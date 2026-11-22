@@ -45,19 +45,72 @@
   [data-slot="carousel"][data-orientation="vertical"] [data-slot="carousel-next"] { top: auto; bottom: -3rem; inset-inline: 50% auto; translate: -50% 0; }
   :is([data-slot="carousel-previous"], [data-slot="carousel-next"]):is([data-disabled], [aria-disabled="true"]) { opacity: 0.5; cursor: default; }
 
-  [data-slot="carousel-indicator-group"] { display: flex; justify-content: center; gap: 0.5rem; }
+  [data-slot="carousel-indicator-group"] {
+    --ui-carousel-dot: 0.5rem;
+    --ui-carousel-gap: 0.5rem;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: var(--ui-carousel-gap);
+    touch-action: pan-y;
+  }
+  [data-slot="carousel-indicator-group"][data-scrubbing] { cursor: grabbing; user-select: none; }
   ui-carousel-indicator { display: contents; }
   [data-slot="carousel-indicator"] {
-    width: 0.5rem;
-    height: 0.5rem;
+    position: relative;
+    width: var(--ui-carousel-dot);
+    height: var(--ui-carousel-dot);
     padding: 0;
     border: 0;
     border-radius: var(--ui-radius-full);
     background: color-mix(in oklab, var(--foreground) 20%, transparent);
     cursor: pointer;
-    transition: width var(--ui-duration) var(--ui-ease), background-color var(--ui-duration);
+    transition: background-color var(--ui-duration);
   }
+  /* A target bigger than the dot, reaching into the gaps and above and below it. */
+  [data-slot="carousel-indicator"]::before { content: ""; position: absolute; inset: -0.75rem calc(var(--ui-carousel-gap) / -2); }
   [data-slot="carousel-indicator"][hidden] { display: none; }
   [data-slot="carousel-indicator"]:focus-visible { outline: none; box-shadow: var(--ui-focus-ring); }
   [data-slot="carousel-indicator"][data-selected] { width: 1.25rem; background: var(--primary); }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="carousel-indicator"]:not([data-selected]):hover { background: color-mix(in oklab, var(--foreground) 35%, transparent); }
+  }
+  [data-slot="carousel-worm"] { display: none; }
+
+  /* The worm (runeui--carousel tells it the page count): over the current dot at rest, it reaches
+     for the next one as the slides move (leading edge over the first half of the way, trailing
+     edge over the second, each on a smoothstep), spanning both halfway. Drawn from UI SDK's
+     --carousel-progress, so it follows the scroll frame by frame, with no transition of its own:
+     let go halfway and it stays halfway. Until it knows the pages (data-worm), and where CSS can't round a
+     number, the chosen dot widens instead. */
+  @supports (width: calc(round(down, 1.5, 1) * 1px)) {
+    [data-slot="carousel"][data-worm] [data-slot="carousel-indicator"][data-selected] { width: var(--ui-carousel-dot); background: color-mix(in oklab, var(--foreground) 20%, transparent); }
+    [data-slot="carousel"][data-worm] [data-slot="carousel-worm"] {
+      --ui-worm-position: calc(var(--carousel-progress, 0) * (var(--ui-carousel-pages, 1) - 1));
+      --ui-worm-index: round(down, var(--ui-worm-position), 1);
+      --ui-worm-lead: clamp(0, (var(--ui-worm-position) - var(--ui-worm-index)) * 2, 1);
+      --ui-worm-trail: clamp(0, (var(--ui-worm-position) - var(--ui-worm-index)) * 2 - 1, 1);
+      --ui-worm-step: calc(var(--ui-carousel-dot) + var(--ui-carousel-gap));
+      --ui-worm-from: calc((var(--ui-worm-index) + var(--ui-worm-trail) * var(--ui-worm-trail) * (3 - 2 * var(--ui-worm-trail))) * var(--ui-worm-step));
+      --ui-worm-to: calc((var(--ui-worm-index) + var(--ui-worm-lead) * var(--ui-worm-lead) * (3 - 2 * var(--ui-worm-lead))) * var(--ui-worm-step));
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      width: calc(var(--ui-carousel-dot) + var(--ui-worm-to) - var(--ui-worm-from));
+      height: var(--ui-carousel-dot);
+      border-radius: var(--ui-radius-full);
+      background: var(--primary);
+      pointer-events: none;
+      transform: translateX(var(--ui-worm-from));
+    }
+    [data-slot="carousel"][data-worm] [data-slot="carousel-worm"]:dir(rtl) { right: 0; left: auto; transform: translateX(calc(var(--ui-worm-from) * -1)); }
+  }
+
+  @media (forced-colors: active) {
+    [data-slot="carousel-indicator-group"] { forced-color-adjust: none; }
+    [data-slot="carousel-indicator"] { background: GrayText; }
+    [data-slot="carousel-indicator"][data-selected], [data-slot="carousel-worm"] { background: CanvasText; }
+    [data-slot="carousel-indicator"]:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  }
 }
