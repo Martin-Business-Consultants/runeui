@@ -17,5 +17,16 @@
   <%= ui :button, href: "#", variant: :outline, content: "A link" %>
   <%= ui :button, disabled: true, content: "Disabled" %>
 </div>
+<h2>A second label on hover</h2>
+<div class="runeui-docs__row">
+  <%= ui :button, content: "Download", swap: "macOS · 42 MB", aria: { label: "Download for macOS, 42 MB" } %>
+  <%= ui :button, variant: :outline, content: "Follow", swap: "Get updates" %>
+</div>
+<h2>Links</h2>
+<div class="runeui-docs__row">
+  <%= ui :button, href: "#", variant: :link, content: "Bio" %>
+  <%= ui :button, href: "#", variant: :link, content: "Projects" %>
+  <%= ui :button, href: "#", variant: :link, content: "Get in touch" %>
+</div>
 <h2>Confirm before submitting</h2>
 <%= button_to "Delete project", runeui_echo_path("button"), method: :post, class: "ui-button", data: { variant: "destructive", size: "default", turbo_confirm: "Delete this project?", turbo_confirm_description: "Its tasks and files go too. This can't be undone.", turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" }, params: { deleted: "yes" } %>

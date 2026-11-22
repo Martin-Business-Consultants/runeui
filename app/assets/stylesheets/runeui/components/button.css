@@ -1,6 +1,10 @@
 /* Button: class ui-button, data-variant and data-size. (A class, not data-slot: UI SDK gives a
    trigger's button its own data-slot, select-trigger or dialog-trigger, and it should still
-   look like a button.) */
+   look like a button.)
+
+   Pressed, it gives a little (scale 0.97 on the press curve); hover colours only where there's
+   a mouse to hover with; swap: stacks two labels in one cell and slides the second in on hover
+   (instantly on keyboard focus), so the width never changes. */
 
 @layer runeui.components {
   .ui-button {
@@ -23,10 +27,17 @@
     box-shadow: var(--ui-shadow-xs);
     cursor: pointer;
     user-select: none;
-    transition: background-color var(--ui-duration), color var(--ui-duration), box-shadow var(--ui-duration), border-color var(--ui-duration);
+    transition: background-color var(--ui-duration), color var(--ui-duration), box-shadow var(--ui-duration), border-color var(--ui-duration), transform var(--ui-duration-press) var(--ui-ease-press);
   }
 
-  .ui-button:hover { background: color-mix(in oklab, var(--primary) 90%, transparent); }
+  @media (hover: hover) and (pointer: fine) {
+    .ui-button:hover { background: color-mix(in oklab, var(--primary) 90%, transparent); }
+  }
+
+  /* Not for keyboard presses (Space and Enter match :active too): focus-visible is the feedback there. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ui-button:active:not(:focus-visible, :disabled, [aria-disabled="true"], [data-disabled]) { transform: scale(0.97); }
+  }
   .ui-button:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   .ui-button:is(:disabled, [aria-disabled="true"], [data-disabled]) { opacity: 0.5; pointer-events: none; }
   .ui-button[aria-invalid="true"] { border-color: var(--destructive); box-shadow: var(--ui-invalid-ring); }
@@ -35,20 +46,23 @@
   .ui-button .ui-icon { width: 1rem; height: 1rem; }
 
   .ui-button[data-variant="destructive"] { background: var(--destructive); color: var(--destructive-foreground); }
-  .ui-button[data-variant="destructive"]:hover { background: color-mix(in oklab, var(--destructive) 90%, transparent); }
   .ui-button[data-variant="destructive"]:focus-visible { box-shadow: var(--ui-invalid-ring); }
 
   .ui-button[data-variant="outline"] { border-color: light-dark(var(--border), var(--input)); background: var(--ui-surface-bg, light-dark(var(--background), color-mix(in oklab, var(--input) 30%, transparent))); color: var(--foreground); }
-  .ui-button[data-variant="outline"]:hover { background: var(--ui-surface-bg-hover, light-dark(var(--accent), color-mix(in oklab, var(--input) 50%, transparent))); color: var(--accent-foreground); }
 
   .ui-button[data-variant="secondary"] { background: var(--secondary); color: var(--secondary-foreground); }
-  .ui-button[data-variant="secondary"]:hover { background: color-mix(in oklab, var(--secondary) 80%, transparent); }
 
   .ui-button[data-variant="ghost"] { background: transparent; color: inherit; box-shadow: none; }
-  .ui-button[data-variant="ghost"]:hover { background: var(--ui-ghost-hover, light-dark(var(--accent), color-mix(in oklab, var(--accent) 50%, transparent))); color: var(--accent-foreground); }
 
   .ui-button[data-variant="link"] { background: transparent; color: var(--primary); box-shadow: none; text-underline-offset: 4px; }
-  .ui-button[data-variant="link"]:hover { text-decoration: underline; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ui-button[data-variant="destructive"]:hover { background: color-mix(in oklab, var(--destructive) 90%, transparent); }
+    .ui-button[data-variant="outline"]:hover { background: var(--ui-surface-bg-hover, light-dark(var(--accent), color-mix(in oklab, var(--input) 50%, transparent))); color: var(--accent-foreground); }
+    .ui-button[data-variant="secondary"]:hover { background: color-mix(in oklab, var(--secondary) 80%, transparent); }
+    .ui-button[data-variant="ghost"]:hover { background: var(--ui-ghost-hover, light-dark(var(--accent), color-mix(in oklab, var(--accent) 50%, transparent))); color: var(--accent-foreground); }
+    .ui-button[data-variant="link"]:hover:not([data-pluck]) { text-decoration: underline; }
+  }
 
   .ui-button[data-size="xs"] { height: var(--ui-h-xs); gap: 0.25rem; padding: 0 0.5rem; border-radius: var(--ui-radius-sm); font-size: var(--ui-text-xs); }
   .ui-button[data-size="xs"] .ui-icon { width: 0.75rem; height: 0.75rem; }
@@ -59,4 +73,68 @@
   .ui-button[data-size="icon-xs"] .ui-icon { width: 0.875rem; height: 0.875rem; }
   .ui-button[data-size="icon-sm"] { width: var(--ui-h-sm); height: var(--ui-h-sm); padding: 0; }
   .ui-button[data-size="icon-lg"] { width: var(--ui-h-lg); height: var(--ui-h-lg); padding: 0; }
+
+  /* swap: two labels in one grid cell, so the button is as wide as the wider one. The next
+     slides in from above as the current slides down, both blurring while they overlap; a
+     transition, so leaving mid-swap turns back from where they are. */
+  .ui-button:has(> [data-slot="button-swap"]) { --ui-swap: 0; overflow: hidden; }
+  [data-slot="button-swap"] { display: inline-grid; }
+  [data-slot="button-swap"] > * {
+    grid-area: 1 / 1;
+    text-align: center;
+    transition-property: opacity, transform, filter;
+    transition-duration: 220ms;
+    transition-timing-function: var(--ui-ease-out);
+  }
+  [data-slot="button-swap-current"] { opacity: calc(1 - var(--ui-swap)); filter: blur(calc(var(--ui-swap) * 5px)); transform: translateY(calc(var(--ui-swap) * 120%)); }
+  [data-slot="button-swap-next"] { opacity: var(--ui-swap); filter: blur(calc((1 - var(--ui-swap)) * 5px)); transform: translateY(calc((var(--ui-swap) - 1) * 120%)); }
+  /* Keyboard focus shows the next label at once: Tab moves on faster than a swap. */
+  .ui-button:focus-visible:has(> [data-slot="button-swap"]) { --ui-swap: 1; }
+  .ui-button:focus-visible > [data-slot="button-swap"] > * { transition-duration: 0ms; }
+  @media (hover: hover) and (pointer: fine) {
+    .ui-button:hover:has(> [data-slot="button-swap"]) { --ui-swap: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot="button-swap"] > * { transform: none; filter: none; transition: opacity 150ms linear !important; }
+    .ui-button:focus-visible > [data-slot="button-swap"] > * { transition: none !important; }
+  }
+
+  /* variant: :link with runeui--pluck: the underline is a string, an SVG under the label that the
+     pointer plucks. Closed into the pluck point (clip-path) at rest; data-plucked opens it in
+     140ms and leaving closes it in 110ms; data-ringing flattens the bend (scaleY on a damped
+     linear() curve, which overshoots past flat and back) over a time set by its width. */
+  .ui-button[data-variant="link"] {
+    --ui-pluck-x: 50%;
+    --ui-pluck-duration: 720ms;
+    --ui-pluck-ease: linear(0, 0.157, 0.424, 0.741, 1.051, 1.304, 1.471, 1.536, 1.506, 1.401, 1.247, 1.078, 0.923, 0.804, 0.734, 0.718, 0.749, 0.815, 0.9, 0.989, 1.065, 1.119, 1.146, 1.146, 1.122, 1.083, 1.036, 0.991, 0.954, 0.931, 0.922, 0.926, 0.942, 0.965, 0.989, 1.012, 1);
+  }
+  [data-slot="button-label"] { position: relative; }
+  [data-slot="button-string"] {
+    position: absolute;
+    top: calc(100% - 2px);
+    left: 0;
+    width: 100%;
+    height: 12px;
+    overflow: visible;
+    pointer-events: none;
+    clip-path: inset(-4px calc(100% - var(--ui-pluck-x)) -4px var(--ui-pluck-x));
+    transition: clip-path 110ms var(--ui-ease-out);
+  }
+  [data-slot="button-string"] path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+    /* The bend comes back only once the underline has closed (after keyboard focus leaves). */
+    transition: transform 0s 110ms;
+  }
+  /* The -1px sides keep the round caps. */
+  .ui-button[data-plucked] > [data-slot="button-label"] > [data-slot="button-string"] { clip-path: inset(-4px -1px); transition-duration: 140ms; }
+  /* scaleY(0) would leave nothing to stroke. */
+  .ui-button[data-ringing] > [data-slot="button-label"] > [data-slot="button-string"] path { transform: scaleY(0.001); transition: transform var(--ui-pluck-duration) var(--ui-pluck-ease) 0s; }
+  .ui-button[data-variant="link"]:focus-visible [data-slot="button-string"] { clip-path: inset(-4px -1px); transition: none; }
+  .ui-button[data-variant="link"]:focus-visible [data-slot="button-string"] path { transform: scaleY(0.001); transition: none; }
 }

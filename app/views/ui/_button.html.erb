@@ -1,16 +1,29 @@
-<%# locals: (content: nil, variant: nil, size: nil, href: nil, icon: nil, icon_end: nil, **attrs) %>
+<%# locals: (content: nil, variant: nil, size: nil, href: nil, icon: nil, icon_end: nil, swap: nil, **attrs) %>
 <%#
   Button. A <button>, or an <a> with href:. Anything can look like one: class "ui-button" with
   data-variant (default, secondary, outline, ghost, link, destructive) and data-size (xs, sm,
-  default, lg, icon, icon-xs, icon-sm, icon-lg).
+  default, lg, icon, icon-xs, icon-sm, icon-lg). It gives a little when pressed.
 
     ui :button, content: "Save", type: :submit
     ui(:button, variant: :outline, icon: :plus) { "Add a project" }
     ui :button, href: projects_path, variant: :link, content: "All projects"
     ui :button, variant: :ghost, size: :icon, icon: :x, aria: { label: "Close" }
+
+  swap: a second label that slides in on hover (and shows at once on keyboard focus), in the
+  same space, so the button keeps its width. Both describe the same action: the button is named
+  by both ("Download, macOS · 42 MB") unless aria: { label: } names it. Touch screens have no
+  hover, so the first label is the one that matters there.
+
+    ui :button, content: "Download", swap: "macOS · 42 MB", aria: { label: "Download for macOS, 42 MB" }
+
+  variant: :link draws its underline as a plucked string where there's a mouse: it bends where
+  the pointer comes in and rings out flat (runeui--pluck); focus shows it flat at once.
 %>
-<% options = ui_attrs({ class: "ui-button", data: { variant: (variant || "default").to_s, size: (size || "default").to_s.dasherize } }, attrs) %>
-<% inner = capture do %><% if icon %><%= ui_icon icon %><% end %><%= content %><% if icon_end %><%= ui_icon icon_end %><% end %><% end %>
+<% named = attrs.dig(:aria, :label) || attrs[:"aria-label"] %>
+<% swap_name = (swap && !named) ? [ strip_tags(content.to_s), strip_tags(swap.to_s) ].compact_blank.join(", ") : nil %>
+<% link = variant.to_s == "link" %>
+<% options = ui_attrs({ class: "ui-button", data: { variant: (variant || "default").to_s, size: (size || "default").to_s.dasherize, controller: (link ? "runeui--pluck" : nil) }, aria: { label: swap_name } }, attrs) %>
+<% inner = capture do %><% if icon %><%= ui_icon icon %><% end %><% if swap %><span data-slot="button-swap" aria-hidden="true"><span data-slot="button-swap-current"><%= content %></span><span data-slot="button-swap-next"><%= swap %></span></span><% elsif link %><span data-slot="button-label"><%= content %><svg data-slot="button-string" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 6 Q50 16 100 6"></path></svg></span><% else %><%= content %><% end %><% if icon_end %><%= ui_icon icon_end %><% end %><% end %>
 <% if href %>
 <%= ui_tag :a, { href: href }, options, inner %>
 <% else %>
