@@ -3,3 +3,8 @@
   { id: "one", size: 50, min: 20, content: "One", label: "Resize one" },
   { id: "two", content: ui(:resizable, orientation: :vertical, panels: [ { size: 25, content: "Two" }, { content: "Three" } ]) }
 ] %>
+<h2>A grip where the pointer meets the handle</h2>
+<%= ui :resizable, id: "sidebar-layout", step: 2, large_step: 10, panels: [
+  { id: "sidebar", size: 30, min: 20, collapsible: true, content: "Sidebar", label: "Resize the sidebar" },
+  { id: "main", content: "Main" }
+] %>

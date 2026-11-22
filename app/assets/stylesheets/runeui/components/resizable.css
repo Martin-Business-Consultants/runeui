@@ -60,4 +60,48 @@
 
   [data-slot="resizable-grip"] .ui-icon { width: 0.625rem; height: 0.625rem; }
   [data-slot="resizable-handle"][data-orientation="vertical"] [data-slot="resizable-grip"] { rotate: 90deg; }
+
+  /* The grip that meets the pointer (without with_handle): a 4×32 pill placed where the pointer
+     is (runeui--resizable writes --ui-grip-at, with no transition, so it never trails), revealed
+     once it's there (120ms after 60ms; gone in 100ms), wider and darker while dragging (width,
+     not scale, which would stretch its round ends). Keyboard focus shows it in the middle, in
+     the text colour; touch keeps it in the middle, always shown. */
+  [data-slot="resizable-pill"] {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 1;
+    width: 4px;
+    height: 32px;
+    border-radius: var(--ui-radius-full);
+    background: var(--muted-foreground);
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% calc(var(--ui-grip-at, 50cqh) - 50%);
+    scale: 1 0.5;
+    transition: opacity 100ms ease-out, scale 100ms var(--ui-ease-out), width 100ms var(--ui-ease-out), background-color var(--ui-duration-fast) ease-out;
+  }
+  [data-slot="resizable-handle"]:has(> [data-slot="resizable-pill"]) { container-type: size; }
+  [data-slot="resizable-handle"][data-orientation="vertical"] [data-slot="resizable-pill"] { top: 50%; left: 0; width: 32px; height: 4px; translate: calc(var(--ui-grip-at, 50cqw) - 50%) -50%; scale: 0.5 1; }
+  [data-slot="resizable-handle"]:is([data-hovering], [data-dragging]) [data-slot="resizable-pill"] {
+    opacity: 1;
+    scale: 1;
+    transition: opacity 120ms ease-out 60ms, scale 120ms var(--ui-ease-out) 60ms, width 100ms var(--ui-ease-out), height 100ms var(--ui-ease-out), background-color var(--ui-duration-fast) ease-out;
+  }
+  [data-slot="resizable-handle"][data-dragging] [data-slot="resizable-pill"] { width: 6px; background: var(--foreground); }
+  [data-slot="resizable-handle"][data-orientation="vertical"][data-dragging] [data-slot="resizable-pill"] { width: 32px; height: 6px; }
+  [data-slot="resizable-handle"]:focus-visible { background: var(--foreground); }
+  [data-slot="resizable-handle"]:focus-visible:not([data-hovering], [data-dragging]) [data-slot="resizable-pill"] { --ui-grip-at: 50cqh; opacity: 1; scale: 1; background: var(--foreground); transition: none; }
+  [data-slot="resizable-handle"][data-orientation="vertical"]:focus-visible:not([data-hovering], [data-dragging]) [data-slot="resizable-pill"] { --ui-grip-at: 50cqw; }
+  @media (hover: none) {
+    [data-slot="resizable-pill"] { --ui-grip-at: 50cqh; opacity: 1; scale: 1; }
+    [data-slot="resizable-handle"][data-orientation="vertical"] [data-slot="resizable-pill"] { --ui-grip-at: 50cqw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot="resizable-pill"] { scale: 1 !important; }
+  }
+  @media (forced-colors: active) {
+    [data-slot="resizable-pill"] { background: CanvasText; }
+    [data-slot="resizable-handle"]:focus-visible, [data-slot="resizable-handle"]:focus-visible [data-slot="resizable-pill"] { background: Highlight; }
+  }
 }
