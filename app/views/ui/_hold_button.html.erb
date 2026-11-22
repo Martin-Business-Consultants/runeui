@@ -1,0 +1,39 @@
+<%# locals: (content: nil, holding: nil, done: nil, duration: nil, variant: nil, size: nil, icon: nil, title: nil, description: nil, action: nil, cancel: nil, href: nil, method: nil, params: nil, id: nil, **attrs) %>
+<%#
+  Hold button: a destructive action confirmed by holding it down, not by a second click. A fill
+  sweeps across it while it's held (duration: ms, 1200 by default: linear, since it measures
+  time); letting go early, moving focus away, hiding the tab or Escape cancels it, and the next
+  press starts from zero. Space and Enter hold as a press does. A click with no press behind it
+  (a screen reader's, a switch's) asks in an alert dialog instead (title:, description:,
+  action:, cancel:, as ui :alert_dialog takes them).
+
+  With href: (method:, params:) it submits a form there once confirmed, through Turbo, as
+  ui :alert_dialog does. Either way it fires holdconfirm on the button (bubbling, cancelable:
+  preventDefault keeps the form from sending), from a completed hold or an accepted dialog,
+  never from a plain click or a hold let go early.
+
+    ui :hold_button, content: "Delete project", href: project_path(project), method: :delete,
+       title: "Delete this project?", description: "Its tasks and files go too."
+    ui :hold_button, content: "Reset", variant: :default, data: { action: "holdconfirm->settings#reset" }
+
+  holding: the label while it's held ("Keep holding…"), done: once confirmed ("Confirmed"),
+  shown with a check. Its name stays content: throughout, and it says how to use it. variant:
+  :destructive (the default) or :default; size: as a button's. Other attributes land on the
+  button. Its behaviour is runeui--hold.
+%>
+<% hold_id = ui_id("hold", id, name: strip_tags(content.to_s).truncate(40, omission: "")) %>
+<% ms = (duration || 1200).to_i %>
+<% name = strip_tags(content.to_s).strip %>
+<% waiting = holding || "Keep holding…" %>
+<% confirmed = done || "Confirmed" %>
+<% labels = capture do %><span data-slot="hold-labels"><span data-slot="hold-idle"><% if icon %><%= ui_icon icon %><% end %><%= content %></span><span data-slot="hold-waiting"><%= waiting %></span></span><% end %>
+<%= ui_tag(:span, { id: hold_id, data: { slot: "hold", controller: "runeui--hold", "runeui--hold-duration-value": ms, "runeui--hold-confirmed-value": confirmed, "runeui--hold-dialog-value": "#{hold_id}-confirm" } }) do %>
+  <%= ui_tag(:button, { type: "button", class: "ui-button", data: { slot: "hold-button", variant: (variant || "destructive").to_s, size: (size || "default").to_s.dasherize, state: "idle", "runeui--hold-target": "button" }, aria: { label: name.presence, describedby: "#{hold_id}-instructions" } }, attrs) do %>
+    <span data-slot="hold-face" aria-hidden="true"><%= labels %></span>
+    <span data-slot="hold-fill" aria-hidden="true"><%= labels %></span>
+    <span data-slot="hold-done" aria-hidden="true"><%= ui_icon :check %><%= confirmed %></span>
+  <% end %>
+  <%= ui_tag(:span, { id: "#{hold_id}-instructions", class: "ui-sr-only" }, {}, "Press and hold for #{(ms / 1000.0).round(1).to_s.delete_suffix(".0")} #{ms == 1000 ? "second" : "seconds"}. Release to cancel. Activate to confirm in a dialog instead.") %>
+  <span class="ui-sr-only" role="status" data-runeui--hold-target="status"></span>
+  <%= ui :alert_dialog, id: "#{hold_id}-confirm", title: (title || "#{name}?"), description: description, action: (action || name), cancel: cancel, variant: (variant || "destructive"), href: href, method: method, params: params %>
+<% end %>

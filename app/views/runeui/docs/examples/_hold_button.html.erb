@@ -1,0 +1,7 @@
+<%# locals: () %>
+<div class="runeui-docs__row">
+  <%= ui :hold_button, id: "hold-delete", content: "Delete project", icon: :trash, href: runeui_echo_path("hold_button"), method: :post, params: { deleted: "project" },
+    title: "Delete this project?", description: "Its tasks and files go too.", action: "Delete" %>
+  <%= ui :hold_button, id: "hold-reset", content: "Reset settings", variant: :default, holding: "Keep holding to reset…", done: "Reset", duration: 1500 %>
+</div>
+<p>Press and hold, or hold Space or Enter. Let go early to cancel.</p>

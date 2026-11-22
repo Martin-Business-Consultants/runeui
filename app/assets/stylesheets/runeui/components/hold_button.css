@@ -1,0 +1,127 @@
+/* Hold button: a button (class ui-button) filled from the start edge while it's held. The fill is a
+   layer with its own copy of the labels in the contrasting colour, revealed with clip-path, so
+   colour and text change along the same edge; it moves linearly because it measures time. The
+   idle and holding labels share a grid cell, so the width never changes; confirming swaps them
+   for a check and the done label. Pressed, only the backgrounds give a little (0.98), so the
+   text doesn't shift. Keyboard holds and reduced motion keep the fill (it's the information)
+   and drop the press, the confirmation's fade and the retract. */
+
+@layer runeui.components {
+  [data-slot="hold"] { display: inline-flex; }
+
+  .ui-button[data-slot="hold-button"] {
+    --ui-hold-duration: 1200ms;
+    --ui-hold-bg: color-mix(in oklab, var(--destructive) 10%, transparent);
+    --ui-hold-bg-hover: color-mix(in oklab, var(--destructive) 16%, transparent);
+    --ui-hold-fg: var(--destructive);
+    --ui-hold-fill: var(--destructive);
+    --ui-hold-fill-fg: var(--destructive-foreground);
+    --ui-hold-confirmed: 0;
+    --ui-hold-state-duration: 0ms;
+    --ui-hold-release-duration: 0ms;
+
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    place-items: center;
+    overflow: hidden;
+    background: none;
+    color: var(--ui-hold-fg);
+    box-shadow: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    /* Small finger movements mustn't turn the hold into a scroll. */
+    touch-action: none;
+  }
+
+  .ui-button[data-slot="hold-button"][data-variant="default"] {
+    --ui-hold-bg: var(--secondary);
+    --ui-hold-bg-hover: color-mix(in oklab, var(--secondary) 80%, var(--foreground) 6%);
+    --ui-hold-fg: var(--secondary-foreground);
+    --ui-hold-fill: var(--primary);
+    --ui-hold-fill-fg: var(--primary-foreground);
+  }
+
+  /* ui-button's own hover and press don't apply: the layers below draw them. */
+  .ui-button[data-slot="hold-button"]:is(:hover, :active) { background: none; transform: none; }
+  [data-slot="hold-button"]:focus-visible { box-shadow: var(--ui-focus-ring); }
+  [data-slot="hold-button"][data-variant="destructive"]:focus-visible { box-shadow: var(--ui-invalid-ring); }
+  .ui-button[data-slot="hold-button"][data-pointer-focus]:focus-visible { border-color: transparent; box-shadow: none; }
+  [data-slot="hold-button"][data-state="confirmed"] { --ui-hold-confirmed: 1; cursor: default; }
+  /* aria-disabled while confirmed: not ui-button's dimmed disabled look. */
+  .ui-button[data-slot="hold-button"][aria-disabled="true"] { opacity: 1; }
+
+  [data-slot="hold-button"]::before,
+  [data-slot="hold-fill"]::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: transform 140ms var(--ui-ease-out), background-color var(--ui-duration);
+  }
+  [data-slot="hold-button"]::before { background: var(--ui-hold-bg); }
+  [data-slot="hold-fill"]::before { background: var(--ui-hold-fill); }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="hold-button"]:hover::before { background: var(--ui-hold-bg-hover); }
+  }
+
+  [data-slot="hold-face"] { display: inline-grid; }
+  [data-slot="hold-labels"] { display: inline-grid; opacity: calc(1 - var(--ui-hold-confirmed)); transition: opacity var(--ui-hold-state-duration) var(--ui-ease-out); }
+  [data-slot="hold-idle"], [data-slot="hold-waiting"] { display: inline-flex; grid-area: 1 / 1; align-items: center; justify-content: center; gap: 0.5rem; }
+  [data-slot="hold-waiting"] { visibility: hidden; }
+  [data-slot="hold-button"]:is([data-state="holding"], [data-state="confirmed"]) [data-slot="hold-idle"] { visibility: hidden; }
+  [data-slot="hold-button"]:is([data-state="holding"], [data-state="confirmed"]) [data-slot="hold-waiting"] { visibility: visible; }
+
+  [data-slot="hold-fill"] {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: inherit;
+    color: var(--ui-hold-fill-fg);
+    pointer-events: none;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path var(--ui-hold-release-duration) var(--ui-ease-out);
+  }
+  [data-slot="hold-fill"]:dir(rtl) { clip-path: inset(0 0 0 100%); }
+  [data-slot="hold-button"][data-state="holding"] [data-slot="hold-fill"] { clip-path: inset(0); transition: clip-path var(--ui-hold-duration) linear; }
+  [data-slot="hold-button"][data-state="confirmed"] [data-slot="hold-fill"] { clip-path: inset(0); }
+
+  [data-slot="hold-done"] {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--ui-hold-fill-fg);
+    pointer-events: none;
+    opacity: var(--ui-hold-confirmed);
+    transform: translateY(calc((1 - var(--ui-hold-confirmed)) * -3px));
+    transition: opacity var(--ui-hold-state-duration) var(--ui-ease-out), transform var(--ui-hold-state-duration) var(--ui-ease-out);
+  }
+
+  /* A pointer hold animates its confirmation (160ms) and its release (180ms); keyboard holds,
+     dialog confirmations and reduced motion land at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-slot="hold-button"][data-input="pointer"] { --ui-hold-state-duration: 160ms; --ui-hold-release-duration: 180ms; }
+    [data-slot="hold-button"][data-pressed]::before,
+    [data-slot="hold-button"][data-pressed] [data-slot="hold-fill"]::before { transform: scale(0.98); }
+  }
+
+  /* The fill is a time indicator, so it runs under reduced motion too (base.css stops the rest). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot="hold-button"][data-state="holding"] [data-slot="hold-fill"] { transition: clip-path var(--ui-hold-duration) linear !important; }
+  }
+
+  @media (forced-colors: active) {
+    [data-slot="hold-button"] { color: ButtonText; outline: 1px solid ButtonText; }
+    [data-slot="hold-button"]:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+    [data-slot="hold-button"]::before { background: ButtonFace; }
+    [data-slot="hold-fill"], [data-slot="hold-done"] { color: HighlightText; forced-color-adjust: none; }
+    [data-slot="hold-fill"]::before { background: Highlight; forced-color-adjust: none; }
+  }
+}
