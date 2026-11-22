@@ -4,8 +4,10 @@
   hashes with value:, label:, icon:, disabled: and the panel's content:, or src: to load the
   panel from a URL the first time its tab is chosen (a lazy Turbo Frame, frame: its id, else
   "<value>_tab"). Its response wraps the panel in <turbo-frame id="…">.
-  value: the tab chosen at first (else the first). variant: :line for underlined tabs;
-  orientation: :vertical for tabs down the side. label: names the tab list for screen readers.
+  value: the tab chosen at first (else the first). variant: :line for underlined tabs, whose
+  line slides to the tab chosen (runeui--tabs: instantly from the keyboard; links' line too, when
+  one loads a Turbo Frame); orientation: :vertical for tabs down the side. label: names the tab
+  list for screen readers.
 
     ui :tabs, label: "Project", value: "tasks", tabs: [
       { value: "tasks", label: "Tasks", content: render("tasks/list") },
@@ -29,18 +31,21 @@
 <% list = Array(tabs) %>
 <% chosen = (value || list.reject { it[:disabled] }.first&.dig(:value)).to_s %>
 <% direction = (orientation || "horizontal").to_s %>
+<% line = variant.to_s == "line" %>
+<% tabs_id = line ? ui_id("tabs", attrs[:id], name: label) : nil %>
 <% if list.any? { it[:href] } %>
-<%= ui_tag(:div, { data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s, links: "" } }, attrs) do %>
+<%= ui_tag(:div, { id: tabs_id, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s, links: "", controller: (line ? "runeui--tabs" : nil) } }, attrs) do %>
   <%= ui_tag(:nav, { data: { slot: "tabs-list", orientation: direction }, aria: { label: label } }) do %>
     <% list.each do |tab| %>
     <%# herb:key tab[:value] %>
     <%= ui_tag(:a, { href: tab[:href], data: { slot: "tabs-tab", orientation: direction }, aria: { current: (tab[:value].to_s == chosen ? "page" : "false"), disabled: (tab[:disabled] ? "true" : nil) } }, { data: tab[:data] }.compact) do %><% if tab[:icon] %><%= ui_icon tab[:icon] %><% end %><%= tab[:label] %><% end %>
     <% end %>
+    <% if line %><span data-slot="tabs-indicator" aria-hidden="true"></span><% end %>
   <% end %>
   <% if content %><div data-slot="tabs-panel"><%= content %></div><% end %>
 <% end %>
 <% else %>
-<%= ui_tag(:ui_tabs, { "default-value": chosen.presence, orientation: (orientation ? direction : nil), activation: activation&.to_s, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s } }, attrs) do %>
+<%= ui_tag(:ui_tabs, { id: tabs_id, "default-value": chosen.presence, orientation: (orientation ? direction : nil), activation: activation&.to_s, data: { slot: "tabs", orientation: direction, variant: (variant || "default").to_s, controller: (line ? "runeui--tabs" : nil) } }, attrs) do %>
   <% if content %>
   <%= content %>
   <% else %>
@@ -49,6 +54,7 @@
     <%# herb:key tab[:value] %>
     <ui-tabs-tab value="<%= tab[:value] %>"<% if tab[:disabled] %> disabled<% end %>><button type="button" data-slot="tabs-tab" data-orientation="<%= direction %>"<% if tab[:value].to_s == chosen %> data-selected<% end %>><% if tab[:icon] %><%= ui_icon tab[:icon] %><% end %><%= tab[:label] %></button></ui-tabs-tab>
     <% end %>
+    <% if line %><span data-slot="tabs-indicator" aria-hidden="true"></span><% end %>
   </ui-tabs-list>
   <% list.each do |tab| %>
   <%# herb:key tab[:value] %>

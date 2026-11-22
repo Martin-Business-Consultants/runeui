@@ -41,7 +41,9 @@
     transition: color var(--ui-duration), box-shadow var(--ui-duration), background-color var(--ui-duration);
   }
 
-  [data-slot="tabs-tab"]:hover { color: var(--foreground); }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="tabs-tab"]:hover { color: var(--foreground); }
+  }
   [data-slot="tabs-tab"]:focus-visible { border-color: var(--ring); box-shadow: var(--ui-focus-ring); }
   [data-slot="tabs-tab"]:is([data-disabled], [aria-disabled="true"]) { opacity: 0.5; pointer-events: none; }
   /* Link tabs (href:) mark the current one aria-current="page", which an app may move on a click. */
@@ -51,7 +53,9 @@
 
   [data-slot="tabs"][data-variant="line"] [data-slot="tabs-list"] { gap: 0.25rem; padding: 0; border-radius: 0; background: transparent; }
   [data-slot="tabs"][data-variant="line"] [data-slot="tabs-tab"] { position: relative; border-radius: var(--ui-radius-md); background: transparent; box-shadow: none; color: var(--muted-foreground); }
-  [data-slot="tabs"][data-variant="line"] [data-slot="tabs-tab"]:hover { color: var(--foreground); }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="tabs"][data-variant="line"] [data-slot="tabs-tab"]:hover { color: var(--foreground); }
+  }
   [data-slot="tabs"][data-variant="line"] [data-slot="tabs-tab"]:is([data-selected], [aria-current="page"]) { color: var(--foreground); border-color: transparent; background: transparent; }
   [data-slot="tabs"][data-variant="line"] [data-slot="tabs-tab"]::after {
     content: "";
@@ -66,6 +70,30 @@
   }
   [data-slot="tabs"][data-variant="line"] [data-slot="tabs-tab"]:is([data-selected], [aria-current="page"])::after { opacity: 1; }
   [data-slot="tabs"][data-variant="line"][data-orientation="vertical"] [data-slot="tabs-tab"]::after { inset-block: 0; inset-inline: auto -5px auto; width: 2px; height: auto; }
+
+  /* The line that slides (runeui--tabs): one element, 1px and scaled to the chosen tab, placed by
+     one transform, 250ms on the ease-out, retargeting mid-move. Hidden until it's measured; the
+     chosen tab's own underline (above) stands in until then. */
+  [data-slot="tabs"][data-variant="line"] [data-slot="tabs-list"] { position: relative; }
+  [data-slot="tabs-indicator"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--foreground);
+    transform-origin: 0 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: transform var(--ui-duration-move) var(--ui-ease-out);
+  }
+  [data-slot="tabs"][data-orientation="vertical"] [data-slot="tabs-indicator"] { width: 2px; height: 1px; }
+  [data-slot="tabs"][data-indicator-ready] [data-slot="tabs-indicator"] { visibility: visible; }
+  [data-slot="tabs"][data-indicator-ready][data-variant="line"] [data-slot="tabs-tab"]::after { display: none; }
+  @media (forced-colors: active) {
+    [data-slot="tabs-indicator"] { background: CanvasText; }
+  }
 
   [data-slot="tabs-panel"] { display: block; flex: 1; font-size: var(--ui-text-sm); outline: none; }
   [data-slot="tabs-panel"]:focus-visible { border-radius: var(--ui-radius-md); box-shadow: var(--ui-focus-ring); }

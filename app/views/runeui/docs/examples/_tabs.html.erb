@@ -11,6 +11,14 @@
     { value: "inbox", label: "Inbox", icon: :inbox, content: tag.p("Messages.") },
     { value: "settings", label: "Settings", icon: :settings, content: tag.p("Settings.") }
   ] %>
+<h2>Line, links</h2>
+  <% part = params[:part].presence_in(%w[notes files]) || "notes" %>
+  <%= ui :tabs, variant: :line, id: "tabs-parts", label: "Parts", value: part, tabs: [
+    { value: "notes", label: "Notes", href: runeui_doc_path("tabs", part: "notes"), data: { turbo_frame: "tabs_part" } },
+    { value: "files", label: "Files and folders", href: runeui_doc_path("tabs", part: "files"), data: { turbo_frame: "tabs_part" } }
+  ] do %>
+    <turbo-frame id="tabs_part"><p id="tabs-part-panel">The <%= part %> part.</p></turbo-frame>
+  <% end %>
 <h2>Vertical</h2>
   <%= ui :tabs, orientation: :vertical, label: "Settings", tabs: [
     { value: "general", label: "General", content: tag.p("General settings.") },
