@@ -1,4 +1,4 @@
-<%# locals: (content: nil, trigger: nil, title: nil, description: nil, cancel: nil, action: nil, href: nil, method: nil, params: nil, variant: nil, id: nil, open: nil, confirm_text: nil, confirm_name: nil, confirm_label: nil, **attrs) %>
+<%# locals: (content: nil, trigger: nil, title: nil, description: nil, cancel: nil, action: nil, href: nil, method: nil, params: nil, variant: nil, id: nil, open: nil, confirm_text: nil, confirm_name: nil, confirm_label: nil, size: nil, **attrs) %>
 <%#
   Alert Dialog: a question that needs an answer before anything else (shadcn's Alert Dialog).
   Cancel closes it; the action button closes it too and, with href:, submits a form there
@@ -17,6 +17,9 @@
        confirm_text: project.name, confirm_name: "confirm_name",
        action: "Delete", variant: :destructive, href: project_path(project), method: :delete
 
+  size: :sm for a short question, :lg for more; by default it is as wide as a dialog (32rem). Long
+  names and paths wrap rather than scroll sideways, and it scrolls only when taller than the screen.
+
   The block, when given, goes under the description. trigger: a string makes an outline
   button; markup is used as it is. Without a trigger, give it an id and open it with
   data-runeui-open="that-id" or turbo_stream.ui_open(id).
@@ -33,7 +36,7 @@
   </ui-alert-dialog-trigger>
   <% end %>
   <ui-alert-dialog-backdrop data-slot="alert-dialog-backdrop" hidden></ui-alert-dialog-backdrop>
-  <ui-alert-dialog-content data-slot="alert-dialog-content" data-size="sm" hidden>
+  <ui-alert-dialog-content data-slot="alert-dialog-content"<% if size %> data-size="<%= size %>"<% end %> hidden>
     <div data-slot="dialog-header">
       <% if title %><ui-alert-dialog-title data-slot="alert-dialog-title"><%= title %></ui-alert-dialog-title><% end %>
       <% if description %><ui-alert-dialog-description data-slot="alert-dialog-description"><%= description %></ui-alert-dialog-description><% end %>

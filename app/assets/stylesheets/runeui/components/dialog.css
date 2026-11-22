@@ -21,7 +21,9 @@
     gap: 1rem;
     width: min(calc(100% - 2rem), 32rem);
     max-height: calc(100dvh - 2rem);
+    overflow-x: hidden;
     overflow-y: auto;
+    overflow-wrap: anywhere;
     margin: 0;
     padding: 1.5rem;
     border: 1px solid var(--border);
@@ -34,6 +36,7 @@
     transition: opacity var(--ui-duration-slow) var(--ui-ease), scale var(--ui-duration-slow) var(--ui-ease);
   }
 
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"]) > * { min-width: 0; }
   :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])::backdrop { background: transparent; }
   :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"]):is([data-starting-style], [data-ending-style]) { opacity: 0; scale: 0.95; }
   :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-size="sm"] { width: min(calc(100% - 2rem), 24rem); }
