@@ -1,8 +1,9 @@
-<%# locals: (name:, edit: nil, delete: nil, confirm: nil, verb: nil, content: nil, **attrs) %>
+<%# locals: (name:, edit: nil, delete: nil, confirm: nil, verb: nil, confirm_button: nil, content: nil, **attrs) %>
 <%#
   A ui :data_table row's last cell: its own buttons (the block), then Edit and Delete, quiet
   until the row is hovered. delete: asks first in the confirm dialog (confirm: a line under
-  the question; verb: "Remove", "Revoke"… for "Delete").
+  the question; verb: "Remove", "Revoke"… for "Delete"; confirm_button: the dialog's button, else
+  the verb).
 
     ui :row_actions, name: project.name, edit: edit_project_path(project), delete: project_path(project),
       confirm: "Its tasks go with it."
@@ -15,7 +16,7 @@
       <%= ui :button, href: edit, variant: :ghost, size: :"icon-sm", title: "Edit #{name}", aria: { label: "Edit #{name}" }, content: ui_icon(:pencil) %>
     <% end %>
     <% if delete %>
-      <% question = { turbo_confirm: "#{verb} #{name}?", turbo_confirm_description: confirm, turbo_confirm_button: verb, turbo_confirm_variant: "destructive" }.compact %>
+      <% question = { turbo_confirm: "#{verb} #{name}?", turbo_confirm_description: confirm, turbo_confirm_button: confirm_button || verb, turbo_confirm_variant: "destructive" }.compact %>
       <% if ui_data_table_form? %>
         <%= ui :button, type: :submit, variant: :ghost, size: :"icon-sm", formaction: delete, formmethod: :post, name: "_method", value: "delete",
               title: "#{verb} #{name}", aria: { label: "#{verb} #{name}" }, data: question, content: ui_icon(:trash) %>

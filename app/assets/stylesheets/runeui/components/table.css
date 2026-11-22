@@ -103,6 +103,8 @@
 @layer runeui.components {
   [data-slot="data-table"] { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
   [data-slot="data-table"] [data-slot="table-scroll"] { border: 1px solid var(--border); border-radius: var(--ui-radius-md); }
+  /* In a card, the card is the box. */
+  [data-slot="card"] [data-slot="data-table"] [data-slot="table-scroll"] { border: 0; border-radius: 0; }
   [data-slot="data-table"] [data-slot="table"] :is(th, td):first-child { padding-inline-start: 0.75rem; }
   [data-slot="data-table"] [data-slot="table"] :is(th, td):last-child { padding-inline-end: 0.75rem; }
   [data-slot="data-table-form"] { display: contents; }

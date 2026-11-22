@@ -1,4 +1,4 @@
-<%# locals: (columns:, rows: nil, row: nil, as: nil, row_locals: nil, id: nil, content: nil, page: nil, selectable: nil, bulk: nil, noun: nil, actions: nil, sort: nil, direction: nil, form: nil, empty: nil, actions_label: nil, **attrs) %>
+<%# locals: (columns:, rows: nil, row: nil, as: nil, row_locals: nil, id: nil, content: nil, page: nil, selectable: nil, bulk: nil, noun: nil, actions: nil, sort: nil, direction: nil, form: nil, empty: nil, actions_label: nil, columns_menu: nil, header: true, **attrs) %>
 <%#
   A list of records: ui :table with what an index needs around it. Headers that sort
   (ui :sort_header), a Columns menu in the header's corner (ui :columns_menu, remembered in
@@ -14,7 +14,9 @@
   key names the column's cells (data-column="key", what the Columns menu hides); sort: the key
   ?sort= orders by (the controller reads params[:sort] and params[:direction]; sort:/direction:
   here say which is current when they aren't those params); align: :end for numbers; hideable:
-  false keeps a column out of the Columns menu. The naming column (grow: true, else the first
+  false keeps a column out of the Columns menu, which shows when more than one column can be hidden
+  on a table that sorts (columns_menu: true or false to say otherwise; the corner cell stays either
+  way, so rows keep their trailing cell). header: false keeps the header row for screen readers only. The naming column (grow: true, else the first
   that can't be hidden) takes the width the others leave and cuts a long name short.
 
   row is a partial rendering one <tr> per record, as: its local, row_locals: what every row
@@ -41,7 +43,8 @@
 <% columns = columns.map { it.is_a?(Hash) ? ui_column(it[:key], it[:label], **it.except(:key, :label)) : it } %>
 <% hideable = columns.select(&:hideable) %>
 <% grow = columns.find(&:grow) || columns.find { !it.hideable } || columns.first %>
-<% menu = hideable.size > 1 %>
+<% corner = hideable.size > 1 %>
+<% menu = corner && (columns_menu.nil? ? columns.any?(&:sort) : columns_menu) %>
 <% base = id.presence || "table" %>
 <% current = sort.nil? ? params[:sort] : sort %>
 <% now = direction.nil? ? params[:direction] : direction %>
@@ -50,7 +53,7 @@
 <% table = ui_within_data_table_form(inside_form) do %>
   <% capture do %>
   <%= ui :table, id: (id ? "#{id}_table" : nil), selectable: selectable, noun: noun, bulk: bulk, columns: (base if menu) do %>
-    <thead>
+    <thead<% unless header %> class="ui-sr-only"<% end %>>
       <tr>
         <% if selectable %>
           <%= ui :select_cell, all: true, label: "Select every row on this page" %>
@@ -66,7 +69,7 @@
         <% end %>
         <% if menu %>
           <th data-align="end" data-slot="table-corner"><%= ui :columns_menu, columns: hideable.map { [ it.label, it.key ] } %></th>
-        <% elsif actions %>
+        <% elsif actions || corner %>
           <th data-slot="table-corner"><span class="ui-sr-only"><%= actions_label || "Actions" %></span></th>
         <% end %>
       </tr>
