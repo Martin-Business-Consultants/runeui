@@ -335,6 +335,86 @@ await check("confirm: the dialog gets the question in payloadchange's detail.val
   assert(await answer === true, "agreeing didn't resolve true (the Close part's value=\"confirm\")")
 })
 
+await check("tabs: arrow keys fire valuechange with the list-navigation reason and move data-selected [tabs_controller instant]", async () => {
+  await reset()
+  await page.focus("#c-tabs ui-tabs-tab[value=one] button")
+  await page.keyboard.press("ArrowRight")
+  await settle()
+  const reasons = await page.evaluate(() => window.seen.filter((e) => e.type === "valuechange" && e.id === "c-tabs").map((e) => e.detail))
+  assert(reasons.length >= 1 && reasons.at(-1).keys.includes("reason"), `valuechange detail ${JSON.stringify(reasons)}`)
+  const reason = await page.evaluate(() => new Promise((resolve) => {
+    const tabs = document.getElementById("c-tabs")
+    tabs.addEventListener("valuechange", (event) => resolve(event.detail.reason), { once: true, capture: true })
+    document.querySelector("#c-tabs ui-tabs-tab[value=two] button").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }))
+  }))
+  assert(reason === "list-navigation", `the keyboard's reason is ${reason}`)
+  assert(await page.evaluate(() => document.querySelector("#c-tabs ui-tabs-tab[value=one] button").hasAttribute("data-selected")), "data-selected isn't on the chosen tab's button")
+})
+
+await check("carousel: --carousel-progress on the root; api.getPageCount, getProgress, setPage [carousel_controller, carousel.css worm]", async () => {
+  const state = await page.evaluate(async () => {
+    const carousel = document.getElementById("c-carousel")
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    const api = carousel.api
+    const count = api?.getPageCount?.()
+    api?.setPage?.(2)
+    await new Promise((resolve) => setTimeout(resolve, 800))
+    return { count, progress: api?.getProgress?.(), variable: carousel.style.getPropertyValue("--carousel-progress") }
+  })
+  assert(state.count === 3, `getPageCount() is ${state.count}`)
+  assert(Math.abs(state.progress - 0.5) < 0.01 && Math.abs(Number(state.variable) - 0.5) < 0.01, `progress ${state.progress}, --carousel-progress ${state.variable}`)
+})
+
+await check("alert dialog: openchange's detail.returnValue is the Close part's value [hold_controller]", async () => {
+  const returned = page.evaluate(() => new Promise((resolve) => {
+    const dialog = document.getElementById("c-alert")
+    dialog.addEventListener("openchange", function listen(event) { if (!event.detail.value) { dialog.removeEventListener("openchange", listen, true); resolve(event.detail.returnValue) } }, true)
+    dialog.open = true
+  }))
+  await page.waitForSelector("#c-alert ui-alert-dialog-content:not([hidden])")
+  await page.click("[data-contract=alert-confirm]")
+  assert(await returned === "confirm", `returnValue is ${await returned}`)
+  // The page is inert until the modal has finished closing.
+  await page.waitForSelector("#c-alert ui-alert-dialog-content[hidden]", { state: "attached" })
+})
+
+await check("radio group: valuechange carries the value; the chosen radio gets data-checked [gooey_controller]", async () => {
+  await reset()
+  await page.click("#c-radio ui-radio[value=b]")
+  await settle()
+  const event = (await seen("valuechange", "c-radio")).pop()
+  assert(event?.detail?.value === "b", `valuechange detail ${JSON.stringify(event?.detail)}`)
+  assert(await page.evaluate(() => document.querySelector("#c-radio ui-radio[value=b]").hasAttribute("data-checked")), "no data-checked on the chosen radio")
+})
+
+await check("slider: the format property sets what the value shows and aria-valuetext [_slider format:]", async () => {
+  const state = await page.evaluate(async () => {
+    const slider = document.getElementById("c-format")
+    slider.format = { style: "unit", unit: "percent" }
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    return { text: slider.querySelector("ui-slider-value").textContent, said: slider.querySelector("input")?.getAttribute("aria-valuetext") }
+  })
+  assert(/40\s?%/.test(state.text) && /40\s?%/.test(state.said ?? ""), JSON.stringify(state))
+})
+
+await check("progress, meter: --progress-value and --meter-value on the root, as percentages [progress.css, meter.css]", async () => {
+  const values = await page.evaluate(() => [ getComputedStyle(document.getElementById("c-progress")).getPropertyValue("--progress-value").trim(), getComputedStyle(document.getElementById("c-meter")).getPropertyValue("--meter-value").trim() ])
+  assert(values[0] === "40%" && values[1] === "30%", `values are ${values}`)
+})
+
+await check("resizable: a handle marks data-hovering under the pointer and data-dragging while dragged [resizable.css grip]", async () => {
+  await page.locator("#c-resizable").scrollIntoViewIfNeeded()
+  const box = await page.locator("#c-resizable ui-resizable-handle").boundingBox()
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await settle()
+  const hovering = await page.locator("#c-resizable ui-resizable-handle").getAttribute("data-hovering")
+  await page.mouse.down()
+  await page.mouse.move(box.x + 20, box.y + box.height / 2, { steps: 3 })
+  const dragging = await page.locator("#c-resizable ui-resizable-handle").getAttribute("data-dragging")
+  await page.mouse.up()
+  assert(hovering !== null && dragging !== null, `data-hovering ${hovering}, data-dragging ${dragging}`)
+})
+
 await check("toasts: toast.success renders in the region from its template, typed [feedback.js, _toaster, toast.css]", async () => {
   await page.evaluate(async () => { const { toast } = await import("runeui"); toast.success("Contract toast", { description: "Detail" }) })
   await page.waitForSelector("#runeui-toaster ui-toast", { timeout: 4000 })

@@ -22,6 +22,10 @@ live with Turbo.
 - **Stimulus where Rails developers expect it.** The pieces runeui adds itself (sidebar, row
   selection, board, side panel, forms that submit as they change) are Stimulus controllers
   (`runeui--sidebar`…), wired by their partials, yours to extend.
+- **Motion that feels right.** Presses that give, labels that swap without changing width, a
+  hold-to-confirm button, a tab line that slides and turns mid-move, drops that pour: transform
+  and opacity on interruptible transitions, hover only where there's a mouse, keyboard changes
+  instant, and reduced motion respected (adapted from [microinteractions.dev](https://microinteractions.dev)).
 - **Herb and ReActionView clean.** Every partial has strict locals and lints clean, and every
   component renders identically under ReActionView and keeps its state through `herb:state`
   changes (tested on every gallery page).
@@ -96,6 +100,30 @@ merged: classes join, `data-action` and `data-controller` add to the component's
 | Typed to confirm | `ui :alert_dialog, confirm_text: project.name, …`: the action stays off until they've typed it. |
 | Toasts | The flash (`ui_flash_toasts`), `turbo_stream.ui_toast("Saved", type: :success, description: "…")`, `data-runeui-toast='{"title": "Copied"}'` on a button, or `toast()` from `import { toast } from "runeui"`. From the server a toast can carry a button: `action: { label: "Undo", url: removal_path(removal), method: :delete }` sends that request, `action: { label: "Open", href: … }` goes to a page; `duration:` is how long it stays (ms; `0` until closed, as an alert from the flash does). A flash message may be a hash with the same options. |
 | Opening from elsewhere | `data-runeui-open="dialog-id"` on any button, `turbo_stream.ui_open(id)` / `ui_close(id)`, or `element.open = true`. |
+
+## Motion
+
+The kit's motion comes from [microinteractions.dev](https://microinteractions.dev)'s studies (Juan
+Di Nella, MIT; see NOTICE), adapted to UI SDK's elements. It reads tokens you can retune in your own
+CSS: `--ui-ease-out` (UI response), `--ui-ease-in-out` (things that travel), `--ui-ease-press`,
+`--ui-ease-travel` (a panel on its way to its height), and `--ui-duration-fast` (120ms),
+`--ui-duration-press` (160ms), `--ui-duration-move` (250ms), `--ui-duration-travel` (300ms).
+`--ui-ease` is the ease-out and `--ui-duration` stays 150ms. Hover effects apply only to a fine
+pointer, keyboard-driven changes land at once, and with `prefers-reduced-motion` nothing moves
+(a crossfade at most; a hold button's fill, which measures time, still runs).
+
+| | |
+| --- | --- |
+| `ui :button` | Gives a little when pressed. `swap: "macOS · 42 MB"` slides a second label in on hover (at once on keyboard focus) in the same width. `variant: :link` underlines as a plucked string (`runeui--pluck`). |
+| `ui :hold_button` | A destructive action confirmed by holding it (`duration:`, 1200ms): a linear fill, cancelled by letting go, Escape, blur or a hidden tab; Space and Enter hold too; a click with no press behind it asks in an alert dialog. Fires `holdconfirm`; with `href:`/`method:`/`params:` submits through Turbo. `holding:`, `done:`, `variant: :default`. (`runeui--hold`) |
+| `ui :tabs, variant: :line` | One line slides to the chosen tab and turns mid-move; instant from the keyboard; link tabs' line travels when one loads a Turbo Frame. (`runeui--tabs`) |
+| `ui :slider, show_value: true` | The value rides over the thumb, kept inside the slider at the ends (anchor positioning); `format:` (Intl.NumberFormat options) for what it shows and what screen readers hear. |
+| `ui :carousel, indicators: true` | A worm stretches from dot to dot with the scroll; drag across the dots to scrub. (`runeui--carousel`) |
+| `ui :radio_group, variant: :gooey` | The dot pours into the radio chosen. (`runeui--gooey`) |
+| `ui :resizable` | A grip appears where the pointer meets a handle; `step:`, `large_step:`, panels' `collapsible:`. (`runeui--resizable`) |
+| `ui :table, selectable: true` | Drag down the checkbox column to pick (or clear) a range. |
+| `ui :board` | Cards lift out, the column closes up, neighbours part around the line, and a drop glides into place. |
+| Accordion, collapsible | Panels travel to their height with their text arriving from behind; chevrons grow into arrows on hover (`ui_icon "chevron-down-arrow"`, and `-up`, `-left`, `-right`, for your own). |
 
 ## App pieces
 
@@ -222,4 +250,5 @@ runeui's own code assumes about UI SDK, so a breaking release fails there by nam
 
 ## Licence
 
-MIT. Includes UI SDK (Apache-2.0) and Lucide's icon shapes (ISC); see [NOTICE](NOTICE).
+MIT. Includes UI SDK (Apache-2.0) and Lucide's icon shapes (ISC), and adapts microinteractions.dev's
+studies (MIT, Juan Di Nella); see [NOTICE](NOTICE).

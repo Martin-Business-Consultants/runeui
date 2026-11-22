@@ -69,3 +69,56 @@
   <ui-popover-trigger><button type="button">Popover</button></ui-popover-trigger>
   <ui-popover-content hidden>Inside</ui-popover-content>
 </ui-popover>
+
+<%# What the motion controllers lean on (runeui--tabs, --carousel, --hold, --gooey, --resizable; progress.css, meter.css, _slider format:). %>
+<ui-tabs id="c-tabs" default-value="one">
+  <ui-tabs-list aria-label="Contract tabs">
+    <ui-tabs-tab value="one"><button type="button">One</button></ui-tabs-tab>
+    <ui-tabs-tab value="two"><button type="button">Two</button></ui-tabs-tab>
+  </ui-tabs-list>
+  <ui-tabs-panel value="one">First</ui-tabs-panel>
+  <ui-tabs-panel value="two">Second</ui-tabs-panel>
+</ui-tabs>
+
+<ui-carousel id="c-carousel" aria-label="Contract carousel">
+  <ui-carousel-viewport>
+    <ui-carousel-content>
+      <ui-carousel-item>1</ui-carousel-item>
+      <ui-carousel-item>2</ui-carousel-item>
+      <ui-carousel-item>3</ui-carousel-item>
+    </ui-carousel-content>
+  </ui-carousel-viewport>
+  <ui-carousel-indicator-group aria-label="Slides">
+    <ui-carousel-indicator><button type="button" aria-label="Slide 1"></button></ui-carousel-indicator>
+    <ui-carousel-indicator><button type="button" aria-label="Slide 2"></button></ui-carousel-indicator>
+    <ui-carousel-indicator><button type="button" aria-label="Slide 3"></button></ui-carousel-indicator>
+  </ui-carousel-indicator-group>
+</ui-carousel>
+
+<ui-alert-dialog id="c-alert">
+  <ui-alert-dialog-backdrop hidden></ui-alert-dialog-backdrop>
+  <ui-alert-dialog-content hidden>
+    <ui-alert-dialog-title>Sure?</ui-alert-dialog-title>
+    <ui-alert-dialog-close><button type="button">Cancel</button></ui-alert-dialog-close>
+    <ui-alert-dialog-close value="confirm"><button type="button" data-contract="alert-confirm">Yes</button></ui-alert-dialog-close>
+  </ui-alert-dialog-content>
+</ui-alert-dialog>
+
+<ui-radio-group id="c-radio" name="radio" default-value="a">
+  <label><ui-radio value="a"><ui-radio-indicator></ui-radio-indicator></ui-radio>A</label>
+  <label><ui-radio value="b"><ui-radio-indicator></ui-radio-indicator></ui-radio>B</label>
+</ui-radio-group>
+
+<ui-slider id="c-format" default-value="40" aria-label="Formatted">
+  <ui-slider-value></ui-slider-value>
+  <ui-slider-control><ui-slider-track><ui-slider-indicator></ui-slider-indicator><ui-slider-thumb aria-label="Formatted"></ui-slider-thumb></ui-slider-track></ui-slider-control>
+</ui-slider>
+
+<ui-progress id="c-progress" value="40" aria-label="Progress"><ui-progress-track><ui-progress-indicator></ui-progress-indicator></ui-progress-track></ui-progress>
+<ui-meter id="c-meter" value="30" aria-label="Meter"><ui-meter-track><ui-meter-indicator></ui-meter-indicator></ui-meter-track></ui-meter>
+
+<ui-resizable id="c-resizable" class="runeui-docs__w-60">
+  <ui-resizable-panel id="c-panel-a" default-size="50">A</ui-resizable-panel>
+  <ui-resizable-handle aria-label="Resize"></ui-resizable-handle>
+  <ui-resizable-panel id="c-panel-b">B</ui-resizable-panel>
+</ui-resizable>

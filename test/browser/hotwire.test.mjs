@@ -84,6 +84,8 @@ await check("…and agreeing submits", async () => {
   await page.waitForSelector("#runeui-confirm [data-slot=alert-dialog-content]:not([hidden])", { timeout: 3000 })
   await page.click("#runeui-confirm [data-confirm-accept]")
   await page.waitForFunction(() => document.querySelector("#saves").textContent === "3", null, { timeout: 3000 })
+  // The page is inert until the modal has finished closing.
+  await page.waitForSelector("#runeui-confirm [data-slot=alert-dialog-content][hidden]", { state: "attached", timeout: 3000 })
 })
 
 await check("a lazy frame's component upgrades", async () => {

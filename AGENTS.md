@@ -22,7 +22,7 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
 | `forms.js` | fires native `change`/`input` when a form-associated component's value moves |
 | `feedback.js` | toasts (flash, `ui_toast`, `toast()`) and `data-turbo-confirm` through the alert dialog |
 | `theme.js` | `.dark` on `<html>`, `data-runeui-theme` buttons |
-| `controllers/*_controller.js` | Stimulus controllers, registered as `runeui--<name>` (`controllers/index.js`): sidebar, selection, columns, board, autosubmit, filter, side-panel |
+| `controllers/*_controller.js` | Stimulus controllers, registered as `runeui--<name>` (`controllers/index.js`): sidebar, selection, columns, board, autosubmit, filter, side-panel, hold, pluck, tabs, carousel, resizable, gooey |
 | `props.js` | `data-props` JSON → element properties; an image cropper's crop → its hidden fields |
 | `remote.js`, `command.js`, `triggers.js` | server search (`src:`), commands that visit (`href:`), a trigger menu's triggers from markup |
 | `agent.js` | UI SDK's agent bridge over WebMCP, opt-in |
@@ -75,6 +75,13 @@ makes them live with Turbo. README.md is the user's guide; this is how the kit i
    `data-size` and `data-variant` values are dasherized (`:icon_xs` → `icon-xs`).
    Tints are `color-mix(in oklab, …)`, never `in oklch`: the neutral tokens are `oklch(L 0 0)`,
    and mixing them in oklch drags a colour's hue to 0 (everything goes pink).
+   Motion follows the tokens (`--ui-ease-out` for a response, `--ui-ease-in-out` for travel,
+   `--ui-duration-*`): animate transform and opacity (never width, left or font-weight), with
+   transitions that retarget rather than keyframes; hover rules sit in
+   `@media (hover: hover) and (pointer: fine)`; keyboard-driven changes land at once;
+   base.css stops all motion under reduced motion, and a component that keeps a crossfade (or a
+   fill that measures time) says so with `!important` in its own sheet. Give forced colours a
+   fallback where a part is drawn with a background.
 8. **The example**, `app/views/runeui/docs/examples/_<name>.html.erb` (`<%# locals: () %>`): the
    common cases, and a form posting to `runeui_echo_path("<name>")` with `data-turbo-stream` for a
    form control, which answers with a toast of what it received.
