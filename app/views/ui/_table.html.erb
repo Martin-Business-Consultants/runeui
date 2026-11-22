@@ -18,7 +18,9 @@
   selectable: true lets rows be picked (the runeui--selection Stimulus controller): a
   ui :select_cell in each row and, all: true, in the header; bulk: is the ui :bulk_bar shown
   while any are, and noun: what it counts ("3 projects selected"). Put it in a form and the
-  picked rows submit as ids[].
+  picked rows submit as ids[]. Press a row's checkbox cell and drag down the column to set the
+  rows you pass (all picked, or all cleared if the first was picked), a band showing the range;
+  Escape or losing the pointer puts them back.
 
   columns: "projects" lets columns be hidden (the runeui--columns Stimulus controller): a
   ui :columns_menu somewhere in it ticks them, cells say which column they're in with
@@ -31,5 +33,6 @@
       <% if caption %><caption data-slot="table-caption"><%= caption %></caption><% end %>
       <%= content %>
     <% end %>
+    <% if selectable %><span data-slot="table-select-band" data-runeui--selection-target="band" aria-hidden="true"><span data-slot="table-select-band-cap"></span><span data-slot="table-select-band-body"></span><span data-slot="table-select-band-cap"></span></span><% end %>
   </div>
 <% end %>
