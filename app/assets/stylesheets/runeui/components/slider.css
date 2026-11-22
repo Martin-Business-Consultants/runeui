@@ -26,7 +26,8 @@
     transition: box-shadow var(--ui-duration);
   }
 
-  [data-slot="slider-thumb"]:is(:hover, :has(:focus-visible), [data-dragging]) { box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 50%, transparent); }
+  [data-slot="slider-thumb"]:is(:has(:focus-visible), [data-dragging]) { box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 50%, transparent); }
+  @media (hover: hover) and (pointer: fine) { [data-slot="slider-thumb"]:hover { box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 50%, transparent); } }
 
   /* Before upgrade: the server's percentages. */
   ui-slider-indicator:not(:defined) { left: calc(attr(data-start type(<number>), 0) * 1%); right: calc(100% - attr(data-end type(<number>), 0) * 1%); }
@@ -40,4 +41,59 @@
 
 @layer runeui.components {
   [data-slot="slider"][aria-invalid="true"] [data-slot="slider-thumb"] { border-color: var(--destructive); }
+}
+
+/* show_value: the value riding over the thumb (after microinteractions.dev's edge-aware tooltip).
+   Anchored to the thumb (a range's to the span between its thumbs) and centred on it with
+   justify-self: anchor-center, which shifts it inward rather than past the slider's edge; the
+   arrow is placed on its own, at the anchor's centre, so it stays on the thumb when the label
+   stops. It follows the value with no transition at all: a label that lags misreports it. The
+   anchor name is scoped to each slider, so every slider finds its own thumb. Without anchor
+   positioning the value stays where it was, at the end of the row. */
+@layer runeui.components {
+  [data-slot="slider-value-arrow"] { display: none; }
+
+  @supports (position-anchor: --a) and (justify-self: anchor-center) and (anchor-scope: --a) {
+    [data-slot="slider"]:has(> [data-slot="slider-value-arrow"]):not([data-orientation="vertical"]) {
+      position: relative;
+      padding-top: 2rem;
+      anchor-scope: --ui-slider-value;
+    }
+    [data-slot="slider"]:not([data-range]) [data-slot="slider-thumb"],
+    [data-slot="slider"][data-range] [data-slot="slider-indicator"] { anchor-name: --ui-slider-value; }
+    [data-slot="slider"]:not([data-orientation="vertical"]) > [data-slot="slider-value"] {
+      position: absolute;
+      top: 0;
+      position-anchor: --ui-slider-value;
+      justify-self: anchor-center;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--ui-radius-md);
+      background: var(--primary);
+      color: var(--primary-foreground);
+      font-size: var(--ui-text-xs);
+      font-weight: 500;
+      line-height: 1.25rem;
+      white-space: nowrap;
+      transition-property: none;
+    }
+    [data-slot="slider"]:not([data-orientation="vertical"]) > [data-slot="slider-value-arrow"] {
+      position: absolute;
+      top: calc(1.5rem - 4px);
+      left: calc(anchor(--ui-slider-value center) - 4px);
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      rotate: 45deg;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      pointer-events: none;
+      transition-property: none;
+    }
+    [data-slot="slider"][data-disabled] > :is([data-slot="slider-value"], [data-slot="slider-value-arrow"]) { opacity: 0.5; }
+  }
+
+  @media (forced-colors: active) {
+    [data-slot="slider"] > [data-slot="slider-value"] { border: 1px solid CanvasText; }
+    [data-slot="slider"] > [data-slot="slider-value-arrow"] { background: CanvasText; }
+  }
 }

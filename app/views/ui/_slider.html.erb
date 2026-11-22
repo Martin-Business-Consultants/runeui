@@ -1,20 +1,26 @@
-<%# locals: (name: nil, value: nil, min: nil, max: nil, step: nil, id: nil, disabled: nil, invalid: nil, form: nil, orientation: nil, show_value: nil, thumb_labels: nil, **attrs) %>
+<%# locals: (name: nil, value: nil, min: nil, max: nil, step: nil, id: nil, disabled: nil, invalid: nil, form: nil, orientation: nil, show_value: nil, format: nil, thumb_labels: nil, **attrs) %>
 <%#
   Slider: a number, or a range with value: [low, high] (two thumbs). Submits the number, or a
   range as "low/high". Name each thumb for screen readers: aria: { label: } on the slider for one
-  thumb, thumb_labels: for a range. show_value: true prints the value above the track.
+  thumb, thumb_labels: for a range. show_value: true prints the value above the track, riding
+  over the thumb (a range's over the span between its thumbs), kept inside the slider at either
+  end while its arrow stays on the thumb, with no lag (where anchor positioning isn't there, at
+  the end of the row instead). format: Intl.NumberFormat options for what it shows and what
+  screen readers hear (aria-valuetext): { style: "unit", unit: "percent" }, { style: "currency",
+  currency: "EUR" }.
 
     ui :slider, name: "volume", value: 50, aria: { label: "Volume" }
     ui :slider, name: "price", value: [20, 80], min: 0, max: 100, step: 5, thumb_labels: ["Minimum price", "Maximum price"]
     form.ui :slider, :volume, max: 11
+    ui :slider, name: "opacity", value: 60, show_value: true, format: { style: "unit", unit: "percent" }, aria: { label: "Opacity" }
 %>
 <% values = Array(value.nil? ? (min || 0) : value).map { |v| v.is_a?(String) && v.include?("/") ? v.split("/") : v }.flatten.map { |v| v.to_s.include?(".") ? v.to_f : v.to_i } %>
 <% low = (min || 0).to_f %>
 <% high = (max || 100).to_f %>
 <% percent = ->(v) { (((v - low) / (high - low)) * 100).clamp(0, 100).round(2) } %>
 <% labels = Array(thumb_labels) %>
-<%= ui_tag(:ui_slider, { id: ui_id("slider", id, name: name), name: name, "default-value": values.join("/"), min: min, max: max, step: step, disabled: (disabled ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "slider", orientation: (orientation || "horizontal").to_s }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
-  <% if show_value %><ui-slider-value data-slot="slider-value" data-label="<%= values.join(" – ") %>"></ui-slider-value><% end %>
+<%= ui_tag(:ui_slider, { id: ui_id("slider", id, name: name), name: name, "default-value": values.join("/"), min: min, max: max, step: step, disabled: (disabled ? "" : nil), form: form, orientation: orientation&.to_s, data: { slot: "slider", orientation: (orientation || "horizontal").to_s, range: (values.size > 1 ? "" : nil), props: (format ? { format: format }.to_json : nil) }, aria: { invalid: (invalid ? "true" : nil) } }, attrs) do %>
+  <% if show_value %><ui-slider-value data-slot="slider-value" data-label="<%= values.join(" – ") %>"></ui-slider-value><span data-slot="slider-value-arrow" aria-hidden="true"></span><% end %>
   <ui-slider-control data-slot="slider-control">
     <ui-slider-track data-slot="slider-track">
       <ui-slider-indicator data-slot="slider-indicator" data-start="<%= values.size > 1 ? percent.(values.first) : 0 %>" data-end="<%= percent.(values.last) %>"></ui-slider-indicator>

@@ -1,6 +1,7 @@
 <%# locals: () %>
 <form class="runeui-docs__stack runeui-docs__w-60" action="<%= runeui_echo_path("slider") %>" method="post" data-turbo-stream>
   <%= ui :slider, name: "volume", id: "volume", value: 50, aria: { label: "Volume" } %>
+  <%= ui :slider, name: "opacity", id: "opacity", value: 92, show_value: true, format: { style: "unit", unit: "percent" }, aria: { label: "Opacity" } %>
   <%= ui :field, label: "Price" do %>
     <%= ui :slider, name: "price", id: "price", value: [ 20, 80 ], step: 5, show_value: true, thumb_labels: [ "Minimum price", "Maximum price" ] %>
   <% end %>
