@@ -1,0 +1,8 @@
+<%# locals: (task:) %>
+<tr>
+  <%= ui :select_cell, value: task[:id], label: task[:title], checkbox: { data: { keys: "x" } } %>
+  <td data-column="title" data-grow><%= task[:title] %></td>
+  <td data-column="status"><%= ui :badge, variant: (task[:status] == "Done" ? :success : :secondary), content: task[:status] %></td>
+  <td data-column="due" data-align="end"><%= task[:due] %></td>
+  <%= ui :row_actions, name: task[:title], edit: "#", delete: runeui_echo_path("data_table"), confirm: "It goes for good." %>
+</tr>

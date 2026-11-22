@@ -1,6 +1,7 @@
 require "runeui/version"
 require "runeui/icons"
 require "runeui/attributes"
+require "runeui/column"
 require "runeui/helper"
 require "runeui/form_builder"
 require "runeui/turbo_stream_actions"

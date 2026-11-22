@@ -1,0 +1,103 @@
+<%# locals: (columns:, rows: nil, row: nil, as: nil, row_locals: nil, id: nil, content: nil, page: nil, selectable: nil, bulk: nil, noun: nil, actions: nil, sort: nil, direction: nil, form: nil, empty: nil, actions_label: nil, **attrs) %>
+<%#
+  A list of records: ui :table with what an index needs around it. Headers that sort
+  (ui :sort_header), a Columns menu in the header's corner (ui :columns_menu, remembered in
+  this browser), a checkbox column and the bulk bar while rows are picked (ui :select_cell,
+  ui :bulk_bar), and the pages underneath (ui :pagination with "21–40 of 87").
+
+    ui :data_table, id: "projects", rows: @projects, row: "projects/row", as: :project, page: @page,
+      columns: [ ui_column(:name, "Name", sort: :name, hideable: false), ui_column(:status, "Status", sort: :status),
+                 ui_column(:due, "Due", sort: :due_on, align: :end) ],
+      selectable: true, noun: "project", actions: true, bulk: ui(:bulk_bar) { … }
+
+  columns: ui_column(key, label, sort:, align:, hideable:, grow:) each (or hashes with those keys).
+  key names the column's cells (data-column="key", what the Columns menu hides); sort: the key
+  ?sort= orders by (the controller reads params[:sort] and params[:direction]; sort:/direction:
+  here say which is current when they aren't those params); align: :end for numbers; hideable:
+  false keeps a column out of the Columns menu. The naming column (grow: true, else the first
+  that can't be hidden) takes the width the others leave and cuts a long name short.
+
+  row is a partial rendering one <tr> per record, as: its local, row_locals: what every row
+  shares. Its cells, in order: ui :select_cell, value: record.id, label: record.name when
+  selectable; a <td data-column="key"> per column (data-grow on the naming one); then
+  ui :row_actions when actions: true, or an empty <td></td> when the corner holds the Columns
+  menu (actions_label: names that column for screen readers). Or pass the rows yourself as the
+  block (content).
+
+  selectable: true with bulk: wraps the table in a form (form: its options for form_with, else
+  to this page): each bulk button names where it goes, and the picked rows submit as ids[].
+  A row's Delete (ui :row_actions) is then a button of that form rather than a form of its own.
+
+    ui :bulk_bar do
+      ui :button, variant: :outline, size: :sm, content: "Archive", formaction: archive_projects_path
+      ui :button, variant: :destructive, size: :sm, content: "Delete", formaction: projects_bulk_path, name: "_method", value: "delete",
+        data: { turbo_confirm: "Delete them?", turbo_confirm_variant: "destructive" }
+    end
+
+  page: anything with number, page_count, per_page and records_count (one page's worth of a
+  list); pages show under the table when there is more than one. empty: what to show instead
+  of the table when there are no rows (a ui :empty).
+%>
+<% columns = columns.map { it.is_a?(Hash) ? ui_column(it[:key], it[:label], **it.except(:key, :label)) : it } %>
+<% hideable = columns.select(&:hideable) %>
+<% grow = columns.find(&:grow) || columns.find { !it.hideable } || columns.first %>
+<% menu = hideable.size > 1 %>
+<% base = id.presence || "table" %>
+<% current = sort.nil? ? params[:sort] : sort %>
+<% now = direction.nil? ? params[:direction] : direction %>
+<% none = content.blank? && rows.respond_to?(:none?) && rows.none? %>
+<% inside_form = selectable && bulk && !(none && empty) %>
+<% table = ui_within_data_table_form(inside_form) do %>
+  <% capture do %>
+  <%= ui :table, id: (id ? "#{id}_table" : nil), selectable: selectable, noun: noun, bulk: bulk, columns: (base if menu) do %>
+    <thead>
+      <tr>
+        <% if selectable %>
+          <%= ui :select_cell, all: true, label: "Select every row on this page" %>
+        <% end %>
+        <% columns.each do |column| %>
+          <%# herb:key column.key %>
+          <% data = { column: column.key, grow: (true if column.equal?(grow)) }.compact %>
+          <% if column.sort %>
+            <%= ui :sort_header, label: column.label, key: column.sort, sort: current, direction: now, align: column.align, data: data %>
+          <% else %>
+            <%= ui_tag :th, { data: data.merge(align: column.align&.to_s) }, {}, column.label %>
+          <% end %>
+        <% end %>
+        <% if menu %>
+          <th data-align="end" data-slot="table-corner"><%= ui :columns_menu, columns: hideable.map { [ it.label, it.key ] } %></th>
+        <% elsif actions %>
+          <th data-slot="table-corner"><span class="ui-sr-only"><%= actions_label || "Actions" %></span></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody id="<%= id ? "#{id}_rows" : nil %>">
+      <% if content.present? %>
+        <%= content %>
+      <% elsif row %>
+        <%= render partial: row, collection: rows, as: as, locals: row_locals || {} %>
+      <% end %>
+    </tbody>
+  <% end %>
+  <% end %>
+<% end %>
+<%= ui_tag(:div, { id: (id ? "#{id}_list" : nil), data: { slot: "data-table" } }, attrs) do %>
+  <% if none && empty %>
+    <%= empty %>
+  <% elsif selectable && bulk %>
+    <% options = { url: request.path, method: :post }.merge(form || {}) %>
+    <%= form_with(**options, data: (options[:data] || {}).merge(slot: "data-table-form")) do %>
+      <%= table %>
+    <% end %>
+  <% else %>
+    <%= table %>
+  <% end %>
+  <% if page && page.page_count > 1 %>
+    <% first_row = (page.number - 1) * page.per_page + 1 %>
+    <% last_row = [ page.number * page.per_page, page.records_count ].min %>
+    <div data-slot="data-table-pages">
+      <span data-slot="data-table-summary"><%= first_row %>–<%= last_row %> of <%= page.records_count %></span>
+      <%= ui :pagination, page: page.number, pages: page.page_count, label: "Pages" %>
+    </div>
+  <% end %>
+<% end %>

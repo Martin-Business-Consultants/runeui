@@ -24,7 +24,7 @@ await component("data_table", async (page) => {
   })
   await check("the picked ids submit with the bulk button", async () => {
     await page.locator("tbody ui-checkbox").nth(1).click(); await page.waitForTimeout(100)
-    const data = await page.evaluate(() => [ ...new FormData(document.querySelector("form.runeui-docs__stack"), document.querySelector("[name=bulk][value=done]")) ])
+    const data = await page.evaluate(() => [ ...new FormData(document.querySelector("form[data-slot=data-table-form]"), document.querySelector("[name=bulk][value=done]")) ])
     assert(JSON.stringify(data) === JSON.stringify([ [ "ids[]", "2" ], [ "bulk", "done" ] ]) || data.some(([ k, v ]) => k === "ids[]"), JSON.stringify(data))
   })
   await check("the column that names the row takes what's left and cuts a long name short; the table doesn't scroll", async () => {
@@ -36,6 +36,13 @@ await component("data_table", async (page) => {
     assert(!box.scrolls, "the table scrolls sideways")
     assert(box.cut, "the long name isn't cut short")
     assert(box.lines === box.row, `the long name wraps (${box.lines}px against ${box.row}px)`)
+  })
+  await check("each row ends in its actions, and inside the bulk form Delete is a button of it, not a form of its own", async () => {
+    assert(await page.locator("tbody td[data-slot=row-actions]").count() === 4, "rows without actions")
+    assert(await page.locator("form[data-slot=data-table-form] form").count() === 0, "a form inside the form")
+    const button = page.locator("tbody td[data-slot=row-actions] button[name=_method][value=delete]").first()
+    assert(await button.getAttribute("formaction"), "Delete has nowhere to go")
+    assert((await button.getAttribute("data-turbo-confirm")).startsWith("Delete "), "Delete doesn't ask")
   })
   await check("a checkbox takes attributes of its own", async () => {
     assert(await page.locator("tbody ui-checkbox[data-keys=x]").count() === 4, "checkbox: didn't reach the checkboxes")

@@ -97,3 +97,23 @@
   [data-slot="bulk-count"] { font-weight: 500; font-variant-numeric: tabular-nums; }
   [data-slot="bulk-actions"] { display: flex; gap: 0.375rem; margin-inline-start: auto; }
 }
+
+/* A data table (ui :data_table): shadcn's, the table in a bordered box with its pages under it,
+   and a row's own buttons at its end (ui :row_actions), quiet until the row is hovered. */
+@layer runeui.components {
+  [data-slot="data-table"] { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+  [data-slot="data-table"] [data-slot="table-scroll"] { border: 1px solid var(--border); border-radius: var(--ui-radius-md); }
+  [data-slot="data-table"] [data-slot="table"] :is(th, td):first-child { padding-inline-start: 0.75rem; }
+  [data-slot="data-table"] [data-slot="table"] :is(th, td):last-child { padding-inline-end: 0.75rem; }
+  [data-slot="data-table-form"] { display: contents; }
+  [data-slot="table-corner"] { width: 1%; }
+  [data-slot="table-corner"] [data-slot="menu"] { display: inline-flex; margin-block: -0.25rem; font-weight: 400; }
+  [data-slot="data-table-pages"] { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+  [data-slot="data-table-summary"] { color: var(--muted-foreground); font-size: var(--ui-text-sm); font-variant-numeric: tabular-nums; }
+  [data-slot="row-actions"] { width: 1%; }
+  [data-slot="row-actions-list"] { display: flex; align-items: center; justify-content: flex-end; gap: 0.125rem; }
+  @media (hover: hover) and (pointer: fine) {
+    [data-slot="row-actions-list"] > .ui-button { opacity: 0.6; transition: opacity var(--ui-duration); }
+    tr:hover [data-slot="row-actions-list"] > .ui-button, [data-slot="row-actions-list"] > .ui-button:focus-visible { opacity: 1; }
+  }
+}

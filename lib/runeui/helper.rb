@@ -69,6 +69,27 @@ module Runeui
       content_tag(name, content, options)
     end
 
+    # A column of a ui :data_table: key names its cells (data-column), sort: the ?sort= key that
+    # orders by it, align: :end for numbers, hideable: false keeps it out of the Columns menu,
+    # grow: true makes it the one that takes the leftover width.
+    #   ui_column :name, "Name", sort: :name, hideable: false
+    def ui_column(key, label = nil, sort: nil, align: nil, hideable: true, grow: nil)
+      Runeui::Column.new(key: key.to_s, label: label || key.to_s.humanize, sort: sort&.to_s, align: align, hideable: hideable, grow: grow)
+    end
+
+    # Whether a ui :data_table is drawing its rows inside its bulk form (ui :row_actions then
+    # deletes with a button of that form, since forms can't nest).
+    def ui_within_data_table_form(inside)
+      before, @runeui_data_table_form = @runeui_data_table_form, inside
+      yield
+    ensure
+      @runeui_data_table_form = before
+    end
+
+    def ui_data_table_form?
+      @runeui_data_table_form.present?
+    end
+
     # One of runeui's icons (Lucide's shapes, ISC), 16 by 16, stroked with currentColor.
     #   ui_icon :check
     #   ui_icon :search, size: 20, aria: { label: "Search" }

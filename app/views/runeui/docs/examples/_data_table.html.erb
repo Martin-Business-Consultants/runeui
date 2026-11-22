@@ -1,19 +1,13 @@
 <%# locals: () %>
-<% rows = [ [ 1, "Write the launch email", "In progress", "Oct 20" ], [ 2, "Photograph the spring range", "Planned", "Oct 22" ], [ 3, "Landing page copy", "In review", "Oct 18" ], [ 4, "Book the venue for the spring launch party, the one by the river with room for two hundred and a stage for the band", "Done", "Oct 12" ] ] %>
-<% rows = rows.sort_by { it[params[:sort] == "due" ? 3 : 1] } %>
+<% rows = [ [ 1, "Write the launch email", "In progress", "Oct 20" ], [ 2, "Photograph the spring range", "Planned", "Oct 22" ], [ 3, "Landing page copy", "In review", "Oct 18" ], [ 4, "Book the venue for the spring launch party, the one by the river with room for two hundred and a stage for the band", "Done", "Oct 12" ] ].map { |id, title, status, due| { id:, title:, status:, due: } } %>
+<% rows = rows.sort_by { it[params[:sort] == "due" ? :due : :title] } %>
 <% rows = rows.reverse if params[:direction] == "desc" %>
-<form action="<%= runeui_echo_path("data_table") %>" method="post" data-turbo-stream class="runeui-docs__stack runeui-docs__full">
-  <% bar = ui :bulk_bar do %>
-    <%= ui :button, variant: :outline, size: :sm, content: "Mark done", type: :submit, name: "bulk", value: "done" %>
-    <%= ui :button, variant: :destructive, size: :sm, content: "Delete", type: :submit, name: "bulk", value: "delete", data: { turbo_confirm: "Delete these tasks?", turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" } %>
-  <% end %>
-  <%= ui :table, selectable: true, noun: "task", bulk: bar, columns: "docs-tasks" do %>
-    <thead><tr><%= ui :select_cell, all: true %><%= ui :sort_header, label: "Task", key: :title, sort: params[:sort] || "title", direction: params[:direction], data: { grow: true } %><th data-column="status">Status</th><%= ui :sort_header, label: "Due", key: :due, sort: params[:sort], direction: params[:direction], align: :end, data: { column: "due" } %><th data-align="end"><%= ui :columns_menu, columns: [ [ "Status", "status" ], [ "Due", "due" ] ] %></th></tr></thead>
-    <tbody>
-      <% rows.each do |id, title, status, due| %>
-      <%# herb:key id %>
-      <tr><%= ui :select_cell, value: id, label: title, checkbox: { data: { keys: "x" } } %><td data-grow><%= title %></td><td data-column="status"><%= ui :badge, variant: (status == "Done" ? :success : :secondary), content: status %></td><td data-align="end" data-column="due"><%= due %></td><td></td></tr>
-      <% end %>
-    </tbody>
-  <% end %>
-</form>
+<% bar = ui :bulk_bar do %>
+  <%= ui :button, variant: :outline, size: :sm, content: "Mark done", type: :submit, name: "bulk", value: "done" %>
+  <%= ui :button, variant: :destructive, size: :sm, content: "Delete", type: :submit, name: "bulk", value: "delete", data: { turbo_confirm: "Delete these tasks?", turbo_confirm_button: "Delete", turbo_confirm_variant: "destructive" } %>
+<% end %>
+<div class="runeui-docs__full">
+  <%= ui :data_table, id: "docs-tasks", rows: rows, row: "runeui/docs/rows/task", as: :task, selectable: true, noun: "task", bulk: bar,
+        actions: true, sort: params[:sort] || "title", form: { url: runeui_echo_path("data_table"), data: { turbo_stream: true } },
+        columns: [ ui_column(:title, "Task", sort: :title, hideable: false), ui_column(:status, "Status"), ui_column(:due, "Due", sort: :due, align: :end) ] %>
+</div>
